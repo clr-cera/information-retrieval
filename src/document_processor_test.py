@@ -14,3 +14,8 @@ def test_remove_stopwords():
     tokens = ["this", "is", "a", "sample", "document"]
     expected_filtered_tokens = ["sample", "document"]
     assert document_processor.remove_stopwords(tokens) == expected_filtered_tokens
+
+def test_lemmatize():
+    tokens = ["running", "jumps", "easily", "fairly", "better"]
+    expected_lemmatized_tokens = ["run", "jump", "easily", "fairly", "well"]
+    assert document_processor.lemmatize(tokens) == expected_lemmatized_tokens

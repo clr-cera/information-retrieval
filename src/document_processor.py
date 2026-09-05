@@ -1,5 +1,11 @@
 import nltk
+from nltk.corpus import wordnet
 nltk.download("stopwords")
+nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng')
+
 
 def get_index_terms(document: str) -> dict[str, int]:
     """
@@ -8,10 +14,11 @@ def get_index_terms(document: str) -> dict[str, int]:
     Returns:
         term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
     """
-    # Implementation for extracting index terms goes here
-    tokens = tokenize(document)
-    normalized_tokens = normalize(tokens)
-    _filtered_tokens = remove_stopwords(normalized_tokens)
+
+    pipeline = [tokenize, normalize, remove_stopwords]
+    mid_result = document
+    for step in pipeline:
+        mid_result = step(mid_result)
     return {}
 
 def tokenize(document: str) -> list[str]:
@@ -44,3 +51,21 @@ def remove_stopwords(tokens: list[str]) -> list[str]:
     """
     stopwords = set(nltk.corpus.stopwords.words("english"))
     return list(filter(lambda token: token not in stopwords, tokens))
+
+def lemmatize(tokens: list[str]) -> list[str]:
+    """
+    Lemmatizes the list of tokens.
+
+    Returns:
+        lemmatized_tokens (list): A list of lemmatized tokens.
+    """
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    return list(map(lambda token: lemmatizer.lemmatize(token, get_wordnet_pos(token)), tokens))
+
+def get_wordnet_pos(word):
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
+    return tag_dict.get(tag, wordnet.NOUN)
