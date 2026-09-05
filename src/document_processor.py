@@ -6,7 +6,8 @@ def get_index_terms(document: str) -> dict[str, int]:
         term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
     """
     # Implementation for extracting index terms goes here
-    _ = [tokenize, normalize]
+    tokens = tokenize(document)
+    _normalized_tokens = [normalize(token) for token in tokens]
     return {}
 
 def tokenize(document: str) -> list[str]:
