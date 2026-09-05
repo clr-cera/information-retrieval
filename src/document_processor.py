@@ -1,3 +1,6 @@
+import nltk
+nltk.download("stopwords")
+
 def get_index_terms(document: str) -> dict[str, int]:
     """
     Extracts index terms from the document.
@@ -7,7 +10,8 @@ def get_index_terms(document: str) -> dict[str, int]:
     """
     # Implementation for extracting index terms goes here
     tokens = tokenize(document)
-    _normalized_tokens = [normalize(token) for token in tokens]
+    normalized_tokens = normalize(tokens)
+    _filtered_tokens = remove_stopwords(normalized_tokens)
     return {}
 
 def tokenize(document: str) -> list[str]:
@@ -22,11 +26,21 @@ def tokenize(document: str) -> list[str]:
         document.strip().split()
         ))
 
-def normalize(term: str) -> str:
+def normalize(tokens: list[str]) -> list[str]:
     """
     Normalizes a term by converting it to lowercase.
 
     Returns:
-        normalized_term (str): The normalized term.
+        normalized_tokens (list): A list of normalized tokens.
     """
-    return term.lower()
+    return list(map(str.lower, tokens))
+
+def remove_stopwords(tokens: list[str]) -> list[str]:
+    """
+    Removes stopwords from the list of tokens.
+
+    Returns:
+        filtered_tokens (list): A list of tokens with stopwords removed.
+    """
+    stopwords = set(nltk.corpus.stopwords.words("english"))
+    return list(filter(lambda token: token not in stopwords, tokens))

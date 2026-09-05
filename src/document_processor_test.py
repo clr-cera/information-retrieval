@@ -6,6 +6,11 @@ def test_tokenize():
     assert document_processor.tokenize(document) == expected_tokens
 
 def test_normalize():
-    term = "HELLO"
-    expected_normalized_term = "hello"
+    term = ["HELLO"]
+    expected_normalized_term = ["hello"]
     assert document_processor.normalize(term) == expected_normalized_term
+
+def test_remove_stopwords():
+    tokens = ["this", "is", "a", "sample", "document"]
+    expected_filtered_tokens = ["sample", "document"]
+    assert document_processor.remove_stopwords(tokens) == expected_filtered_tokens
