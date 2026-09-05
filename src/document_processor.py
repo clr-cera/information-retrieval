@@ -15,7 +15,7 @@ def get_index_terms(document: str) -> dict[str, int]:
         term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
     """
 
-    pipeline = [tokenize, normalize, remove_stopwords]
+    pipeline = [tokenize, normalize, remove_stopwords, stem]
     mid_result = document
     for step in pipeline:
         mid_result = step(mid_result)
@@ -69,3 +69,13 @@ def get_wordnet_pos(word):
                 "V": wordnet.VERB,
                 "R": wordnet.ADV}
     return tag_dict.get(tag, wordnet.NOUN)
+
+def stem(tokens: list[str]) -> list[str]:
+    """
+    Stems the list of tokens.
+
+    Returns:
+        stemmed_tokens (list): A list of stemmed tokens.
+    """
+    stemmer = nltk.stem.PorterStemmer()
+    return list(map(stemmer.stem, tokens))

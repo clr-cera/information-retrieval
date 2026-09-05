@@ -19,3 +19,8 @@ def test_lemmatize():
     tokens = ["running", "jumps", "easily", "fairly", "better"]
     expected_lemmatized_tokens = ["run", "jump", "easily", "fairly", "well"]
     assert document_processor.lemmatize(tokens) == expected_lemmatized_tokens
+
+def test_stem():
+    tokens = ["running", "jumps", "easily", "fairly", "better"]
+    expected_stemmed_tokens = ["run", "jump", "easili", "fairli", "better"]
+    assert document_processor.stem(tokens) == expected_stemmed_tokens
