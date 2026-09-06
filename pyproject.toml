@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Repo to test Information Retrieval algorithms, following USP classes."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "nltk>=3.10.3",
-    "pytest>=9.1.1",
-]
+dependencies = ["nltk>=3.10.3"]
+
+[dependency-groups]
+dev = ["pytest>=9.1.1", "pytest-cov>=7.1.0"]
