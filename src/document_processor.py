@@ -1,3 +1,6 @@
+from enum import Enum
+from collections import Counter
+
 import nltk
 from nltk.corpus import wordnet
 nltk.download("stopwords")
@@ -6,20 +9,50 @@ nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('averaged_perceptron_tagger_eng')
 
+class PipelineOptions(Enum):
+    NoStopRemovalNoStemming = 1
+    NoStopRemovalWithStemming = 2
+    WithStopRemovalNoStemming = 3
+    WithStopRemovalWithStemming = 4
 
-def get_index_terms(document: str) -> dict[str, int]:
+    def __str__(self):
+        return self.name
+    def __repr__(self):
+        return self.name
+    def __eq__(self, other):
+        if isinstance(other, PipelineOptions):
+            return self.value == other.value
+        return NotImplemented
+    def _to_pipeline(self):
+        if self == PipelineOptions.NoStopRemovalNoStemming:
+            return [tokenize, normalize]
+        elif self == PipelineOptions.NoStopRemovalWithStemming:
+            return [tokenize, normalize, stem]
+        elif self == PipelineOptions.WithStopRemovalNoStemming:
+            return [tokenize, normalize, remove_stopwords]
+        elif self == PipelineOptions.WithStopRemovalWithStemming:
+            return [tokenize, normalize, remove_stopwords, stem]
+        else:
+            raise ValueError(f"Invalid PipelineOption: {self}")
+
+
+def get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]:
     """
     Extracts index terms from the document.
+
+    Args:
+        document (str): The input document.
+        options (PipelineOptions): The pipeline options to use.
 
     Returns:
         term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
     """
 
-    pipeline = [tokenize, normalize, remove_stopwords, stem]
+    pipeline = options._to_pipeline()
     mid_result = document
     for step in pipeline:
         mid_result = step(mid_result)
-    return {}
+    return dict(Counter(mid_result))
 
 def tokenize(document: str) -> list[str]:
     """

@@ -1,5 +1,7 @@
 import document_processor
 
+SAMPLE_DOCUMENT = "This is a sample document. It contains several words!"
+
 def test_tokenize():
     document = "This is a sample document. It contains several words!"
     expected_tokens = ["This", "is", "a", "sample", "document", "It", "contains", "several", "words"]
@@ -24,3 +26,19 @@ def test_stem():
     tokens = ["running", "jumps", "easily", "fairly", "better"]
     expected_stemmed_tokens = ["run", "jump", "easili", "fairli", "better"]
     assert document_processor.stem(tokens) == expected_stemmed_tokens
+
+def test_get_index_terms_freq_with_stopwords_and_stemming():
+    expected_index_terms = {"sampl": 1, "document": 1, "contain": 1, "sever": 1, "word": 1}
+    assert document_processor.get_index_terms_freq(SAMPLE_DOCUMENT, document_processor.PipelineOptions.WithStopRemovalWithStemming) == expected_index_terms
+
+def test_get_index_terms_freq_without_stopwords_and_stemming():
+    expected_index_terms = {"this": 1, "is": 1, "a": 1, "sample": 1, "document": 1, "it": 1, "contains": 1, "several": 1, "words": 1}
+    assert document_processor.get_index_terms_freq(SAMPLE_DOCUMENT, document_processor.PipelineOptions.NoStopRemovalNoStemming) == expected_index_terms
+
+def test_get_index_terms_freq_with_stopwords_without_stemming():
+    expected_index_terms = {"sample": 1, "document": 1, "contains": 1, "several": 1, "words": 1}
+    assert document_processor.get_index_terms_freq(SAMPLE_DOCUMENT, document_processor.PipelineOptions.WithStopRemovalNoStemming) == expected_index_terms
+
+def test_get_index_terms_freq_without_stopwords_with_stemming():
+    expected_index_terms = {"thi": 1, "is": 1, "a": 1, "sampl": 1, "document": 1, "it": 1, "contain": 1, "sever": 1, "word": 1}
+    assert document_processor.get_index_terms_freq(SAMPLE_DOCUMENT, document_processor.PipelineOptions.NoStopRemovalWithStemming) == expected_index_terms
