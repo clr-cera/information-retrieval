@@ -14,7 +14,7 @@ class PostingList:
         self.term_frequencies: dict[str, int] = {}
         # The document_frequencies dictionary maps terms to the number of documents in which they appear (df).
         self.document_frequencies: dict[str, int] = {}
-        # The document_lengths dictionary maps document IDs to the number of unique terms in the document.
+        # The document_lengths dictionary maps document IDs to the number of total terms in the document.
         self.document_lengths: dict[int, int] = {}
 
         self.pipeline_options: PipelineOptions = pipeline_options
@@ -34,7 +34,7 @@ class PostingList:
         # Increase the number of documents in which the term appears
         self.document_frequencies[term] = self.document_frequencies.get(term, 0) + 1
         # Increase the number of unique terms in the document
-        self.document_lengths[doc_id] = self.document_lengths.get(doc_id, 0) + 1
+        self.document_lengths[doc_id] = self.document_lengths.get(doc_id, 0) + frequency
 
     def get_term_frequency(self, term: str) -> int:
         return self.term_frequencies.get(term, 0)
