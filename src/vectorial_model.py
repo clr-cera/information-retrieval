@@ -62,6 +62,7 @@ class VectorialModel:
         document_frequencies = self.posting_list.get_all_document_frequencies()
         ignored = {}
         
+        # Remove unlisted query terms
         for term in query_terms:
             if term not in document_frequencies.keys():
                 query_terms.remove(term)
@@ -72,9 +73,8 @@ class VectorialModel:
 
         # Filters only relevant docs
         for term in query_terms:
-            if term in self.posting_list.postings:
-                for doc_id in self.posting_list.postings[term]:
-                    if doc_id not in doc_vectors: doc_vectors[doc_id] = np.zeros(self.vector_dimension)
+            for doc_id in self.posting_list.postings[term]:
+                if doc_id not in doc_vectors: doc_vectors[doc_id] = np.zeros(self.vector_dimension)
         
         # Creates query and documents frequency vectors (crossing all the existing terms)
         for idx, term in enumerate(self.posting_list.get_vocabulary()):
