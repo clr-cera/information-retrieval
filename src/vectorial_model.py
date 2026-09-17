@@ -21,6 +21,7 @@ class VectorialModel:
         # Index term lookup
         self.term_idx_lookup: dict[str, int] = {}
         self.idx_term_lookup: dict[int, str] = {}
+        self.vocabulary: list[str] = []
 
     def update_total_documents(self):
         """
@@ -32,18 +33,18 @@ class VectorialModel:
         """
         Internal function for vector dimension updating
         """
-        self.vector_dimension = len(self.posting_list.get_all_term_frequencies())
+        self.vector_dimension = len(self.vocabulary)
 
     def update_lookup(self):
         """
         Internal function for lookup dicts updating
         """
-        for idx, term in enumerate(self.posting_list.get_vocabulary()):
-            if term not in self.term_idx_lookup.keys(): 
-                self.term_idx_lookup[term] = idx
-                self.idx_term_lookup[idx] = term
+        self.vocabulary = sorted(self.posting_list.get_vocabulary())
+        for idx, term in enumerate(self.vocabulary):
+            self.term_idx_lookup[term] = idx
+            self.idx_term_lookup[idx] = term
     
-    def execute_query(self, query: str, show_sim_score=False) -> list[int]:
+    def execute_query(self, query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int, float]]:
         """
         Returns a ranking of document ID's
         """
@@ -53,8 +54,8 @@ class VectorialModel:
         
         # Updating
         self.update_total_documents()
-        self.update_vector_dimension()
         self.update_lookup()
+        self.update_vector_dimension()
         
         # Variables
         query_vector = np.zeros(self.vector_dimension)
@@ -63,12 +64,12 @@ class VectorialModel:
         ignored = {}
         
         # Remove unlisted query terms
-        for term in query_terms:
+        for term in list(query_terms):
             if term not in document_frequencies.keys():
                 query_terms.remove(term)
                 ignored[term] = query_result.pop(term, None)
         
-        if len(ignored) != 0:
+        if show_sim_score and len(ignored) != 0:
             print("[Vectorial Model Query] The following tokens were not found in vocabulary: ", ignored)
 
         # Filters only relevant docs
@@ -77,7 +78,7 @@ class VectorialModel:
                 if doc_id not in doc_vectors: doc_vectors[doc_id] = np.zeros(self.vector_dimension)
         
         # Creates query and documents frequency vectors (crossing all the existing terms)
-        for idx, term in enumerate(self.posting_list.get_vocabulary()):
+        for idx, term in enumerate(self.vocabulary):
             if term in query_terms: query_vector[idx] = query_result[term] 
             for doc_id in doc_vectors.keys():
                 if doc_id in self.posting_list.postings[term]: doc_vectors[doc_id][self.term_idx_lookup[term]] = self.posting_list.postings[term][doc_id]
@@ -102,6 +103,9 @@ class VectorialModel:
             print("[Vectorial Model Query] Similarity scores: ", docs_sim)
         
         # Sorts dict in descending order
-        docs_ranking = dict(sorted(docs_sim.items(), key=lambda item: item[1], reverse=True)).keys()
+        docs_ranking = dict(sorted(docs_sim.items(), key=lambda item: item[1], reverse=True))
 
-        return list(docs_ranking)
+        if return_scores:
+            return list(docs_ranking.items())
+
+        return list(docs_ranking.keys())

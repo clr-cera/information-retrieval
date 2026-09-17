@@ -25,7 +25,7 @@ class ProbabilisticModel:
         """
         self.total_documents = len(self.posting_list.document_lengths)
 
-    def execute_query(self, query: str, show_sim_score=False) -> list[int]:
+    def execute_query(self, query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int, float]]:
         """
         Returns a ranking of document ID's
         """
@@ -46,12 +46,12 @@ class ProbabilisticModel:
         ignored = {}
         
         # Remove unlisted query terms
-        for term in query_terms:
+        for term in list(query_terms):
             if term not in document_frequencies.keys():
                 query_terms.remove(term)
                 ignored[term] = query_result.pop(term, None)
         
-        if len(ignored) != 0:
+        if show_sim_score and len(ignored) != 0:
             print("[Probabilistic Model Query] The following tokens were not found in vocabulary: ", ignored)
         
         for idx, term in enumerate(query_terms):
@@ -64,16 +64,8 @@ class ProbabilisticModel:
             idf_vector[idx] = log(1 + (self.total_documents - document_frequencies[term] + 0.5)/(document_frequencies[term] + 0.5))
         
         # Calculates Average Document length
-        avgdl = 0
-        for doc_id in doc_vectors.keys():
-            print(doc_id, document_lengths[doc_id])
-            avgdl += document_lengths[doc_id]
-        avgdl /= len(doc_vectors)
+        avgdl = sum(document_lengths.values()) / self.total_documents
 
-        print("avgdl: ", avgdl)
-        print("vectors: ", doc_vectors)
-        print("idf: ", idf_vector)
-        
         # Calculates BIM25
         for doc_id, doc_vector in doc_vectors.items():
             if(doc_id) not in docs_sim.keys(): docs_sim[doc_id] = 0
@@ -87,7 +79,10 @@ class ProbabilisticModel:
             print("[Probabilistic Model Query] Similarity scores: ", docs_sim)
         
         # Sorts dict in descending order
-        docs_ranking = dict(sorted(docs_sim.items(), key=lambda item: item[1], reverse=True)).keys()
+        docs_ranking = dict(sorted(docs_sim.items(), key=lambda item: item[1], reverse=True))
 
-        return list(docs_ranking)
+        if return_scores:
+            return list(docs_ranking.items())
+
+        return list(docs_ranking.keys())
 
