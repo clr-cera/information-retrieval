@@ -22,7 +22,7 @@ Repo for ease of collaboration on information retrieval project
 # Document Processor Tools
 
 ```py
-def get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]
+get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]
 ```
 
 Extracts index terms from the document.
@@ -32,7 +32,7 @@ Args - document (str): The input document | options (PipelineOptions): The pipel
 Returns: term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
 
 ```
-def tokenize(document: str) -> list[str]
+tokenize(document: str) -> list[str]
 ```
 
 Tokenizes the document into individual terms.
