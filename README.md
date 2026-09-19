@@ -100,7 +100,7 @@ Class functions:
 - `.get_vocabulary() -> set[str]` - Return a set of overall unique terms
 - `.add_documents(documents: dict[int, str])` - Adds multiple documents to the posting list. Do not call this method more than once for the same document collection, as it will result in incorrect term and document frequencies.
 
-# Vectorial Model
+# Vectorial Model Class
 
 Initializes a Vectorial Model instance. It requires a PostingList instance.
 
@@ -112,7 +112,7 @@ Class functions:
 
 - `.execute_query(query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int,float]]` - Get string as argument and return a sorted array (ranking) of document IDs.
 
-# Probabilistic Model
+# Probabilistic Model Class
 
 Initializes a Probabilistic Model (BM25) instance. It requires a PostingList instance.
 
