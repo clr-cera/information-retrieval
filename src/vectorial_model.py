@@ -29,6 +29,10 @@ class VectorialModel:
         query_result = get_index_terms_freq(query, self.options)
         query_terms = list(query_result.keys())
 
+        # Variables
+        document_frequencies = self.posting_list.get_all_document_frequencies()
+        ignored = {}
+
         # Remove unlisted query terms
         for term in list(query_terms):
             if term not in document_frequencies.keys():
@@ -36,10 +40,8 @@ class VectorialModel:
                 query_terms.remove(term)
                 ignored[term] = query_result.pop(term, None)
         
-        # Variables
+        # Vector variables
         doc_vectors = {}
-        document_frequencies = self.posting_list.get_all_document_frequencies()
-        ignored = {}
         vec_size = len(query_terms)
         query_vector = np.zeros(vec_size)
 
@@ -69,7 +71,7 @@ class VectorialModel:
         # Calculates cossine similarity
         for doc_id, doc_vector in doc_vectors.items():
             norm1 = np.linalg.norm(query_vector)
-            norm2 = np.linalg.norm(query_vector)
+            norm2 = np.linalg.norm(doc_vector)
             if(norm1 == 0 or norm2 == 0): 
                 docs_sim[doc_id] = -1 # -1 means a wrong document pick-up
                 continue
