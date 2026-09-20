@@ -21,54 +21,64 @@ Repo for ease of collaboration on information retrieval project
 
 # Document Processor Tools
 
-## `def get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]:`
+```py
+get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]
+```
 
 Extracts index terms from the document.
 
-Args:
-- document (str): The input document.
-- options (PipelineOptions): The pipeline options to use.
+Args - document (str): The input document | options (PipelineOptions): The pipeline options to use
 
 Returns: term_frequencies (dict): A dictionary where keys are index terms and values are their corresponding frequencies in the document.
 
-## `def tokenize(document: str) -> list[str]`
+```
+tokenize(document: str) -> list[str]
+```
 
 Tokenizes the document into individual terms.
 
 Returns: tokens (list): A list of tokens extracted from the document.
 
-## `normalize(tokens: list[str]) -> list[str]`
+```py
+normalize(tokens: list[str]) -> list[str]
+```
 
 Normalizes a term by converting it to lowercase.
 
 Returns: normalized_tokens (list): A list of normalized tokens.
 
-## `remove_stopwords(tokens: list[str]) -> list[str]`
+```py
+remove_stopwords(tokens: list[str]) -> list[str]
+```
 
 Removes stopwords from the list of tokens.
 
 Returns: filtered_tokens (list): A list of tokens with stopwords removed.
 
-## `lemmatize(tokens: list[str]) -> list[str]`
+```py
+lemmatize(tokens: list[str]) -> list[str]
+```
 
 Lemmatizes the list of tokens.
 
 Returns: lemmatized_tokens (list): A list of lemmatized tokens.
 
-## `stem(tokens: list[str]) -> list[str]`
+```py
+stem(tokens: list[str]) -> list[str]
+```
 
 Stems the list of tokens.
 
 Returns: stemmed_tokens (list): A list of stemmed tokens.
 
-## Class `PipelineOptions`
+## PipelineOptions Class
 
 Defines pipeline for document processing. There are 4 options:
 
-- `.NoStopRemovalNoStemming`
-- '.NoStopRemovalWithStemming'
-- `.WithStopRemovalNoStemming`
-- `.WithStopRemovalWithStemming`
+- `PipelineOptions.NoStopRemovalNoStemming`
+- `PipelineOptions.NoStopRemovalWithStemming`
+- `PipelineOptions.WithStopRemovalNoStemming`
+- `PipelineOptions.WithStopRemovalWithStemming`
 
 # Posting List Class
 
@@ -90,11 +100,11 @@ Class functions:
 - `.get_vocabulary() -> set[str]` - Return a set of overall unique terms
 - `.add_documents(documents: dict[int, str])` - Adds multiple documents to the posting list. Do not call this method more than once for the same document collection, as it will result in incorrect term and document frequencies.
 
-# Vectorial Model
+# Vectorial Model Class
 
 Initializes a Vectorial Model instance. It requires a PostingList instance.
 
-```
+```py
 model = VectorialModel(posting_list: PostingList, pipeline_options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming)
 ```
 
@@ -102,11 +112,11 @@ Class functions:
 
 - `.execute_query(query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int,float]]` - Get string as argument and return a sorted array (ranking) of document IDs.
 
-# Probabilistic Model
+# Probabilistic Model Class
 
 Initializes a Probabilistic Model (BM25) instance. It requires a PostingList instance.
 
-```
+```py
 model = ProbabilisticModel(posting_list: PostingList, pipeline_options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming, k: float = 1.2, b: float = 0.75)
 ```
 
