@@ -28,23 +28,21 @@ class VectorialModel:
         # Treating query
         query_result = get_index_terms_freq(query, self.options)
         query_terms = list(query_result.keys())
-         
-        # Variables
-        vec_size = len(query_terms)
-        query_vector = np.zeros(vec_size)
-        doc_vectors = {}
-        document_frequencies = self.posting_list.get_all_document_frequencies()
-        ignored = {}
 
         # Remove unlisted query terms
         for term in list(query_terms):
             if term not in document_frequencies.keys():
-                if(show_sim_score) print(f"[Vectorial Model Query] Term removed: {term} -> {term in document_frequencies.keys()}")
+                if(show_sim_score): print(f"[Vectorial Model Query] Term removed: {term} -> {term in document_frequencies.keys()}")
                 query_terms.remove(term)
-                vec_size = len(query_terms)
-                query_vector = np.zeros(vec_size)
                 ignored[term] = query_result.pop(term, None)
         
+        # Variables
+        doc_vectors = {}
+        document_frequencies = self.posting_list.get_all_document_frequencies()
+        ignored = {}
+        vec_size = len(query_terms)
+        query_vector = np.zeros(vec_size)
+
         if show_sim_score and len(ignored) != 0:
             print("[Vectorial Model Query] The following tokens were not found in vocabulary: ", ignored)
         
