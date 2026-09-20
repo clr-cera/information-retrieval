@@ -13,9 +13,7 @@ class VectorialModel:
         # Obs: (it's a reference! changes in original PostingList will change it here)
         self.posting_list: PostingList = posting_list
         # Total number of documents
-        self.total_documents: int = 0
-        # Vector dimension (total number of terms)
-        self.vector_dimension: int = 0
+        self.total_documents: int = len(posting_list.document_lengths)
         # Pipeline Options
         self.options: PipelineOptions = pipeline_options
         # Index term lookup
@@ -23,27 +21,6 @@ class VectorialModel:
         self.idx_term_lookup: dict[int, str] = {}
         self.vocabulary: list[str] = []
 
-    def update_total_documents(self):
-        """
-        Internal function for number of total documents updating
-        """
-        self.total_documents = len(self.posting_list.document_lengths)
-
-    def update_vector_dimension(self):
-        """
-        Internal function for vector dimension updating
-        """
-        self.vector_dimension = len(self.vocabulary)
-
-    def update_lookup(self):
-        """
-        Internal function for lookup dicts updating
-        """
-        self.vocabulary = sorted(self.posting_list.get_vocabulary())
-        for idx, term in enumerate(self.vocabulary):
-            self.term_idx_lookup[term] = idx
-            self.idx_term_lookup[idx] = term
-    
     def execute_query(self, query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int, float]]:
         """
         Returns a ranking of document ID's
@@ -51,41 +28,38 @@ class VectorialModel:
         # Treating query
         query_result = get_index_terms_freq(query, self.options)
         query_terms = list(query_result.keys())
-        
-        # Updating
-        self.update_total_documents()
-        self.update_lookup()
-        self.update_vector_dimension()
-        
+         
         # Variables
-        query_vector = np.zeros(self.vector_dimension)
+        vec_size = len(query_terms)
+        query_vector = np.zeros(vec_size)
         doc_vectors = {}
         document_frequencies = self.posting_list.get_all_document_frequencies()
         ignored = {}
-        
+
         # Remove unlisted query terms
         for term in list(query_terms):
             if term not in document_frequencies.keys():
+                if(show_sim_score) print(f"[Vectorial Model Query] Term removed: {term} -> {term in document_frequencies.keys()}")
                 query_terms.remove(term)
+                vec_size = len(query_terms)
+                query_vector = np.zeros(vec_size)
                 ignored[term] = query_result.pop(term, None)
         
         if show_sim_score and len(ignored) != 0:
             print("[Vectorial Model Query] The following tokens were not found in vocabulary: ", ignored)
-
-        # Filters only relevant docs
-        for term in query_terms:
-            for doc_id in self.posting_list.postings[term]:
-                if doc_id not in doc_vectors: doc_vectors[doc_id] = np.zeros(self.vector_dimension)
         
-        # Creates query and documents frequency vectors (crossing all the existing terms)
-        for idx, term in enumerate(self.vocabulary):
-            if term in query_terms: query_vector[idx] = query_result[term] 
-            for doc_id in doc_vectors.keys():
-                if doc_id in self.posting_list.postings[term]: doc_vectors[doc_id][self.term_idx_lookup[term]] = self.posting_list.postings[term][doc_id]
+        # Assemble query vector
+        for idx, term in enumerate(query_terms):
+            query_vector[idx] = query_result[term]
 
+        # Filters only relevant docs and assemble frequencies doc vectors
+        for idx, term in enumerate(query_terms):
+            for doc_id in self.posting_list.get_postings(term):
+                if doc_id not in doc_vectors: doc_vectors[doc_id] = np.zeros(vec_size)
+                doc_vectors[doc_id][idx] = self.posting_list.get_document_term_frequency(term, doc_id)
+        
         # Calculates TF-IDF for each vector
-        for idx in range(self.vector_dimension):
-            term = self.idx_term_lookup[idx]
+        for idx, term in enumerate(query_terms):
             # Query vector
             if query_vector[idx] > 0.0: query_vector[idx] = (1 + log(query_vector[idx],2)) * log(self.total_documents/document_frequencies[term],2)
             # Documents Vectors
@@ -96,7 +70,12 @@ class VectorialModel:
 
         # Calculates cossine similarity
         for doc_id, doc_vector in doc_vectors.items():
-            docs_sim[doc_id] = np.vdot(query_vector, doc_vector) / (np.linalg.norm(query_vector) * np.linalg.norm(doc_vector))
+            norm1 = np.linalg.norm(query_vector)
+            norm2 = np.linalg.norm(query_vector)
+            if(norm1 == 0 or norm2 == 0): 
+                docs_sim[doc_id] = -1 # -1 means a wrong document pick-up
+                continue
+            docs_sim[doc_id] = np.vdot(query_vector, doc_vector) / (norm1 * norm2)
         
         # Additional info
         if(show_sim_score):
