@@ -36,6 +36,9 @@ class PostingList:
         # Increase the number of unique terms in the document
         self.document_lengths[doc_id] = self.document_lengths.get(doc_id, 0) + frequency
 
+    def get_document_term_frequency(self, term: str, doc_id) -> int:
+        return self.postings.get(term, 0).get(doc_id, 0)
+
     def get_term_frequency(self, term: str) -> int:
         return self.term_frequencies.get(term, 0)
 
