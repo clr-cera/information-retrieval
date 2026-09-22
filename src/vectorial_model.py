@@ -61,10 +61,10 @@ class VectorialModel:
         # Calculates TF-IDF for each vector
         for idx, term in enumerate(query_terms):
             # Query vector
-            if query_vector[idx] > 0.0: query_vector[idx] = (1 + log(query_vector[idx],2)) * log(self.total_documents/document_frequencies[term],2)
+            if query_vector[idx] > 0.0: query_vector[idx] = (1 + log(query_vector[idx])) * log(self.total_documents/document_frequencies[term])
             # Documents Vectors
             for doc_vector in doc_vectors.values():
-                if doc_vector[idx] > 0.0: doc_vector[idx] = (1 + log(doc_vector[idx],2)) * log(self.total_documents/document_frequencies[term],2)
+                if doc_vector[idx] > 0.0: doc_vector[idx] = (1 + log(doc_vector[idx])) * log(self.total_documents/document_frequencies[term])
         
         docs_sim = {}
 
