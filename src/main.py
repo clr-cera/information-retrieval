@@ -1,6 +1,7 @@
 from ir_datasets import load
 from document_processor import PipelineOptions
 from experiments import Experiment, RankingModel
+from get_discrepant_queries import find_best_and_worst_queries_both_models()
 
 PREPROCESSOR_OPTIONS = [
     PipelineOptions.NoStopRemovalNoStemming,
@@ -55,7 +56,7 @@ def main():
                 experiment = Experiment(pipeline_option, model_option, 0, 0, queries, docs, qrels)
                 experiment.run()
 
-
+    find_best_and_worst_queries_both_models()
 
 if __name__ == "__main__":
     main()
