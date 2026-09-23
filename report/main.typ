@@ -116,14 +116,6 @@ Ambos os modelos foram avaliados sob as seguintes condições:
 $ k_1 in {0.5,1.2,2.0} $
 $ b in {0, 0.75, 1} $
 
-As seguintes queries foram executadas:
-
-+ Q1: what similarity laws must be obeyed when constructing aeroelastic models of aircraft
-+ Q2: what are the aeroelastic problems associated with flight of high speed aircraft
-+ Q3: what problems of transient heat conduction in composite slabs have been solved so far
-+ Q4: what chemical kinetic mechanism is applicable to hypersonic aerodynamic problems
-+ Q5: how can the aerodynamic performance of ground effect machines be calculated
-
 == Comparação entre Modelo Vetorial e Modelo Probabilístico
 
 Para realizar a comparação entre os dois modelos, o modelo probabilístico recebeu parâmetros fixos $k=1.2$ e $b=1.0$. As métricas utilizadas para comparação foram Precision, Recall e MAP.
