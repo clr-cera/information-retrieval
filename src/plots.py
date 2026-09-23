@@ -8,7 +8,6 @@ import re
 RESULTS_DIR = Path("result")
 PLOTS_DIR = Path("plots")
 
-
 def plot_precision_recall_probabilistic_var():
     """
     Plots Precision vs Recall curves (cutoffs @1 to @10) for each pipeline group of probabilistic model variants.
@@ -183,7 +182,7 @@ def plot_precision_recall_bubble_probabilistic():
     group_legend = ax.legend(title="Groups", loc='upper left', fontsize=15, frameon=True)
     ax.add_artist(group_legend)
 
-    num_handles = [
+    num_handles = [ 
         plt.Line2D([0], [0], marker='o', color='w', label=f"{num}: {name}", 
                    markerfacecolor='gray', markersize=7, markeredgecolor='k') 
         for name, num in label_to_num.items()
@@ -785,11 +784,3 @@ def plot_metrics_probabilistic_by_kb():
             plt.savefig(PLOTS_DIR / filename_out, dpi=300, bbox_inches='tight')
             plt.close()
 
-plot_precision_recall_probabilistic_var()
-plot_precision_recall_bubble_probabilistic()
-plot_precision_recall_vectorial_vs_probabilistic()
-plot_metrics_vectorial_vs_probabilistic()
-plot_metrics_probabilistic_all_var()
-plot_metrics_probabilistic_subplots()
-plot_metrics_probabilistic_all_groups_aggregated()
-plot_metrics_probabilistic_by_kb()

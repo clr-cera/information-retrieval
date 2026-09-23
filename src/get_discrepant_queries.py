@@ -141,5 +141,3 @@ def find_best_and_worst_queries_both_models():
                 relevant_docs = relevant_docs_by_query.get(id, set()) # Uses query id
                 f.write(f"\n\n{idx+1}. Doc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]\n```\n{doc.text}\n```")
             f.write("\n\n#divider()\n")
-
-find_best_and_worst_queries_both_models()
