@@ -1,25 +1,70 @@
 # information-retrieval
 Repo for ease of collaboration on information retrieval project
 
+## Members
+- Clara Ernesto de Carvalho - 14559479
+- Ariel Alves da Silva - 8847378
+
+## Install steps
+
+### If you have uv:
+```
+uv sync
+```
+
+### If you do not have uv:
+```
+pip install numpy nltk ir-datasets matplotlib
+```
+
+## Running
+To run the benchmark you only need to run the main.py file
+
+### If you have uv:
+```
+uv run src/main.py
+```
+
+### If you do not have uv:
+
+```
+python3 src/main.py
+```
+
+## Dependencies
+
+- Python 3.13
+- ir-datasets == 0.6.3,
+- matplotlib == 3.11.2,
+- nltk == 3.10.3,
+- numpy == 2.5.3,
+
+## Database
+The Cranfield database is download using the ir-datasets package. It is the same package used by Hugging Face.
+
+## Steps
+
 [X] Pre-Processing
 
 [X] Vectorial Model
 
 [X] Probabilistic Model (BM25)
 
-[ ] Quantitative Valuation
+[X] Quantitative Valuation
 
-[ ] Model comparing (between Vectorial Model and Probabilistic Model)
+[X] Model comparing (between Vectorial Model and Probabilistic Model)
 
-[ ] Analysis per query
+[X] Analysis per query
 
-[ ] BM25 parameters variaton
+[X] BM25 parameters variaton
 
-[ ] Query modification
+[X] Query modification
 
-[ ] Error analysis
+[X] Error analysis
 
-# Document Processor Tools
+## Modules of our Engine 
+
+### Document Processor Tools
 
 ```py
 get_index_terms_freq(document: str, options: PipelineOptions = PipelineOptions.WithStopRemovalWithStemming) -> dict[str, int]
@@ -71,7 +116,7 @@ Stems the list of tokens.
 
 Returns: stemmed_tokens (list): A list of stemmed tokens.
 
-## PipelineOptions Class
+#### PipelineOptions Class
 
 Defines pipeline for document processing. There are 4 options:
 
@@ -80,7 +125,7 @@ Defines pipeline for document processing. There are 4 options:
 - `PipelineOptions.WithStopRemovalNoStemming`
 - `PipelineOptions.WithStopRemovalWithStemming`
 
-# Posting List Class
+### Posting List Class
 
 A class to represent a posting list (Inverted Index)
 
@@ -100,7 +145,7 @@ Class functions:
 - `.get_vocabulary() -> set[str]` - Return a set of overall unique terms
 - `.add_documents(documents: dict[int, str])` - Adds multiple documents to the posting list. Do not call this method more than once for the same document collection, as it will result in incorrect term and document frequencies.
 
-# Vectorial Model Class
+### Vectorial Model Class
 
 Initializes a Vectorial Model instance. It requires a PostingList instance.
 
@@ -112,7 +157,7 @@ Class functions:
 
 - `.execute_query(query: str, show_sim_score=False, return_scores=False) -> list[int] | list[tuple[int,float]]` - Get string as argument and return a sorted array (ranking) of document IDs.
 
-# Probabilistic Model Class
+### Probabilistic Model Class
 
 Initializes a Probabilistic Model (BM25) instance. It requires a PostingList instance.
 

@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "ir-datasets>=0.6.3",
+    "matplotlib>=3.11.2",
     "nltk>=3.10.3",
     "numpy>=2.5.3",
 ]
