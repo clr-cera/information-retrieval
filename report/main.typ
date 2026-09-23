@@ -4,7 +4,7 @@
   title: "Desenvolvimento e Análise de Modelos Claśsicos de Recuperação de Informação",
   course: "SCC0282 Recuperação de Informação",
   assignment: "Trabalho Prático 1",
-  student: "Ariel Alves da Silva (8847378)\nStudent 2 (student2_id)",
+  student: "Ariel Alves da Silva (8847378)\nClara Ernesto de Carvalho (14559479)",
   university: "Universidade de São Paulo",
   date: datetime.today(),
   cover-page: true,
