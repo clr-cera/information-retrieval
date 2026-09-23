@@ -1,7 +1,7 @@
 from ir_datasets import load
 from document_processor import PipelineOptions
 from experiments import Experiment, RankingModel
-from get_discrepant_queries import find_best_and_worst_queries_both_models()
+from get_discrepant_queries import find_best_and_worst_queries_both_models
 
 PREPROCESSOR_OPTIONS = [
     PipelineOptions.NoStopRemovalNoStemming,
@@ -26,6 +26,8 @@ QUERY_MODIFICATIONS: dict[str, str] = {
     "12": "how can the aerodynamic performance of ground effect machines be calculated .",
 }
 
+only_selected_queries = True
+
 def main():
     dataset = load("cranfield")
     queries = [query for query in dataset.queries_iter()]
@@ -36,6 +38,12 @@ def main():
     qrels_by_query: dict[str, list] = {}
     for qrel in qrels:
         qrels_by_query.setdefault(qrel.query_id, []).append(qrel)
+    
+    if(only_selected_queries):
+        queries = [
+            query for query in queries
+            if str(query.query_id) in QUERY_MODIFICATIONS
+        ]
 
     for original_query_id, modified_text in QUERY_MODIFICATIONS.items():
         modified_query_id = f"{original_query_id}_mod"
