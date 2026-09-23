@@ -85,17 +85,7 @@ def find_best_and_worst_queries_both_models():
         both_worst_ids.append(q)
         detailed_results[q] = {"prob_map": p, "vect_map": v, "prob_docs": prob_docs.get(q, []), "vect_docs": vect_docs.get(q, [])}
 
-    print(detailed_results)
-
     # NOW looking INTO DATASET
-    QUERY_MODIFICATIONS: dict[str, str] = {
-    "1": "what similarity laws must be obeyed when constructing aeroelastic models of aircraft .",
-    "2": "what are the aeroelastic problems associated with flight of high speed aircraft .",
-    "3": "what problems of transient heat conduction in composite slabs have been solved so far .",
-    "5": "what chemical kinetic mechanism is applicable to hypersonic aerodynamic problems .",
-    "12": "how can the aerodynamic performance of ground effect machines be calculated .",
-    }
-    
     dataset = load("cranfield")
     queries = [query for query in dataset.queries_iter()]
     docs = [doc for doc in dataset.docs_iter()]
@@ -107,12 +97,6 @@ def find_best_and_worst_queries_both_models():
     for qrel in qrels:
         qrels_by_query.setdefault(qrel.query_id, []).append(qrel)
 
-    for original_query_id, modified_text in QUERY_MODIFICATIONS.items():
-        modified_query_id = f"{original_query_id}_mod"
-        queries.append(queries_by_id[original_query_id]._replace(query_id=modified_query_id, text=modified_text))
-        for qrel in qrels_by_query[original_query_id]:
-            qrels.append(qrel._replace(query_id=modified_query_id))
-
     # Save top 10 documents per query, with scores and relevance flags, to a file
     relevant_docs_by_query: dict[int, set[int]] = {}
     for qrel in qrels:
@@ -122,38 +106,40 @@ def find_best_and_worst_queries_both_models():
     with open(RESULTS_DIR / f"best_queries_Probabilistic.txt", "w") as f:
         for id in better_ids:
             query = queries_by_id.get(id.replace("Query ",""),0)
-            f.write(f"\nQuery {id} (: {query.text}\n")
-            f.write(f"\nProb MAP: {detailed_results[id]["prob_map"]} // Vec MAP: {detailed_results[id]["vect_map"]}\n")
+            f.write(f"\nQuery {id}: `{query.text}`\n")
+            f.write(f"\n- Prob MAP: {detailed_results[id]["prob_map"]}\n- Vec MAP: {detailed_results[id]["vect_map"]}\n")
             doc_ids = [t[0] for t in detailed_results[id]["prob_docs"]]
             for idx, doc_id in enumerate(doc_ids):
                 if idx == 5: break
                 doc = docs_by_id.get(doc_id,0)
                 relevant_docs = relevant_docs_by_query.get(id, set()) # Uses query id
-                f.write(f"\nDoc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]: {doc.text}\n")
-            f.write("-"*50)
+                f.write(f"\n\n{idx+1}. Doc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]\n```\n{doc.text}\n```")
+            f.write("\n\n#divider()\n")
     
     with open(RESULTS_DIR / f"best_queries_Vectorial.txt", "w") as f:
         for id in worst_ids:
             query = queries_by_id.get(id.replace("Query ",""),0)
-            f.write(f"\nQuery {id} : {query.text}\n")
-            f.write(f"\nProb MAP: {detailed_results[id]["prob_map"]} // Vec MAP: {detailed_results[id]["vect_map"]}\n")
+            f.write(f"\nQuery {id}: `{query.text}`\n")
+            f.write(f"\n- Prob MAP: {detailed_results[id]["prob_map"]}\n- Vec MAP: {detailed_results[id]["vect_map"]}")
             doc_ids = [t[0] for t in detailed_results[id]["vect_docs"]]
             for idx, doc_id in enumerate(doc_ids):
                 if idx == 5: break
                 doc = docs_by_id.get(doc_id,0)
                 relevant_docs = relevant_docs_by_query.get(id, set()) # Uses query id
-                f.write(f"\nDoc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]: {doc.text}\n")
-            f.write("-"*50)
+                f.write(f"\n\n{idx+1}. Doc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]\n```\n{doc.text}\n```")
+            f.write("\n\n#divider()\n")
 
     with open(RESULTS_DIR / f"worst_queries.txt", "w") as f:
         for id in both_worst_ids:
             query = queries_by_id.get(id.replace("Query ",""),0)
-            f.write(f"\nQuery {id} : {query.text}\n")
-            f.write(f"\nProb MAP: {detailed_results[id]["prob_map"]} // Vec MAP: {detailed_results[id]["vect_map"]}\n")
+            f.write(f"\nQuery {id}: `{query.text}`\n")
+            f.write(f"\n- Prob MAP: {detailed_results[id]["prob_map"]}\n- Vec MAP: {detailed_results[id]["vect_map"]}\n")
             doc_ids = [t[0] for t in detailed_results[id]["prob_docs"]]
             for idx, doc_id in enumerate(doc_ids):
                 if idx == 5: break
                 doc = docs_by_id.get(doc_id,0)
                 relevant_docs = relevant_docs_by_query.get(id, set()) # Uses query id
-                f.write(f"\nDoc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]: {doc.text}\n")
-            f.write("-"*50)
+                f.write(f"\n\n{idx+1}. Doc {doc_id} [{"RELEVANT" if doc_id in relevant_docs else "IRRELEVANT"}]\n```\n{doc.text}\n```")
+            f.write("\n\n#divider()\n")
+
+find_best_and_worst_queries_both_models()
