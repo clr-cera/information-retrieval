@@ -2,6 +2,7 @@ from ir_datasets import load
 from document_processor import PipelineOptions
 from experiments import Experiment, RankingModel
 from get_discrepant_queries import find_best_and_worst_queries_both_models
+from plots import *
 
 PREPROCESSOR_OPTIONS = [
     PipelineOptions.NoStopRemovalNoStemming,
@@ -26,7 +27,7 @@ QUERY_MODIFICATIONS: dict[str, str] = {
     "12": "how can the aerodynamic performance of ground effect machines be calculated .",
 }
 
-only_selected_queries = True
+only_selected_queries = False
 
 def main():
     dataset = load("cranfield")
@@ -45,12 +46,13 @@ def main():
             if str(query.query_id) in QUERY_MODIFICATIONS
         ]
 
+
     for original_query_id, modified_text in QUERY_MODIFICATIONS.items():
         modified_query_id = f"{original_query_id}_mod"
         queries.append(queries_by_id[original_query_id]._replace(query_id=modified_query_id, text=modified_text))
         for qrel in qrels_by_query[original_query_id]:
             qrels.append(qrel._replace(query_id=modified_query_id))
-
+    
     for pipeline_option in PREPROCESSOR_OPTIONS:
         for model_option in MODEL_OPTIONS:
             print(f"Running experiment with pipeline option: {pipeline_option} and model option: {model_option}")
@@ -64,7 +66,17 @@ def main():
                 experiment = Experiment(pipeline_option, model_option, 0, 0, queries, docs, qrels)
                 experiment.run()
 
+    # Find queries for analysis
     find_best_and_worst_queries_both_models()
+    # Plot charts
+    plot_precision_recall_probabilistic_var()
+    plot_precision_recall_bubble_probabilistic()
+    plot_precision_recall_vectorial_vs_probabilistic()
+    plot_metrics_vectorial_vs_probabilistic()
+    plot_metrics_probabilistic_all_var()
+    plot_metrics_probabilistic_subplots()
+    plot_metrics_probabilistic_all_groups_aggregated()
+    plot_metrics_probabilistic_by_kb()
 
 if __name__ == "__main__":
     main()
