@@ -321,7 +321,7 @@ body {
 	border-top: 1px solid $highlight-med;
 }
 
-.result-lyrics-section {
+.result-section {
 	h4 {
 		margin: 0 0 4px;
 		font-size: 11px;
@@ -339,6 +339,41 @@ body {
 	color: $text;
 	overflow-wrap: anywhere;
 	white-space: pre-wrap;
+}
+
+.result-empty {
+	margin: 0;
+	font-size: 12px;
+	color: $subtle;
+}
+
+.result-terms {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.result-term {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 8px;
+	font-size: 12px;
+	background-color: $base;
+	border: 1px solid $highlight-med;
+	border-radius: 2em;
+}
+
+.result-term-name {
+	color: $text;
+}
+
+.result-term-score {
+	font-variant-numeric: tabular-nums;
+	color: $gold;
 }
 
 @media (max-width: 600px) {

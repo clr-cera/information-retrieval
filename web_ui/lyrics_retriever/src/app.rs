@@ -125,6 +125,7 @@ fn HomePage() -> impl IntoView {
                                     lyrics,
                                     lyrics_processed,
                                     metric,
+                                    relevant_terms,
                                 } = music;
                                 let is_expanded = move || expanded.get() == Some(index);
                                 view! {
@@ -155,13 +156,39 @@ fn HomePage() -> impl IntoView {
                                         </button>
                                         <Show when=is_expanded>
                                             <div class="result-details">
-                                                <div class="result-lyrics-section">
+                                                <div class="result-section">
                                                     <h4>"Letra"</h4>
                                                     <p class="result-lyrics">{lyrics.clone()}</p>
                                                 </div>
-                                                <div class="result-lyrics-section">
+                                                <div class="result-section">
                                                     <h4>"Letra processada"</h4>
                                                     <p class="result-lyrics">{lyrics_processed.clone()}</p>
+                                                </div>
+                                                <div class="result-section">
+                                                    <h4>"Termos relevantes"</h4>
+                                                    {{
+                                                        let terms = relevant_terms.clone();
+                                                        if terms.is_empty() {
+                                                            view! {
+                                                                <p class="result-empty">
+                                                                    "Nenhum termo relevante."
+                                                                </p>
+                                                            }.into_any()
+                                                        } else {
+                                                            view! {
+                                                                <ul class="result-terms">
+                                                                    {terms.into_iter().map(|(term, score)| view! {
+                                                                        <li class="result-term">
+                                                                            <span class="result-term-name">{term}</span>
+                                                                            <span class="result-term-score">
+                                                                                {format!("{:.2}", score)}
+                                                                            </span>
+                                                                        </li>
+                                                                    }).collect_view()}
+                                                                </ul>
+                                                            }.into_any()
+                                                        }
+                                                    }}
                                                 </div>
                                             </div>
                                         </Show>
@@ -223,6 +250,11 @@ async fn query_music_by_lyrics_mock(lyrics: String) -> Result<QueryResults, Stri
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
             metric: 0.95,
+            relevant_terms: vec![
+                ("amor".into(), 0.91),
+                ("saudade".into(), 0.84),
+                ("coração".into(), 0.72),
+            ],
         },
         Music {
             title: "Música de exemplo 2".into(),
@@ -230,6 +262,11 @@ async fn query_music_by_lyrics_mock(lyrics: String) -> Result<QueryResults, Stri
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
             metric: 0.82,
+            relevant_terms: vec![
+                ("noite".into(), 0.88),
+                ("sonho".into(), 0.75),
+                ("estrada".into(), 0.61),
+            ],
         },
         Music {
             title: "Música de exemplo 3".into(),
@@ -237,6 +274,11 @@ async fn query_music_by_lyrics_mock(lyrics: String) -> Result<QueryResults, Stri
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
             metric: 0.71,
+            relevant_terms: vec![
+                ("tempo".into(), 0.83),
+                ("lembrança".into(), 0.69),
+                ("cidade".into(), 0.58),
+            ],
         },
     ];
 
@@ -259,4 +301,5 @@ struct Music {
     lyrics: String,
     lyrics_processed: String,
     metric: f32,
+    relevant_terms: Vec<(String, f32)>,
 }
