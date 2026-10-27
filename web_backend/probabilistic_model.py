@@ -32,14 +32,12 @@ class ProbabilisticModel:
         # Treating query
         query_result = get_index_terms_freq(query, self.options)
         query_terms = list(query_result.keys())
-        terms_number = len(query_terms)
 
         # Updating
         self.update_total_documents()
 
         # Variables
         doc_vectors = {}
-        idf_vector = np.zeros(terms_number)
         docs_sim = {}
         document_frequencies = self.posting_list.get_all_document_frequencies()
         document_lengths = self.posting_list.get_all_document_lengths()
@@ -51,6 +49,10 @@ class ProbabilisticModel:
             if term not in document_frequencies.keys():
                 query_terms.remove(term)
                 ignored[term] = query_result.pop(term, None)
+        
+        # Getting terms number and idf
+        terms_number = len(query_terms)
+        idf_vector = np.zeros(terms_number)
 
         if show_sim_score and len(ignored) != 0:
             print("[Probabilistic Model Query] The following tokens were not found in vocabulary: ", ignored)
