@@ -5,8 +5,9 @@ use leptos_router::{
     StaticSegment,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-const API_URL: &str = "http://localhost:8000";
+const SEARCH_URL: &str = "/api/search";
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -115,7 +116,7 @@ fn HomePage() -> impl IntoView {
                             <span class="results-count">{count}" resultados"</span>
                         </header>
                         <p class="results-query">
-                            "Consulta processada: " <span>{query_processed}</span>
+                            "Consulta processada: " <span>{query_processed.join(" ")}</span>
                         </p>
                         <ul class="results-list">
                             {musics.into_iter().enumerate().map(|(index, music)| {
@@ -124,9 +125,14 @@ fn HomePage() -> impl IntoView {
                                     artist,
                                     lyrics,
                                     lyrics_processed,
+                                    date,
                                     metric,
                                     relevant_terms,
                                 } = music;
+                                let subtitle = date
+                                    .filter(|date| !date.is_empty())
+                                    .map(|date| format!("{artist} · {date}"))
+                                    .unwrap_or_else(|| artist.clone());
                                 let is_expanded = move || expanded.get() == Some(index);
                                 view! {
                                     <li class="result-card" class:expanded=is_expanded>
@@ -150,7 +156,7 @@ fn HomePage() -> impl IntoView {
                                                         {format!("{:.2}", metric)}
                                                     </span>
                                                 </span>
-                                                <span class="result-artist">{artist}</span>
+                                                <span class="result-artist">{subtitle}</span>
                                             </span>
                                             <span class="result-chevron" aria-hidden="true"></span>
                                         </button>
@@ -167,7 +173,9 @@ fn HomePage() -> impl IntoView {
                                                 <div class="result-section">
                                                     <h4>"Termos relevantes"</h4>
                                                     {{
-                                                        let terms = relevant_terms.clone();
+                                                        let mut terms: Vec<(String, f32)> =
+                                                            relevant_terms.clone().into_iter().collect();
+                                                        terms.sort_by(|a, b| b.1.total_cmp(&a.1));
                                                         if terms.is_empty() {
                                                             view! {
                                                                 <p class="result-empty">
@@ -221,9 +229,23 @@ async fn search_music(lyrics: String) -> Result<QueryResults, String> {
     }
 }
 
+fn search_url() -> String {
+    #[cfg(feature = "hydrate")]
+    {
+        format!(
+            "{}{SEARCH_URL}",
+            window().location().origin().unwrap_or_default()
+        )
+    }
+    #[cfg(not(feature = "hydrate"))]
+    {
+        SEARCH_URL.to_string()
+    }
+}
+
 async fn query_music_by_lyrics(lyrics: String) -> Result<QueryResults, String> {
     let response = reqwest::Client::new()
-        .get(format!("{API_URL}/search"))
+        .get(search_url())
         .query(&[("lyrics", lyrics.as_str())])
         .send()
         .await
@@ -231,75 +253,84 @@ async fn query_music_by_lyrics(lyrics: String) -> Result<QueryResults, String> {
         .error_for_status()
         .map_err(|e| e.to_string())?;
 
-    let musics = response
-        .json::<Vec<Music>>()
+    response
+        .json::<QueryResults>()
         .await
-        .map_err(|e| e.to_string())?;
-
-    Ok(QueryResults {
-        musics,
-        query_processed: lyrics,
-    })
+        .map_err(|e| e.to_string())
 }
 
 async fn query_music_by_lyrics_mock(lyrics: String) -> Result<QueryResults, String> {
+    let query_processed = lyrics.split_whitespace().map(str::to_lowercase).collect();
+
     let musics = vec![
         Music {
             title: "Música de exemplo 1".into(),
             artist: "Artista A".into(),
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
+            date: Some("2001".into()),
             metric: 0.95,
-            relevant_terms: vec![
+            relevant_terms: [
                 ("amor".into(), 0.91),
                 ("saudade".into(), 0.84),
                 ("coração".into(), 0.72),
-            ],
+            ]
+            .into_iter()
+            .collect(),
         },
         Music {
             title: "Música de exemplo 2".into(),
             artist: "Artista B".into(),
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
+            date: Some("2002".into()),
             metric: 0.82,
-            relevant_terms: vec![
+            relevant_terms: [
                 ("noite".into(), 0.88),
                 ("sonho".into(), 0.75),
                 ("estrada".into(), 0.61),
-            ],
+            ]
+            .into_iter()
+            .collect(),
         },
         Music {
             title: "Música de exemplo 3".into(),
             artist: "Artista C".into(),
             lyrics: lyrics.clone(),
             lyrics_processed: lyrics.to_lowercase(),
+            date: Some("2003".into()),
             metric: 0.71,
-            relevant_terms: vec![
+            relevant_terms: [
                 ("tempo".into(), 0.83),
                 ("lembrança".into(), 0.69),
                 ("cidade".into(), 0.58),
-            ],
+            ]
+            .into_iter()
+            .collect(),
         },
     ];
 
     Ok(QueryResults {
         musics,
-        query_processed: lyrics,
+        query_processed,
     })
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct QueryResults {
     musics: Vec<Music>,
-    query_processed: String,
+    query_processed: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct Music {
     title: String,
     artist: String,
+    #[serde(rename = "lyric")]
     lyrics: String,
     lyrics_processed: String,
+    #[serde(default)]
+    date: Option<String>,
     metric: f32,
-    relevant_terms: Vec<(String, f32)>,
+    relevant_terms: HashMap<String, f32>,
 }

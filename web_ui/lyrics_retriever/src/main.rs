@@ -1,7 +1,56 @@
+#[cfg(feature = "ssr")]
+const BACKEND_URL: &str = "http://127.0.0.1:8000";
+
+#[cfg(feature = "ssr")]
+#[derive(serde::Deserialize)]
+struct SearchParams {
+    lyrics: String,
+}
+
+#[cfg(feature = "ssr")]
+fn encode_path_segment(input: &str) -> String {
+    let mut encoded = String::with_capacity(input.len());
+    for byte in input.bytes() {
+        match byte {
+            b'/' => {}
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                encoded.push(byte as char);
+            }
+            _ => encoded.push_str(&format!("%{byte:02X}")),
+        }
+    }
+    encoded
+}
+
+#[cfg(feature = "ssr")]
+async fn proxy_search(
+    axum::extract::Query(params): axum::extract::Query<SearchParams>,
+) -> Result<impl axum::response::IntoResponse, (axum::http::StatusCode, String)> {
+    let url = format!(
+        "{BACKEND_URL}/search/{}",
+        encode_path_segment(&params.lyrics)
+    );
+    let response = reqwest::get(url)
+        .await
+        .map_err(|error| (axum::http::StatusCode::BAD_GATEWAY, error.to_string()))?;
+    let status = axum::http::StatusCode::from_u16(response.status().as_u16())
+        .unwrap_or(axum::http::StatusCode::BAD_GATEWAY);
+    let body = response
+        .bytes()
+        .await
+        .map_err(|error| (axum::http::StatusCode::BAD_GATEWAY, error.to_string()))?;
+
+    Ok((
+        status,
+        [(axum::http::header::CONTENT_TYPE, "application/json")],
+        body,
+    ))
+}
 
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use axum::routing::get;
     use axum::Router;
     use leptos::logging::log;
     use leptos::prelude::*;
@@ -15,6 +64,7 @@ async fn main() {
     let routes = generate_route_list(App);
 
     let app = Router::new()
+        .route("/api/search", get(proxy_search))
         .leptos_routes(&leptos_options, routes, {
             let leptos_options = leptos_options.clone();
             move || shell(leptos_options.clone())

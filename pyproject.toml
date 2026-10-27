@@ -5,10 +5,14 @@ description = "Repo to test Information Retrieval algorithms, following USP clas
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.162.0",
     "ir-datasets>=0.6.3",
+    "kaggle>=2.2.5",
+    "kagglehub>=1.0.3",
     "matplotlib>=3.11.2",
     "nltk>=3.10.3",
     "numpy>=2.5.3",
+    "pandas>=3.1.0",
 ]
 
 [dependency-groups]
