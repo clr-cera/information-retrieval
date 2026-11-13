@@ -15,7 +15,7 @@
 // TODO: substituir os emails placeholder antes da entrega (o enunciado exige email no cabeçalho).
 #show: assignment.with(
   title: "Busca Lexical, Semântica, Híbrida, Reranking e RAG sobre o NFCorpus",
-  subtitle: "Emails: <email Ariel> · <email Clara>",
+  subtitle: "Emails: <email Ariel> · claraernestodecarvalho@usp.br",
   course: "SCC0282 Recuperação de Informação",
   assignment: "Trabalho Prático 2",
   student: "Ariel Alves da Silva (8847378)\nClara Ernesto de Carvalho (14559479)",
