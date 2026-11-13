@@ -1,5 +1,5 @@
 {
-  "status": "lexical_and_typo_tuned",
+  "status": "retrieval_tuned",
   "protocol": {
     "dataset": "NFCorpus",
     "source": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/nfcorpus.zip",
@@ -43,9 +43,9 @@
     "typo_kgram_size": 2,
     "typo_jaccard_threshold": 0.2,
     "typo_edit_distance_threshold": 2,
-    "embedding_model": null,
-    "rrf_k": null,
-    "reranker_model": null,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "rrf_k": 10,
+    "reranker_model": "cross-encoder/ms-marco-MiniLM-L6-v2",
     "llm": null,
     "llm_temperature": 0,
     "llm_max_tokens": null,

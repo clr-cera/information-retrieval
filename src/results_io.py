@@ -165,6 +165,27 @@ def write_metrics_csv(
     return row_count
 
 
+def write_combined_metrics_csv(
+    path: str | Path,
+    model_metrics: Mapping[str, Mapping[str, Mapping[str, float]]],
+) -> int:
+    """Write per-query metrics for multiple models into one CSV."""
+    output_path = _prepare_path(path)
+    row_count = 0
+
+    with output_path.open("w", newline="", encoding="utf-8") as output_file:
+        writer = csv.DictWriter(output_file, fieldnames=METRICS_COLUMNS)
+        writer.writeheader()
+        for model, metrics_by_query in model_metrics.items():
+            for query_id, metrics in metrics_by_query.items():
+                row = {"query_id": query_id, "model": model}
+                row.update({metric: float(metrics[metric]) for metric in METRIC_KEYS})
+                writer.writerow(row)
+                row_count += 1
+
+    return row_count
+
+
 def write_typo_experiment_csv(path: str | Path, rows: Iterable[TypoExperimentRow]) -> int:
     return _write_dataclass_rows(path, TYPO_COLUMNS, rows)
 

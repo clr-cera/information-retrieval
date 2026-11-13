@@ -7,6 +7,7 @@ from results_io import (
     RANKING_COLUMNS,
     RagExperimentRow,
     TypoExperimentRow,
+    write_combined_metrics_csv,
     write_metrics_csv,
     write_rag_experiment_csv,
     write_ranking_csv,
@@ -64,6 +65,22 @@ def test_write_metrics_csv(tmp_path):
             "NDCG10": "0.4",
         }
     ]
+
+
+def test_write_combined_metrics_csv(tmp_path):
+    output = tmp_path / "metrics_per_query.csv"
+    model_metrics = {
+        "lexical": {"q1": {"P10": 0.1, "R10": 0.2, "AP10": 0.3, "NDCG10": 0.4}},
+        "semantic": {"q1": {"P10": 0.5, "R10": 0.6, "AP10": 0.7, "NDCG10": 0.8}},
+    }
+
+    written = write_combined_metrics_csv(output, model_metrics)
+    fieldnames, rows = _read_csv(output)
+
+    assert written == 2
+    assert fieldnames == ["query_id", "model", "P10", "R10", "AP10", "NDCG10"]
+    assert [row["model"] for row in rows] == ["lexical", "semantic"]
+    assert rows[1]["NDCG10"] == "0.8"
 
 
 def test_write_typo_experiment_csv(tmp_path):
