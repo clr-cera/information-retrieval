@@ -1,5 +1,5 @@
 {
-  "status": "pending_dev_tuning",
+  "status": "lexical_and_typo_tuned",
   "protocol": {
     "dataset": "NFCorpus",
     "source": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/nfcorpus.zip",
@@ -36,13 +36,13 @@
     ]
   },
   "selected": {
-    "preprocessing": null,
-    "lexical_model": null,
-    "bm25_k1": null,
-    "bm25_b": null,
-    "typo_kgram_size": null,
-    "typo_jaccard_threshold": null,
-    "typo_edit_distance_threshold": null,
+    "preprocessing": "WithStopRemovalWithStemming",
+    "lexical_model": "BM25",
+    "bm25_k1": 2.0,
+    "bm25_b": 0.0,
+    "typo_kgram_size": 2,
+    "typo_jaccard_threshold": 0.2,
+    "typo_edit_distance_threshold": 2,
     "embedding_model": null,
     "rrf_k": null,
     "reranker_model": null,
