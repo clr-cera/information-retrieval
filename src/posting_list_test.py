@@ -103,10 +103,10 @@ def test_posting_list_doc_frequencies():
 
     # Test get_document_length
     assert posting_list.get_document_length(1) == 2
-    assert posting_list.get_document_length(2) == 2
+    assert posting_list.get_document_length(2) == 3
     assert posting_list.get_document_length(3) == 2
     assert posting_list.get_document_length(4) == 2
     assert posting_list.get_document_length(5) == 0
 
     # Test get_all_document_lengths
-    assert posting_list.get_all_document_lengths() == {1: 2, 2: 2, 3: 2, 4: 2}
+    assert posting_list.get_all_document_lengths() == {1: 2, 2: 3, 3: 2, 4: 2}

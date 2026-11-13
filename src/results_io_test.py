@@ -1,0 +1,169 @@
+import csv
+import json
+
+import pytest
+
+from results_io import (
+    RANKING_COLUMNS,
+    RagExperimentRow,
+    TypoExperimentRow,
+    write_metrics_csv,
+    write_rag_experiment_csv,
+    write_ranking_csv,
+    write_typo_experiment_csv,
+)
+
+
+def _read_csv(path):
+    with path.open(newline="", encoding="utf-8") as input_file:
+        reader = csv.DictReader(input_file)
+        return reader.fieldnames, list(reader)
+
+
+def test_write_ranking_csv_limits_depth_and_adds_relevance(tmp_path):
+    rankings = {"q1": [(f"d{number}", float(200 - number)) for number in range(1, 106)]}
+    qrels = {"q1": {"d1": 2, "d50": 1, "d101": 1}}
+    output = tmp_path / "nested" / "results_lexical.csv"
+
+    written = write_ranking_csv(output, rankings, qrels, depth=100)
+    fieldnames, rows = _read_csv(output)
+
+    assert written == 100
+    assert fieldnames == list(RANKING_COLUMNS)
+    assert len(rows) == 100
+    assert rows[0] == {
+        "query_id": "q1",
+        "doc_id": "d1",
+        "rank": "1",
+        "score": "199.0",
+        "relevance": "2",
+    }
+    assert rows[49]["doc_id"] == "d50"
+    assert rows[49]["relevance"] == "1"
+    assert rows[-1]["doc_id"] == "d100"
+    assert rows[-1]["relevance"] == "0"
+    assert all(row["doc_id"] != "d101" for row in rows)
+
+
+def test_write_metrics_csv(tmp_path):
+    output = tmp_path / "metrics_per_query.csv"
+    metrics = {"q1": {"P10": 0.1, "R10": 0.2, "AP10": 0.3, "NDCG10": 0.4}}
+
+    written = write_metrics_csv(output, "lexical", metrics)
+    fieldnames, rows = _read_csv(output)
+
+    assert written == 1
+    assert fieldnames == ["query_id", "model", "P10", "R10", "AP10", "NDCG10"]
+    assert rows == [
+        {
+            "query_id": "q1",
+            "model": "lexical",
+            "P10": "0.1",
+            "R10": "0.2",
+            "AP10": "0.3",
+            "NDCG10": "0.4",
+        }
+    ]
+
+
+def test_write_typo_experiment_csv(tmp_path):
+    output = tmp_path / "typo_experiment.csv"
+    rows = [
+        TypoExperimentRow(
+            query_id="PLAIN-1",
+            query_original="original query",
+            query_erro="origional query",
+            query_corrigida="original query",
+            tipo_erro="substituicao",
+            ndcg10_original=0.8,
+            ndcg10_erro=0.2,
+            ndcg10_corrigida=0.7,
+            recuperacao=5 / 6,
+            erro_reduziu_desempenho=True,
+        ),
+        TypoExperimentRow(
+            query_id="PLAIN-2",
+            query_original="another query",
+            query_erro="anothr query",
+            query_corrigida="another query",
+            tipo_erro="remocao",
+            ndcg10_original=0.0,
+            ndcg10_erro=0.0,
+            ndcg10_corrigida=0.0,
+        ),
+    ]
+
+    written = write_typo_experiment_csv(output, rows)
+    fieldnames, parsed = _read_csv(output)
+
+    assert written == 2
+    assert "tipo_erro" in fieldnames
+    assert parsed[0]["recuperacao"] == str(5 / 6)
+    assert parsed[0]["erro_reduziu_desempenho"] == "True"
+    assert parsed[1]["recuperacao"] == "N/A"
+    assert parsed[1]["erro_reduziu_desempenho"] == "N/A"
+
+
+def test_write_rag_experiment_csv_serializes_context_and_scores(tmp_path):
+    output = tmp_path / "rag_experiment.csv"
+    rows = [
+        RagExperimentRow(
+            query_id="PLAIN-1",
+            query="Is this useful?",
+            condition="A",
+            context_doc_ids=[],
+            prompt="answer without context",
+            answer="no context answer",
+        ),
+        RagExperimentRow(
+            query_id="PLAIN-1",
+            query="Is this useful?",
+            condition="B",
+            context_doc_ids=["MED-1", "MED-2"],
+            prompt="answer with context",
+            answer="Line one\nLine two",
+            fidelidade=2,
+            completude=1,
+            utilidade=2,
+            rastreabilidade=1,
+            fidelidade_justificativa="supported",
+            completude_justificativa="partial",
+            utilidade_justificativa="useful",
+            rastreabilidade_justificativa="two sources",
+        ),
+    ]
+
+    written = write_rag_experiment_csv(output, rows)
+    fieldnames, parsed = _read_csv(output)
+
+    assert written == 2
+    assert "condition" in fieldnames
+    assert parsed[0]["context_doc_ids"] == "[]"
+    assert parsed[0]["fidelidade"] == "N/A"
+    assert parsed[0]["rastreabilidade"] == "N/A"
+    assert json.loads(parsed[1]["context_doc_ids"]) == ["MED-1", "MED-2"]
+    assert parsed[1]["answer"] == "Line one\nLine two"
+    assert parsed[1]["rastreabilidade"] == "1"
+
+
+def test_rag_rows_validate_condition_and_scores():
+    with pytest.raises(ValueError, match="Invalid RAG condition"):
+        RagExperimentRow(
+            query_id="q1",
+            query="query",
+            condition="C",
+            context_doc_ids=[],
+            prompt="prompt",
+            answer="answer",
+        )
+
+    with pytest.raises(ValueError, match="fidelidade must be"):
+        RagExperimentRow(
+            query_id="q1",
+            query="query",
+            condition="B",
+            context_doc_ids=[],
+            prompt="prompt",
+            answer="answer",
+            fidelidade=3,
+        )

@@ -16,4 +16,8 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=9.1.1", "pytest-cov>=7.1.0"]
+dev = [
+    "ir-measures>=0.4.3",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+]

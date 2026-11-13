@@ -1,0 +1,54 @@
+{
+  "status": "pending_dev_tuning",
+  "protocol": {
+    "dataset": "NFCorpus",
+    "source": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/nfcorpus.zip",
+    "splits": [
+      "train",
+      "dev",
+      "test"
+    ],
+    "document_representation": "title + text",
+    "tuning_split": "dev",
+    "final_split": "test",
+    "evaluation_cutoff": 10,
+    "ranking_depth": 100,
+    "fusion_depth": 100,
+    "rerank_depth": 50,
+    "rrf_k_candidates": [
+      10,
+      60,
+      100
+    ],
+    "rag_query_seed": 42,
+    "rag_query_sample_size": 10,
+    "rag_query_ids": [
+      "PLAIN-68",
+      "PLAIN-2450",
+      "PLAIN-153",
+      "PLAIN-2850",
+      "PLAIN-2750",
+      "PLAIN-270",
+      "PLAIN-2470",
+      "PLAIN-2430",
+      "PLAIN-238",
+      "PLAIN-3342"
+    ]
+  },
+  "selected": {
+    "preprocessing": null,
+    "lexical_model": null,
+    "bm25_k1": null,
+    "bm25_b": null,
+    "typo_kgram_size": null,
+    "typo_jaccard_threshold": null,
+    "typo_edit_distance_threshold": null,
+    "embedding_model": null,
+    "rrf_k": null,
+    "reranker_model": null,
+    "llm": null,
+    "llm_temperature": 0,
+    "llm_max_tokens": null,
+    "rag_language": null
+  }
+}
