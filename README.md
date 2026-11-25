@@ -107,6 +107,7 @@ uv run src/scripts/tune_reranker.py --update-config # modelo do cross-encoder
 uv run src/scripts/run_retrieval_pipeline.py --split test   # lexical, semântico, híbrido e reranking
 uv run src/scripts/run_typo.py                              # experimento de erros ortográficos
 uv run src/scripts/analyze_typo.py                          # confere as regras do experimento e gera a tabela
+uv run src/scripts/analyze_lexical_vs_semantic.py           # análise por consulta: lexical × semântico
 ```
 
 > **BM25:** os valores usuais (k1 = 1,2; b = 0,75) foram fixados à mão no config. O `tune_lexical.py --update-config` escolheria o maior NDCG@10 da grade (k1 = 2,0; b = 0), que está apenas 0,001 acima e cuja vantagem se deve a empates de score. A justificativa está em [`docs/experiment_protocol.md`](docs/experiment_protocol.md) e no relatório. Por isso, rode `tune_lexical.py` **sem** `--update-config`.

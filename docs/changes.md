@@ -4,6 +4,26 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Requisito 7 (comparação lexical × semântica por consulta)
+
+- **Novo script `src/scripts/analyze_lexical_vs_semantic.py`**, em estilo convencional:
+  - lê o `metrics_per_query.csv` e os `results_lexical.csv`/`results_semantic.csv`;
+  - calcula ΔNDCG@10 (semântico − lexical) e seleciona as 3 consultas com maior vantagem de cada lado, com desempate pelo identificador;
+  - para cada uma, registra os termos e seu df, os relevantes alcançáveis pelo BM25 e o top-5 de cada sistema (score, grau, termos da consulta presentes com tf, número de tokens e truncamento, posição no outro sistema e título);
+  - saída em `result/tp2/lexical_vs_semantic_analysis.md`.
+- **Hipóteses verificadas com um script no scratchpad antes de escrever:**
+  - divisão em subpalavras (`kohlrabi` → `ko ##hl ##ra ##bi`; `grapefruit` → `grape ##fr ##uit`; `cadaverine` → `cad ##aver ##ine`);
+  - a primeira ocorrência de "kohlrabi" no documento relevante está no token 34, dentro do limite, então o truncamento foi descartado como causa;
+  - formas de "low-carbohydrate" nos relevantes e o termo `lowcarbohydr`;
+  - stems `frozen` × `freez`;
+  - o "D" removido como stopword;
+  - contexto de "shed light" nos documentos do topo do BM25;
+  - MED-3207 e MED-398 são duplicados.
+- **Relatório (`docs/report/chapters/results/lexical_vs_semantic.typ`):** subseção "Análise por consulta" com as 6 consultas (tabela compacta do top-5 dos dois sistemas lado a lado e análise de cada uma) e uma síntese.
+- O relatório tem 19 páginas.
+- README e `docs/TP2_CHECKLIST.md` (seção 7 e item do relatório) atualizados.
+- Nenhum código existente foi alterado.
+
 ## 25/11/2026 — Requisito 6 (avaliação da recuperação)
 
 - **Conferência dos resultados finais**, feita com um script no scratchpad, sem alterar o código nem os resultados. Os rankings dos 4 sistemas (`results_*.csv`) foram reavaliados com o `ir_measures`, consulta a consulta, usando a posição como score, para preservar a ordem gravada:

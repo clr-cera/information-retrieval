@@ -162,21 +162,20 @@ Legenda:
 
 ---
 
-## 7. Comparação lexical × semântica por consulta (Requisito 7 / etapa 8 do roadmap)
+## 7. Comparação lexical × semântica por consulta (Requisito 7 / etapa 8 do roadmap) ✅ concluído
 
-- [ ] Script para calcular ΔNDCG@10 = semântico − lexical por consulta (a partir de `metrics_per_query.csv`)
-- [ ] Identificar as **3 consultas com maior vantagem do semântico**
-- [ ] Identificar as **3 consultas com maior vantagem do lexical**
-- [ ] Para cada uma das 6 consultas, apresentar:
-  - [ ] texto da consulta
-  - [ ] Top-5 de cada método (lexical e semântico)
-  - [ ] indicação de quais documentos são relevantes (e o grau)
-  - [ ] scores BM25 e similaridades de cosseno
-  - [ ] análise das razões da diferença
-- [ ] Na discussão, buscar evidências de: correspondência lexical, termos técnicos, sinonímia, paráfrase, variação de vocabulário e ambiguidade
-- [ ] Sustentar toda afirmação com valores observados nos dados (por exemplo tf do termo no documento, df, tamanho do documento, posição), e nunca afirmar "o documento era longo" ou "o termo era mais frequente" sem mostrar o número
-- [ ] Não comparar diretamente scores BM25 com cossenos sem justificativa/normalização
-- [ ] (Sugestão) Script `analyze_lexical_vs_semantic.py` que gere uma tabela/Markdown com esses dados, para reprodutibilidade
+- [x] Script `src/scripts/analyze_lexical_vs_semantic.py`: calcula ΔNDCG@10 = semântico − lexical por consulta (a partir de `metrics_per_query.csv` e dos `results_*.csv`) e grava a evidência em `result/tp2/lexical_vs_semantic_analysis.md`
+- [x] 3 consultas com maior vantagem do semântico: PLAIN-307 ("Vitamin D: Shedding some light...", +0,82), PLAIN-1537 ("low-carb diets", +0,66), PLAIN-418 ("Fresh fruit versus frozen--which is better?", +0,66)
+- [x] 3 consultas com maior vantagem do lexical: PLAIN-1473 ("kohlrabi", −1,00), PLAIN-1288 ("grapes", −0,76), PLAIN-792 ("cadaverine", −0,54)
+- [x] Para cada uma das 6 consultas, no relatório (`docs/report/chapters/results/lexical_vs_semantic.typ`):
+  - [x] texto da consulta
+  - [x] Top-5 de cada método, lado a lado
+  - [x] documentos relevantes indicados, com o grau
+  - [x] scores BM25 e similaridades de cosseno (em colunas separadas, sem comparação direta entre as escalas)
+  - [x] análise das razões da diferença
+- [x] Evidências discutidas: correspondência lexical ("shed light" fora do tema), termos técnicos (kohlrabi, cadaverine), variação de vocabulário e abreviação (low-carb × low-carbohydrate), formas da mesma palavra (frozen × freezing), perda de termos no pré-processamento ("D" como stopword, "frozen--which" → `frozenwhich`) e ambiguidade por subpalavras (grape × grapefruit, cadaverine × cadaver)
+- [x] Todas as afirmações sustentadas por valores medidos: df dos termos, tf nos documentos, posição no outro sistema, número de relevantes alcançáveis pelo BM25, divisão em subpalavras pelo tokenizador, posição do termo no documento (para descartar o truncamento em "kohlrabi") e documentos duplicados (MED-3207 = MED-398)
+- [x] Scores BM25 e cossenos não comparados diretamente
 
 ---
 
@@ -384,7 +383,7 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
   - [x] ambiente computacional
   - [x] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face, ver [dataset_validation.md](dataset_validation.md))
 - [ ] **e. Resultados obtidos e análise:**
-  - [ ] **⚠️ parcial — lexical × semântico:** resultados globais e comparação por consulta escritos; falta a análise das 6 consultas (requisito 7)
+  - [x] lexical × semântico (global, comparação por consulta e as 6 consultas) — `chapters/results/lexical_vs_semantic.typ`
   - [x] tolerância a erros — `chapters/results/typo_tolerance.typ`
   - [ ] híbrido
   - [ ] reranking (global + 4 casos)
