@@ -30,7 +30,7 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 | Reranking (cross-encoder) | concluída |
 | RAG (sem RAG × com RAG) | 20 respostas geradas e métricas do contexto calculadas; **avaliação humana pendente** |
 | Arquivos padronizados de resultados | gerados e verificados; falta só a nota humana no `rag_experiment.csv` |
-| Relatório | todas as seções escritas (19 de 20 páginas); faltam os itens que dependem da avaliação humana |
+| Relatório | todas as seções escritas (15 de 20 páginas); faltam os itens que dependem da avaliação humana |
 
 **O que falta fazer** está em [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md), passo a passo. O acompanhamento de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
 

@@ -14,16 +14,11 @@ A recuperação semântica usa um *bi-encoder* pré-treinado, sem fine-tuning: c
       [Biblioteca], [Sentence Transformers 6.3.0 (PyTorch 2.15.0, Transformers 5.23.0), em CPU],
       [Arquitetura], [Transformer MiniLM de 6 camadas + mean pooling + normalização L2],
       [Dimensão / similaridade], [384 / cosseno, calculado como produto escalar de vetores normalizados],
-      [Entrada máxima], [256 tokens (subpalavras WordPiece); texto bruto, título + texto],
-      [Tempo dos embeddings], [109,7 s para os 3.633 documentos (30 ms por documento)],
-      [Tempo médio por consulta], [0,16 s (test)],
+      [Entrada máxima], [256 tokens (texto bruto, título + texto); *2.864 dos 3.633 documentos (78,8%) são truncados*, e 32,2% dos tokens da coleção ficam de fora],
+      [Tempos], [109,7 s para os embeddings dos documentos (30 ms por documento); 0,16 s por consulta],
     )
   },
   caption: [Configuração da recuperação semântica.],
 ) <tab-semantic-config>
 
-Os embeddings dos documentos são calculados uma vez, em lotes de 32, e guardados em disco. Para cada consulta, gera-se o seu embedding e calcula-se o produto com a matriz de documentos (3.633 × 384); os 100 mais similares formam o ranking. A busca é exaustiva, o que o enunciado permite para a busca semântica. Quase todo o tempo de consulta é a geração do embedding da consulta.
-
-*Truncamento:* os documentos têm em média 357 tokens (10% passam de 504), acima do limite de 256. Assim, *2.864 dos 3.633 documentos (78,8%) são truncados*, e 32,2% dos tokens da coleção ficam fora dos embeddings: o vetor de um documento longo representa o título e o início do resumo.
-
-O modelo foi escolhido no dev (`tune_semantic.py`) pelo maior NDCG\@10: `all-MiniLM-L6-v2` teve 0,3024, e `multi-qa-MiniLM-L6-cos-v1`, 0,2718. O segundo lê até 512 tokens e trunca só 330 documentos, mas foi pior; como os modelos também diferem nos dados de treinamento, não é possível isolar a causa.
+Os embeddings dos documentos são calculados uma vez e guardados em disco. Para cada consulta, gera-se o seu embedding e calcula-se o produto com a matriz de documentos (3.633 × 384); os 100 mais similares formam o ranking. A busca é exaustiva, como o enunciado permite. Com o truncamento (os documentos têm em média 357 tokens), o vetor de um documento longo representa só o título e o início do resumo. O modelo foi escolhido no dev pelo maior NDCG\@10: o `all-MiniLM-L6-v2` teve 0,3024, e o `multi-qa-MiniLM-L6-cos-v1`, 0,2718, mesmo lendo até 512 tokens.

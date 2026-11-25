@@ -4,6 +4,21 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Relatório enxugado (19 → 15 páginas)
+
+- **O quê:** revisão de todos os capítulos de `docs/report/` para cortar repetições e detalhes desnecessários, sem remover nada que o enunciado exige.
+  - Uma única tabela com os quatro sistemas (`tab-all-systems`, em "Lexical × semântico") substitui as três tabelas de médias que se repetiam (lexical × semântico, híbrido e reranking).
+  - Tabelas do ajuste do $k$ do RRF, da escolha do cross-encoder e da posição do MED-4166 viraram frases com os mesmos números.
+  - Truncamento do bi-encoder entrou na tabela de configuração da recuperação semântica.
+  - Removidos: histórico da versão antiga do BM25 (cópias por consulta), estatísticas secundárias do índice (57,9% de termos únicos, maior posting list), comparação 86 × 82 com o TF-IDF, lotes de 32, explicação dos trigramas, observações sobre documentos duplicados, tamanho da lista fundida no RRF e outras frases repetidas.
+  - Avaliação: "Modelos e parâmetros" e "Ambiente computacional" juntos em uma subseção; protocolo condensado em um parágrafo.
+  - Análises por consulta (6 consultas, 4 casos do reranking, erros ortográficos e PLAIN-2850), conclusão e uso de IA reescritos de forma mais curta, com as mesmas evidências.
+- **Por quê:** pedido do grupo para enxugar o relatório e deixar folga para a avaliação humana do RAG.
+- **Verificação:** `typst compile docs/report/main.typ` sem erros; 15 páginas (a última com as referências); referências cruzadas conferidas. Nenhum número novo foi introduzido; os TODOs da avaliação humana continuam no lugar. Cópia dos capítulos antigos guardada fora do repositório.
+- **Docs:** `TP2_CHECKLIST.md`, `PENDENCIAS.md` e `README.md` atualizados com a nova contagem de páginas.
+
+---
+
 ## 25/11/2026 — Explicação atualizada, pendências e README
 
 - **`docs/explanation/` atualizada com o código atual (51 páginas):**

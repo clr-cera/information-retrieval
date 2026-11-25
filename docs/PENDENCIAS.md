@@ -2,7 +2,7 @@
 
 Situação em 25/11/2026. Prazo registrado no checklist: **26/11/2026, 23:59**.
 
-Tudo o que podia ser feito automaticamente está pronto: os 15 requisitos estão implementados e executados, os resultados estão em `result/tp2/`, e o relatório (`docs/report/`) tem todas as seções, com 19 de 20 páginas. O que falta depende do grupo, principalmente a **avaliação humana do RAG**, que o enunciado exige que seja feita por pessoas.
+Tudo o que podia ser feito automaticamente está pronto: os 15 requisitos estão implementados e executados, os resultados estão em `result/tp2/`, e o relatório (`docs/report/`) tem todas as seções, com 15 de 20 páginas. O que falta depende do grupo, principalmente a **avaliação humana do RAG**, que o enunciado exige que seja feita por pessoas.
 
 Detalhes de cada requisito: [`TP2_CHECKLIST.md`](TP2_CHECKLIST.md). Histórico: [`changes.md`](changes.md).
 
@@ -58,7 +58,7 @@ Todos os pontos estão marcados com `// TODO` nos arquivos `.typ`. Eles não apa
 - [ ] `docs/report/chapters/results/rag.typ`: copiar as médias e a concordância de `rag_evaluation_summary.md` para a tabela "Médias da avaliação humana" e escrever a discussão: o efeito da recuperação sobre a fidelidade, a completude e a disponibilidade de evidências, e a falta de fontes na condição sem RAG.
 - [ ] `docs/report/chapters/results/failure_analysis.typ`: o caso "o RAG não ajudou" (PLAIN-2850) já está escrito. Escolher pelas notas **uma consulta em que o RAG melhorou claramente** e **uma com pouca diferença**, e analisar cada uma no mesmo formato. Para isso, usar os documentos enviados (`rag_stage_trace.md`), o que a resposta usou e as notas e justificativas.
 - [ ] `docs/report/chapters/conclusion.typ`: acrescentar a conclusão da avaliação humana.
-- [ ] Recompilar e conferir o limite de **20 páginas** (as referências não contam). Hoje são 19, então cabe cerca de 1 página nova:
+- [ ] Recompilar e conferir o limite de **20 páginas** (as referências não contam). Hoje são 15 (a última com as referências), então há folga de cerca de 4 páginas:
   ```bash
   typst compile docs/report/main.typ
   ```

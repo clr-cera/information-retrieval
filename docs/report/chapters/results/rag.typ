@@ -2,7 +2,7 @@
 
 === Recuperação do contexto
 
-Para as 10 consultas do experimento, a @tab-rag-retrieval mostra a qualidade dos 5 documentos enviados à LLM e a melhor posição de um documento relevante em cada estágio do pipeline (script `evaluate_rag.py`).
+A @tab-rag-retrieval mostra a qualidade dos 5 documentos enviados à LLM e a melhor posição de um relevante em cada estágio (`evaluate_rag.py`).
 
 #figure(
   {
@@ -29,13 +29,16 @@ Para as 10 consultas do experimento, a @tab-rag-retrieval mostra a qualidade dos
   caption: [Recuperação para o RAG. "Rel.": relevantes nos qrels; "Lex.", "Sem.", "Híb." e "Rer.": melhor posição de um relevante no lexical, semântico, híbrido e após o reranking.],
 ) <tab-rag-retrieval>
 
-Em 9 das 10 consultas, pelo menos um documento relevante chegou ao contexto (Hit\@5 = 0,9), e em média 2,2 dos 5 documentos enviados são relevantes. O R\@5 é baixo (0,106), como esperado: as consultas têm em média cerca de 44 relevantes, e só 5 documentos são enviados. A exceção é a PLAIN-2850, em que nenhum relevante chegou à LLM, analisada a seguir. Na PLAIN-238, o reranking foi decisivo: o melhor relevante estava em 11º no híbrido e subiu para 2º.
+Em 9 das 10 consultas, ao menos um relevante chegou ao contexto (Hit\@5 = 0,9), e em média 2,2 dos 5 documentos enviados são relevantes. O R\@5 baixo (0,106) é esperado, porque as consultas têm em média cerca de 44 relevantes. Na PLAIN-238, o reranking foi decisivo, levando o melhor relevante de 11º para 2º. A exceção é a PLAIN-2850, discutida na análise de falhas.
 
 === Geração
 
-As respostas das duas condições têm tamanhos parecidos (em média 123 e 124 palavras). Na condição B, todas as 10 respostas citam documentos pelo identificador (de 1 a 4 por resposta), e todos os identificadores citados estão entre os 5 enviados: o modelo não inventou fontes. Em duas consultas (PLAIN-2850 e PLAIN-3342), a resposta com RAG declara que os documentos não têm evidência suficiente para parte da pergunta, como pedido no prompt. Na condição A, nenhuma resposta indica fontes, o que impede verificar as afirmações.
+As respostas das duas condições têm tamanhos parecidos (123 e 124 palavras em média).
 
-As respostas foram avaliadas por uma avaliação humana estruturada, com notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, cada uma com justificativa. Para não identificar a condição, as 20 respostas foram embaralhadas (seed 42) e apresentadas a cada integrante em uma planilha sem a indicação de A ou B, junto com os 5 documentos de cada consulta; a chave que associa cada resposta à sua condição foi usada só depois das notas (`evaluate_rag.py`). Na condição A, a fidelidade é julgada contra os mesmos 5 documentos da condição B, e a rastreabilidade é registrada como N/A e excluída da média.
+- *Condição B:* todas as respostas citam de 1 a 4 documentos, e todos estão entre os enviados (nenhuma fonte inventada). Duas delas (PLAIN-2850 e PLAIN-3342) declaram que falta evidência para parte da pergunta.
+- *Condição A:* nenhuma resposta indica fontes, o que impede verificar as afirmações.
+
+As respostas receberam notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, cada uma com justificativa. As 20 respostas foram embaralhadas (seed 42) e avaliadas sem a indicação da condição, junto com os 5 documentos de cada consulta. A chave de cada condição só foi usada depois das notas. Na condição A, a fidelidade é julgada contra os mesmos 5 documentos, e a rastreabilidade é N/A e excluída da média.
 
 #figure(
   {

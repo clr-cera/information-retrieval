@@ -21,4 +21,4 @@
   caption: [Tempos médios no conjunto test, em CPU (AMD Ryzen 7 5700U, 14 GB de RAM, sem GPU).],
 ) <tab-times>
 
-A recuperação híbrida completa custa cerca de 0,16 s por consulta, dominada pela geração do embedding da consulta; o BM25 e a fusão são desprezíveis. O reranking multiplica esse custo por cerca de 25, porque exige 50 passadas pelo cross-encoder. A geração é a etapa mais lenta de todas: a LLM roda em CPU e raciocina antes de responder. Com RAG, o prompt passa de 53 para 2.294 tokens em média, e o modelo gera o dobro de tokens (1.128 contra 578, somando raciocínio e resposta), o que explica o tempo quase 4 vezes maior.
+A recuperação híbrida custa cerca de 0,16 s por consulta, quase todo na geração do embedding da consulta. O reranking multiplica esse custo por cerca de 25, porque faz 50 passadas pelo cross-encoder. A geração é a etapa mais lenta, porque a LLM roda em CPU e raciocina antes de responder. Com RAG, o prompt passa de 53 para 2.294 tokens em média, e o modelo gera o dobro de tokens (1.128 contra 578), o que explica o tempo quase 4 vezes maior.

@@ -1,10 +1,6 @@
 == Índice invertido
 
-O índice invertido foi implementado do zero na classe `PostingList` (`src/ir/lexical.py`), apenas com dicionários do Python. Ele guarda: o dicionário de termos, com a posting list de cada termo como `{doc_id: tf}`; o número de documentos que contêm cada termo ($n_t$); o tamanho de cada documento ($|d|$, em termos); e a soma dos tamanhos, de onde vêm $N$ e $"avgdl"$ em tempo constante. Dicionários dão acesso em tempo constante ao termo e ao documento; as posting lists não precisam de ordenação, porque o ranqueamento não intersecta listas.
-
-A construção faz uma única passagem pela coleção: cada documento é pré-processado, e cada par (termo, frequência) atualiza de uma vez a posting list, o $n_t$, o tamanho do documento e a soma dos tamanhos. Na consulta, o BM25 é calculado *termo a termo, com acumuladores*: para cada termo da consulta presente no vocabulário, só a sua posting list é percorrida, e a contribuição de cada documento é somada ao seu acumulador. Documentos sem nenhum termo da consulta nunca são acessados.
-
-Uma primeira versão (herdada do TP1) copiava os dicionários de $n_t$ e de tamanhos e somava todos os tamanhos a cada consulta, o que percorria a coleção inteira. A versão final lê as estatísticas diretamente do índice; os rankings das duas versões são idênticos em todas as consultas de dev e test, e um teste automatizado falha se a consulta voltar a copiar as estatísticas.
+O índice foi implementado do zero na classe `PostingList` (`src/ir/lexical.py`), só com dicionários do Python. Ele guarda a posting list de cada termo (`{doc_id: tf}`), o número de documentos que contêm cada termo ($n_t$), o tamanho de cada documento ($|d|$, em termos) e a soma dos tamanhos, de onde vêm $N$ e $"avgdl"$ em tempo constante. A construção faz uma única passagem pela coleção. Na consulta, o BM25 é calculado *termo a termo, com acumuladores*: só as posting lists dos termos da consulta são percorridas, e documentos sem nenhum desses termos nunca são acessados. Um teste automatizado falha se a consulta voltar a percorrer as estatísticas da coleção.
 
 #figure(
   {
@@ -24,4 +20,4 @@ Uma primeira versão (herdada do TP1) copiava os dicionários de $n_t$ e de tama
   caption: [Estatísticas do índice invertido, em CPU (AMD Ryzen 7 5700U).],
 ) <tab-index-stats>
 
-Quase todo o tempo de construção é pré-processamento (5,5 s, contra 0,27 s de inserção, em medição separada). As posting lists têm tamanho muito desigual: 57,9% dos termos aparecem em um único documento, e a maior lista (`studi`) cobre 2.358 documentos. Como só documentos com algum termo da consulta são recuperados, o ranking lexical tem menos de 100 documentos em 134 das 323 consultas do test, e 16 consultas não recuperam nenhum (todos os seus termos estão fora do vocabulário).
+Quase todo o tempo de construção é pré-processamento (5,5 s, contra 0,27 s de inserção). Como só documentos com algum termo da consulta são recuperados, o ranking lexical tem menos de 100 documentos em 134 das 323 consultas do test, e 16 consultas não recuperam nenhum.
