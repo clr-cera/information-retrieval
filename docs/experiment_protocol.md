@@ -7,12 +7,14 @@
 - Document representation for every system: `title + " " + text`.
 - Identifiers from BEIR are kept as strings.
 - The loader downloads to `data/nfcorpus` by default; override with `NFCORPUS_DIR`.
+- If the UKP server hosting the BEIR archive is unreachable, the loader falls back to the BEIR copy on Hugging Face (`BeIR/nfcorpus` for corpus and queries, `BeIR/nfcorpus-qrels` for qrels, both pinned to fixed revisions) and writes the same file layout. The source actually used is recorded in `data/nfcorpus/SOURCE.txt`.
 - Generated data, embeddings and result files are not committed.
 
 ## Split usage
 
 - `train`: available but not used for tuning unless explicitly justified.
 - `dev`: the only split used to choose preprocessing, lexical model, BM25 parameters (if changed), typo-correction thresholds, embedding model, RRF `k`, reranker model and any other configuration.
+- BM25 parameters: the dev grid search (`tune_lexical.py`) peaked at k1 = 2.0, b = 0 (NDCG@10 0.2916), only 0.001 above the usual k1 = 1.2, b = 0.75 (0.2906). With b = 0 many documents tie on score and the tie order alone moves dev NDCG@10 by up to 0.017, so the usual values were adopted (decision made on dev only). The config was set by hand; do not run `tune_lexical.py --update-config`.
 - `test`: reserved for the final evaluation only.
 
 No decision may be based on test-set metrics. This includes query rewriting, model selection, parameter selection, ranking adjustments and example selection. The only pre-fixed test choice is the RAG query sample required by the specification.

@@ -13,6 +13,7 @@ dependencies = [
     "nltk>=3.10.3",
     "numpy>=2.5.3",
     "pandas>=3.1.0",
+    "pyarrow>=26.0.1",
     "sentence-transformers>=6.3.0",
 ]
 
@@ -22,3 +23,15 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
 ]
+
+# O pacote `ir/` é instalado em modo editável pelo `uv sync`, para que os
+# scripts em `scripts/` e os testes em `tests/` possam importá-lo.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ir"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
