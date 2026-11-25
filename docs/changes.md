@@ -4,6 +4,60 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Requisito 6 (avaliação da recuperação)
+
+- **Conferência dos resultados finais**, feita com um script no scratchpad, sem alterar o código nem os resultados. Os rankings dos 4 sistemas (`results_*.csv`) foram reavaliados com o `ir_measures`, consulta a consulta, usando a posição como score, para preservar a ordem gravada:
+  - a diferença máxima em relação ao `metrics_per_query.csv` foi de 3×10⁻¹⁶;
+  - a média de `AP10` coincide com o MAP@10 do `retrieval_summary.json`;
+  - a coluna `relevance` confere com os qrels;
+  - há 323 consultas por sistema.
+- **Relatório:**
+  - `docs/report/chapters/evaluation.typ` escrito, com as 5 subseções:
+    - conjunto de dados e splits (tabela com consultas, julgamentos, relevantes por consulta e graus);
+    - métricas (definições e convenções, e conferência com o `ir_measures`);
+    - modelos e parâmetros (tabela da configuração final);
+    - ambiente computacional;
+    - protocolo experimental, com a declaração de que os qrels do test não foram usados para ajustes e as duas exceções do enunciado;
+  - `docs/report/chapters/results/lexical_vs_semantic.typ`: resultados globais lexical × semântico no test e comparação do NDCG@10 por consulta. A análise das 6 consultas (requisito 7) ficou pendente.
+- O relatório passou a ter 17 páginas (o limite é 20, sem contar as referências).
+- `docs/TP2_CHECKLIST.md`: seção 6 e item "d. Avaliação" do relatório marcados como concluídos.
+- Nenhum código foi alterado.
+
+## 25/11/2026 — Explicação completa do projeto (`docs/explanation/`)
+
+- Novo documento Typst (`docs/explanation/main.typ`, `estilo.typ` e 13 capítulos em `chapters/`; PDF de 45 páginas). Público: quem cursa a disciplina, por exemplo para estudar para a defesa. Capítulos:
+  1. Visão geral e NFCorpus
+  2. Estrutura do repositório e configuração
+  3. Recursos de Python usados no código
+  4. Métricas
+  5. `ir/data.py`
+  6. Pré-processamento
+  7. Índice invertido e BM25
+  8. Correção ortográfica
+  9. Busca semântica
+  10. Busca híbrida e reranking
+  11. Scripts
+  12. Testes e resultados
+  13. Perguntas da defesa e glossário
+- Cada capítulo traz a teoria e depois o código, função por função, com os imports explicados.
+- Os exemplos numéricos (métricas, BM25, RRF, k-gramas e Jaccard, tokenização) foram calculados com o próprio código do projeto. A tabela de Levenshtein foi conferida com `levenshtein_distance`.
+- Os dados medidos citados vêm dos resultados de 25/11/2026: distribuição dos graus de relevância, truncamento, tempos e dimensões dos modelos.
+- README: `docs/explanation/` incluído na árvore e na seção do relatório.
+
+---
+
+## 25/11/2026 — Requisito 5 (recuperação semântica)
+
+- **Ajuste no dev:** `tune_semantic.py` reexecutado sem `--update-config` (`result/tp2/semantic_tuning_dev.csv`). `all-MiniLM-L6-v2` teve NDCG@10 de 0,3024 contra 0,2718 do `multi-qa-MiniLM-L6-cos-v1`; a escolha do config foi mantida.
+- **Medições com um script no scratchpad, sem alterar o código nem o cache:**
+  - revisão do modelo no Hugging Face (`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`);
+  - versões das bibliotecas e arquitetura (mean pooling + normalização);
+  - tokens por documento: média de 357; 2.864 de 3.633 truncados (78,8%); 32,2% dos tokens descartados;
+  - tempo limpo dos embeddings: 109,7 s em CPU. O valor do cache (154 s) estava inflado; os vetores recalculados são idênticos aos do cache.
+- **Relatório:** `docs/report/chapters/methodology/semantic.typ`, com configuração, versão, indexação e busca, tempos, truncamento e escolha do modelo no dev.
+- `docs/TP2_CHECKLIST.md`: seção 5 marcada como concluída.
+- **Nenhum código alterado.** A versão do modelo ficou registrada no relatório, não no código.
+
 ## 25/11/2026 — Requisito 4 (tolerância a erros)
 
 - **Novo script `src/scripts/analyze_typo.py`:** lê `result/tp2/typo_experiment.csv` e confere as regras do enunciado em cada consulta:

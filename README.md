@@ -51,7 +51,8 @@ O acompanhamento detalhado de cada requisito do enunciado está em [`docs/TP2_CH
 │   ├── changes.md               #   histórico de alterações
 │   ├── experiment_protocol.md   #   protocolo experimental (uso dos splits, valores fixos)
 │   ├── dataset_validation.md    #   validação do dataset e dos splits
-│   └── report/                  #   relatório do TP2 (Typst)
+│   ├── report/                  #   relatório do TP2 (Typst)
+│   └── explanation/             #   explicação completa do projeto, da teoria ao código (Typst)
 ├── config/
 │   └── tp2_experiment.json      # configuração experimental congelada (parâmetros escolhidos no dev)
 ├── tp1/                         # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
@@ -169,6 +170,12 @@ O relatório do TP2 está em [`docs/report/`](docs/report/), escrito em [Typst](
 
 ```bash
 typst compile docs/report/main.typ
+```
+
+Para estudar o projeto (por exemplo, para a defesa), há uma explicação completa em [`docs/explanation/`](docs/explanation/): teoria de cada técnica, estrutura de pastas e cada módulo, import e função, com exemplos calculados. Para gerar o PDF:
+
+```bash
+typst compile docs/explanation/main.typ
 ```
 
 ## Trabalho Prático 1 (arquivado)

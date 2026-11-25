@@ -133,21 +133,21 @@ Legenda:
 
 ---
 
-## 5. Recuperação semântica (Requisito 5 / etapa 6 do roadmap)
+## 5. Recuperação semântica (Requisito 5 / etapa 6 do roadmap) ✅ concluído
 
 - [x] Bi-encoder pré-treinado via Sentence Transformers — `src/ir/neural.py`
 - [x] Embeddings dos documentos calculados previamente e salvos (`data/embeddings/<modelo>/document_embeddings.npy` + metadados)
 - [x] Embedding da consulta gerado a cada busca e similaridade calculada com todos os documentos (busca exaustiva, permitida)
-- [x] Modelo escolhido no dev entre `all-MiniLM-L6-v2` e `multi-qa-MiniLM-L6-cos-v1` (`tune_semantic.py`) — selecionado `sentence-transformers/all-MiniLM-L6-v2`
+- [x] Modelo escolhido no dev entre `all-MiniLM-L6-v2` (NDCG@10 0,3024) e `multi-qa-MiniLM-L6-cos-v1` (0,2718) com `tune_semantic.py` (reexecutado em 25/11/2026, sem `--update-config`; `result/tp2/semantic_tuning_dev.csv`) — selecionado `sentence-transformers/all-MiniLM-L6-v2`
 - [x] Normalização L2 dos embeddings + produto escalar (= cosseno)
 - [x] Registro da dimensionalidade, do `max_seq_length`, do nº de documentos truncados, do tempo de geração dos embeddings, do tempo médio por consulta e do dispositivo (`semantic_stats.json`)
-- [ ] **⚠️ parcial — versão do modelo:** registrar a **versão** (revisão/commit do Hugging Face e versão do `sentence-transformers`/`torch`). Hoje só o nome é salvo
-- [ ] Atenção: com o cache de embeddings, `embedding_time_seconds` vem dos metadados da 1ª execução. Garantir que o número reportado é o da geração real (e em qual hardware)
-- [ ] Gerar `semantic_stats.json` no test e reportar no relatório: nome e versão do modelo, biblioteca, dimensão, função de similaridade, normalização, tempo de geração dos embeddings, tempo médio por consulta, comprimento máximo de entrada (tokens) e se houve truncamento (quantos documentos)
+- [x] Versão do modelo registrada no relatório: revisão `1110a243fdf4706b3f48f1d95db1a4f5529b4d41` do Hugging Face, Sentence Transformers 6.3.0, PyTorch 2.15.0, Transformers 5.23.0. O código continua registrando só o nome do modelo (não foi alterado)
+- [x] Tempo de geração dos embeddings medido em execução isolada: 109,7 s (30 ms por documento), CPU AMD Ryzen 7 5700U com 8 threads. O valor no cache (154 s) estava inflado por concorrência com outros processos; os vetores recalculados são idênticos aos do cache
+- [x] `semantic_stats.json` gerado no test (25/11/2026) e tudo reportado no relatório (`docs/report/chapters/methodology/semantic.typ`): nome e versão, biblioteca, arquitetura (mean pooling), dimensão 384, cosseno via produto escalar, normalização L2, 109,7 s para os embeddings, 0,16 s por consulta, máximo de 256 tokens e truncamento de 2.864 dos 3.633 documentos (78,8%; 32,2% dos tokens descartados; média de 357 tokens por documento)
 
 ---
 
-## 6. Avaliação da recuperação (Requisito 6 / etapa 7 do roadmap)
+## 6. Avaliação da recuperação (Requisito 6 / etapa 7 do roadmap) ✅ concluído
 
 - [x] Lexical e semântico avaliados sobre as **mesmas** consultas do test
 - [x] Precision@10, Recall@10, MAP@10 e NDCG@10 implementados — `src/ir/metrics.py`
@@ -157,8 +157,8 @@ Legenda:
 - [x] Recall@10 com denominador = total de relevantes nos qrels
 - [x] Conferência com `ir_measures` (`validate_experiment.py` + `src/tests/test_metrics.py`)
 - [x] Métricas preservadas por consulta (`metrics_per_query.csv`)
-- [ ] Rodar `validate_experiment.py` e citar no relatório que as métricas batem com o `ir_measures`
-- [ ] **Relatório:** tabela de médias globais Lexical × Semântico no test
+- [x] Conferência com o `ir_measures` citada no relatório. Além da validação em rankings sintéticos, os rankings finais dos 4 sistemas (`results_*.csv`) foram reavaliados com o `ir_measures`, consulta a consulta: diferença máxima de 3×10⁻¹⁶ em relação ao `metrics_per_query.csv`. A média de AP10 coincide com o MAP@10 do `retrieval_summary.json`, a coluna `relevance` confere com os qrels, e há 323 consultas por sistema (25/11/2026)
+- [x] **Relatório:** tabela de médias globais Lexical × Semântico no test (`docs/report/chapters/results/lexical_vs_semantic.typ`), com a comparação por consulta: semântico melhor em 109, lexical em 106, empate em 108 (77 com NDCG@10 zero nos dois); NDCG@10 zero em 102 consultas (lexical) e 100 (semântico)
 
 ---
 
@@ -370,21 +370,21 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
   - [x] índice invertido — `chapters/methodology/inverted_index.typ`
   - [x] busca lexical — `chapters/methodology/lexical.typ` (escolha do modelo, fórmula, parâmetros e empates)
   - [x] tolerância a erros — `chapters/methodology/typo_tolerance.typ`
-  - [ ] recuperação semântica
+  - [x] recuperação semântica — `chapters/methodology/semantic.typ`
   - [ ] busca híbrida
   - [ ] reranking
   - [ ] RAG
-- [ ] **d. Avaliação:**
-  - [ ] dataset
-  - [ ] splits
-  - [ ] qrels
-  - [ ] métricas (definições exatas de P@10, R@10, AP@10/MAP@10, NDCG@10, P@5, R@5, Hit@5)
-  - [ ] modelos
-  - [ ] parâmetros
-  - [ ] ambiente computacional
-  - [ ] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face, ver [dataset_validation.md](dataset_validation.md))
+- [x] **d. Avaliação:** — `docs/report/chapters/evaluation.typ`
+  - [x] dataset
+  - [x] splits
+  - [x] qrels
+  - [x] métricas (definições exatas de P@10, R@10, AP@10/MAP@10, NDCG@10; P@5, R@5 e Hit@5 citadas para o RAG; conferência com o ir_measures)
+  - [x] modelos (tabela da configuração final; LLM ainda "a definir")
+  - [x] parâmetros
+  - [x] ambiente computacional
+  - [x] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face, ver [dataset_validation.md](dataset_validation.md))
 - [ ] **e. Resultados obtidos e análise:**
-  - [ ] lexical × semântico (global + 6 consultas)
+  - [ ] **⚠️ parcial — lexical × semântico:** resultados globais e comparação por consulta escritos; falta a análise das 6 consultas (requisito 7)
   - [x] tolerância a erros — `chapters/results/typo_tolerance.typ`
   - [ ] híbrido
   - [ ] reranking (global + 4 casos)
