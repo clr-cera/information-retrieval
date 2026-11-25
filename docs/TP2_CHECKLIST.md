@@ -102,15 +102,15 @@ Legenda:
 
 ---
 
-## 4. Tolerância a erros — correção ortográfica (Requisito 4 / etapa 5 do roadmap)
+## 4. Tolerância a erros — correção ortográfica (Requisito 4 / etapa 5 do roadmap) ✅ concluído (o item opcional não foi feito)
 
 ### Implementação
-- [x] Geração de candidatos por k-gramas (com marcadores `^`/`$`) e índice de k-gramas — `typo_correction.SpellingCorrector`
+- [x] Geração de candidatos por k-gramas (com marcadores `^`/`$`) e índice de k-gramas — `SpellingCorrector` em `src/ir/lexical.py`
 - [x] Filtragem por coeficiente de Jaccard
 - [x] Seleção por distância de edição (Levenshtein implementado)
 - [x] Desempate por Jaccard e depois por frequência na coleção
 - [x] Só corrige termos desconhecidos (fora do dicionário)
-- [x] Limiares ajustados no dev (`tune_typo.py`: k ∈ {2,3}, Jaccard ∈ {0,2…0,5}, distância ∈ {1,2,3}) — selecionado k = 2, Jaccard = 0,2, distância máx. = 2
+- [x] Limiares ajustados no dev (`tune_typo.py`: k ∈ {2,3}, Jaccard ∈ {0,2…0,5}, distância ∈ {1,2,3}; 200 erros simulados no dev) — selecionado k = 2, Jaccard = 0,2, distância máx. = 2, com 92,0% de correções exatas (`result/tp2/typo_tuning_dev.csv`, regerado em 25/11/2026)
 
 ### Padronização exigida
 - [x] (i) Dicionário formado pelos termos da coleção **antes** do stemming/lematização (`build_dictionary` = tokenize + lowercase)
@@ -125,11 +125,11 @@ Legenda:
 - [x] Três condições por consulta: original × com erro × corrigida
 - [x] Saída em `typo_experiment.csv` + resumo `typo_experiment_summary.json` (média de recuperação, correções exatas)
 - [x] Experimento separado: os demais experimentos usam as consultas originais, sem correção
-- [ ] Executar `run_typo.py` no test e conferir: 10 linhas, pelo menos um exemplo de cada tipo de erro, termos com erro realmente fora do dicionário
-- [ ] Revisar se a seleção automática (as 10 primeiras consultas do test em ordem de ID com NDCG > 0) é adequada. O enunciado diz que "o grupo introduzirá erros"; documentar que os erros foram gerados de forma controlada e com seed
-- [ ] Verificar se a correção não "corrige" erroneamente tokens legítimos da consulta original que já estavam fora do dicionário (por exemplo, números e siglas)
-- [ ] (Opcional) Aplicar as mesmas consultas com erro ao sistema **semântico** e discutir a robustez dos embeddings a erros ortográficos
-- [ ] **Relatório:** tabela por consulta (original / erro / corrigida / tipo / 3 NDCG@10 / recuperação), média, casos em que o erro não reduziu o desempenho e casos de correção errada, com discussão
+- [x] Executado no test (25/11/2026, BM25 k1 = 1,2 e b = 0,75) e conferido por `src/scripts/analyze_typo.py`: 10 consultas; tipos 3 inserções, 3 remoções, 2 substituições, 2 trocas; cada consulta com exatamente um termo alterado, fora do dicionário; termo original no dicionário. Saída em `result/tp2/typo_analysis.md`
+- [x] Seleção automática e reprodutível (seed 42) documentada no relatório: as 10 primeiras consultas do test em ordem de ID com NDCG@10 > 0; erro no termo mais longo (não stopword, ≥ 4 letras); tipo alternado por consulta. O relatório discute o viés de atingir o termo mais específico
+- [x] Nenhuma correção indevida: nas 10 consultas, a consulta corrigida é idêntica à original normalizada (`analyze_typo.py` confere que nenhum outro termo foi alterado)
+- [ ] (Opcional — não feito, mas citado no relatório) Aplicar as mesmas consultas com erro ao sistema **semântico** e discutir a robustez dos embeddings a erros ortográficos
+- [x] **Relatório:** metodologia (`docs/report/chapters/methodology/typo_tolerance.typ`: dicionário, algoritmo, ajuste no dev, protocolo) e resultados (`docs/report/chapters/results/typo_tolerance.typ`: tabela por consulta, médias 0,4706 → 0,1625 → 0,4706, recuperação de 100% nas 8 consultas afetadas, impacto do erro e os 2 casos em que o erro melhorou o NDCG@10, explicados com dados)
 
 ---
 
@@ -369,7 +369,7 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
   - [x] pré-processamento — `chapters/methodology/preprocessing.typ`
   - [x] índice invertido — `chapters/methodology/inverted_index.typ`
   - [x] busca lexical — `chapters/methodology/lexical.typ` (escolha do modelo, fórmula, parâmetros e empates)
-  - [ ] tolerância a erros
+  - [x] tolerância a erros — `chapters/methodology/typo_tolerance.typ`
   - [ ] recuperação semântica
   - [ ] busca híbrida
   - [ ] reranking
@@ -385,7 +385,7 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
   - [ ] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face, ver [dataset_validation.md](dataset_validation.md))
 - [ ] **e. Resultados obtidos e análise:**
   - [ ] lexical × semântico (global + 6 consultas)
-  - [ ] tolerância a erros
+  - [x] tolerância a erros — `chapters/results/typo_tolerance.typ`
   - [ ] híbrido
   - [ ] reranking (global + 4 casos)
   - [ ] tempos (índice, consultas, embeddings, fusão, reranking, geração)

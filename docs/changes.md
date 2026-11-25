@@ -4,6 +4,23 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Requisito 4 (tolerância a erros)
+
+- **Novo script `src/scripts/analyze_typo.py`:** lê `result/tp2/typo_experiment.csv` e confere as regras do enunciado em cada consulta:
+  - NDCG@10 original maior que zero;
+  - exatamente um termo alterado;
+  - termo com erro fora do dicionário e termo original dentro dele;
+  - nenhuma correção indevida.
+
+  Ele também monta a tabela por consulta, as médias e a contagem por tipo de erro. Nas consultas em que o erro não reduziu o NDCG@10, mostra o top-5 das duas versões e o número de documentos de cada termo. A saída vai para `result/tp2/typo_analysis.md`. Escrito em estilo convencional (laços explícitos, funções pequenas, sem atalhos).
+- **Código existente não alterado:** a implementação da correção (`SpellingCorrector`, em `src/ir/lexical.py`) e os scripts `run_typo.py` e `tune_typo.py` ficaram como estavam.
+- **`tune_typo.py` reexecutado no dev, sem `--update-config`:** gerou `result/tp2/typo_tuning_dev.csv` com a mesma escolha do config (k = 2, Jaccard ≥ 0,2, distância ≤ 2; 92,0% de acerto).
+- **Relatório:**
+  - `docs/report/chapters/methodology/typo_tolerance.typ`: dicionário, algoritmo em três etapas, ajuste no dev com tabela, protocolo do experimento e o item opcional (sistema semântico) registrado como não feito;
+  - `docs/report/chapters/results/typo_tolerance.typ`: tabela das 10 consultas, médias, impacto do erro e os dois casos em que o erro aumentou o NDCG@10 (`practices` e `disruptors`), explicados com contagens medidas.
+- **Verificação das explicações:** foram feitas com um script no scratchpad, só com consultas do experimento. Exemplos: dos 183 documentos com `practic`, só 13 são relevantes; dos 13 documentos com `disruptor`, só 4 são relevantes; o top-10 passa de 5 para 7 relevantes e de 3 para 5, respectivamente.
+- `docs/TP2_CHECKLIST.md`: seção 4 marcada como concluída.
+
 ## 25/11/2026 — Raiz do repositório enxugada
 
 A raiz passou de 13 itens para 6 pastas e 4 arquivos. `data/` e `result/` continuam gerados e fora do git.
