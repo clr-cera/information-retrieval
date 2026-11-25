@@ -12,15 +12,20 @@ if __name__ == "__main__":
 == Ordem de execução
 
 ```
-1. validate_experiment.py              confere dataset, amostra do RAG e métricas
-2. tune_lexical.py      (dev)          pipeline de pré-processamento, k1 e b
-   tune_typo.py         (dev)          limiares da correção ortográfica
-   tune_semantic.py     (dev)          modelo de embeddings
-   tune_hybrid.py       (dev)          k do RRF          (depende do lexical e do semântico)
-   tune_reranker.py     (dev)          modelo do reranker (depende do híbrido)
-3. run_retrieval_pipeline.py (test)    lexical, semântico, híbrido e reranking
-   run_typo.py          (test)         experimento de erros
-   analyze_typo.py      (test)         verificação e tabela do experimento de erros
+1. validate_experiment.py                 confere dataset, amostra do RAG e métricas
+2. tune_lexical.py      (dev)             pipeline de pré-processamento, k1 e b
+   tune_typo.py         (dev)             limiares da correção ortográfica
+   tune_semantic.py     (dev)             modelo de embeddings
+   tune_hybrid.py       (dev)             k do RRF          (depende do lexical e do semântico)
+   tune_reranker.py     (dev)             modelo do reranker (depende do híbrido)
+3. run_retrieval_pipeline.py (test)       lexical, semântico, híbrido e reranking
+   run_typo.py          (test)            experimento de erros
+   analyze_typo.py, analyze_lexical_vs_semantic.py, analyze_reranking.py   análises
+4. run_rag.py           (test)            respostas sem RAG e com RAG (precisa do Ollama)
+   evaluate_rag.py prepare                métricas do contexto, rastreamento e planilhas cegas
+   (avaliação humana)
+   evaluate_rag.py merge --sheets ...     junta as notas
+5. check_results.py                       confere os arquivos exigidos pelo enunciado
 ```
 
 Os scripts de ajuste só gravam a escolha no config com `--update-config`. A ordem importa: o ajuste do RRF usa o lexical e o semântico já escolhidos, e o do reranker usa o híbrido.
@@ -98,3 +103,33 @@ Lê o `typo_experiment.csv` e confere as regras do enunciado em cada consulta:
 - nenhuma correção indevida em outros termos.
 
 Monta a tabela por consulta, as médias e a contagem por tipo. Para as consultas em que o erro não reduziu o NDCG\@10, mostra o número de documentos de cada termo e o top-5 das duas versões, com os graus de relevância. Grava tudo em `typo_analysis.md` e encerra com erro se alguma regra falhar.
+
+
+== `analyze_lexical_vs_semantic.py`
+
+Análise por consulta do requisito 7. Lê o `metrics_per_query.csv` e os rankings lexical e semântico (`read_ndcg_by_query`, `read_rankings`), calcula a diferença de NDCG\@10 (semântico − lexical) e seleciona as 3 consultas de cada lado (`select_queries`, com desempate pelo identificador). Para cada uma, `describe_query` reúne a evidência:
+
+- os termos da consulta no índice e em quantos documentos cada um aparece;
+- quantos relevantes têm algum termo da consulta, isto é, quantos o BM25 consegue alcançar;
+- para cada documento do top-5 de cada sistema: o score, o grau, os termos da consulta que ele contém (com o $t f$), o número de tokens (marcando se o bi-encoder o trunca), a posição no outro sistema e o título.
+
+O tokenizador do bi-encoder é carregado só para contar tokens. Saída: `lexical_vs_semantic_analysis.md`.
+
+== `analyze_reranking.py`
+
+Análise do requisito 10. Compara o NDCG\@10 do híbrido e do reranking por consulta e escolhe (`select_cases`): os 2 maiores ganhos, 1 caso de pouca ou nenhuma alteração (a menor diferença em módulo entre as consultas com NDCG\@10 do híbrido maior que zero) e a maior piora. Para cada caso, `describe_case` lista os documentos do top-10 após o reranking e os relevantes que saíram dele, com o grau, a posição antes e depois, o score do cross-encoder, se o par consulta + documento passa de 512 tokens e o título. Saída: `reranking_analysis.md`.
+
+== `run_rag.py` e `evaluate_rag.py`
+
+Descritos no @cap-rag.
+
+== `check_results.py`
+
+Verifica os 7 arquivos exigidos pelo enunciado:
+
+- rankings: as colunas obrigatórias, no máximo 100 documentos por consulta, posições 1, 2, 3... sem buracos, todas as consultas presentes (o lexical pode ter rankings vazios) e a coluna `relevance` igual aos qrels;
+- `metrics_per_query.csv`: os 4 sistemas com todas as consultas e a média de `AP10` igual ao MAP\@10 do `retrieval_summary.json`;
+- `typo_experiment.csv`: 10 consultas;
+- `rag_experiment.csv`: 20 linhas e as notas humanas preenchidas.
+
+Lista os problemas encontrados e termina com erro se houver algum. Hoje, o único problema é a falta das notas humanas.

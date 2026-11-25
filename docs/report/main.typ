@@ -5,6 +5,7 @@
 #show "INSTRUCTOR": "PROFESSOR"
 #show "DATE": "DATA"
 #show "TERM": "SEMESTRE"
+#show "INSTITUTION": "INSTITUIÇÃO"
 // Sem justificação nas grades (metadados da capa, cabeçalho e rodapé), que têm colunas estreitas.
 #show grid: set par(justify: false)
 
@@ -22,7 +23,7 @@
   department: "Instituto de Ciências Matemáticas e de Computação (ICMC)",
   university: "Universidade de São Paulo",
   date: str(hoje.day()) + " de " + meses.at(hoje.month() - 1) + " de " + str(hoje.year()),
-  cover-page: true,
+  cover-page: false,  // cabeçalho na primeira página, em vez de uma capa inteira (economiza espaço)
 )
 
 #set text(lang: "pt", region: "br")
@@ -55,7 +56,6 @@
   ]
 }
 
-#outline(depth: 2)
 
 = Introdução
 
@@ -93,3 +93,20 @@
 = Uso de ferramentas de IA
 
 #include("./chapters/ai_use.typ")
+
+#heading(numbering: none)[Referências]
+
+#set par(justify: false)
+#set text(size: 9.5pt)
+
+- MANNING, C. D.; RAGHAVAN, P.; SCHÜTZE, H. _Introduction to Information Retrieval_. Cambridge University Press, 2008.
+- ROBERTSON, S.; ZARAGOZA, H. The Probabilistic Relevance Framework: BM25 and Beyond. _Foundations and Trends in Information Retrieval_, v. 3, n. 4, p. 333–389, 2009.
+- THAKUR, N. et al. BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models. _NeurIPS Datasets and Benchmarks_, 2021.
+- BOTEVA, V. et al. A Full-Text Learning to Rank Dataset for Medical Information Retrieval (NFCorpus). _ECIR_, 2016.
+- REIMERS, N.; GUREVYCH, I. Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. _EMNLP_, 2019.
+- WANG, W. et al. MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers. _NeurIPS_, 2020.
+- NOGUEIRA, R.; CHO, K. Passage Re-ranking with BERT. _arXiv:1901.04085_, 2019.
+- CORMACK, G. V.; CLARKE, C. L. A.; BÜTTCHER, S. Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods. _SIGIR_, 2009.
+- LEWIS, P. et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. _NeurIPS_, 2020.
+- QWEN TEAM. Qwen3 Technical Report. _arXiv:2505.09388_, 2025.
+- MACAVANEY, S.; MACDONALD, C.; OUNIS, I. Streamlining Evaluation with ir-measures. _ECIR_, 2022.

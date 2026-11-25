@@ -28,10 +28,11 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 | Recuperação semântica (bi-encoder) | concluída |
 | Busca híbrida (RRF) | concluída |
 | Reranking (cross-encoder) | concluída |
-| RAG (sem RAG × com RAG) | **pendente** |
-| Relatório | em elaboração |
+| RAG (sem RAG × com RAG) | 20 respostas geradas e métricas do contexto calculadas; **avaliação humana pendente** |
+| Arquivos padronizados de resultados | gerados e verificados; falta só a nota humana no `rag_experiment.csv` |
+| Relatório | todas as seções escritas (19 de 20 páginas); faltam os itens que dependem da avaliação humana |
 
-O acompanhamento detalhado de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
+**O que falta fazer** está em [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md), passo a passo. O acompanhamento de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
 
 ## Estrutura do repositório
 
@@ -42,7 +43,8 @@ O acompanhamento detalhado de cada requisito do enunciado está em [`docs/TP2_CH
 │   │   ├── data.py              #     leitura do NFCorpus, configuração experimental, escrita dos CSVs
 │   │   ├── metrics.py           #     P@k, R@k, AP@k, NDCG@k e Hit@k
 │   │   ├── lexical.py           #     pré-processamento, índice invertido, BM25 e correção ortográfica
-│   │   └── neural.py            #     busca semântica, RRF, reranking e montagem do pipeline
+│   │   ├── neural.py            #     busca semântica, RRF, reranking e montagem do pipeline
+│   │   └── rag.py               #     prompts e chamada à LLM local (Ollama)
 │   ├── scripts/                 #   scripts executáveis (ajuste no dev e avaliação no test)
 │   └── tests/                   #   testes (pytest), um arquivo por módulo de ir/
 ├── docs/                        # documentação e relatório
@@ -50,17 +52,17 @@ O acompanhamento detalhado de cada requisito do enunciado está em [`docs/TP2_CH
 │   ├── TP2_CHECKLIST.md         #   checklist de todos os requisitos do enunciado
 │   ├── changes.md               #   histórico de alterações
 │   ├── experiment_protocol.md   #   protocolo experimental (uso dos splits, valores fixos)
-│   ├── dataset_validation.md    #   validação do dataset e dos splits
+│   ├── PENDENCIAS.md            #   o que falta o grupo fazer
 │   ├── report/                  #   relatório do TP2 (Typst)
 │   └── explanation/             #   explicação completa do projeto, da teoria ao código (Typst)
 ├── config/
 │   └── tp2_experiment.json      # configuração experimental congelada (parâmetros escolhidos no dev)
 ├── tp1/                         # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
 ├── data/                        # dataset e embeddings — gerados pelos scripts, fora do git
-└── result/                      # resultados (CSVs e JSONs) — gerados pelos scripts, fora do git
+└── result/tp2/                  # resultados gerados pelos scripts (os arquivos finais são versionados)
 ```
 
-Cada arquivo de `src/ir/` reúne vários módulos relacionados. Comentários `# Origem: src/<arquivo>.py` indicam de qual arquivo da organização anterior veio cada trecho.
+Cada um dos quatro primeiros arquivos de `src/ir/` reúne vários módulos relacionados. Comentários `# Origem: src/<arquivo>.py` indicam de qual arquivo da organização anterior veio cada trecho.
 
 | Módulo | Principais classes e funções |
 |---|---|
@@ -68,13 +70,15 @@ Cada arquivo de `src/ir/` reúne vários módulos relacionados. Comentários `# 
 | `src/ir/metrics.py` | `precision_at_k`, `recall_at_k`, `average_precision_at_k`, `ndcg_at_k`, `hit_at_k`, `compute_per_query_metrics`, `aggregate_metrics` |
 | `src/ir/lexical.py` | `PipelineOptions`, `get_index_terms_freq`, `PostingList` (índice invertido), `ProbabilisticModel` (BM25), `LexicalIndex`, `evaluate_bm25`, `SpellingCorrector` |
 | `src/ir/neural.py` | `SemanticIndex`, `evaluate_semantic`, `reciprocal_rank_fusion`, `CrossEncoderReranker`, `evaluate_reranker`, `build_lexical_run`, `build_semantic_run`, `build_hybrid_rankings` |
+| `src/ir/rag.py` | `build_prompt_without_context`, `build_prompt_with_context`, `ask_llm`, `LLMAnswer` |
 
 ## Instalação
 
-Requisitos: **Python 3.13** e [uv](https://docs.astral.sh/uv/).
+Requisitos: **Python 3.13**, [uv](https://docs.astral.sh/uv/) e, só para o RAG, o [Ollama](https://ollama.com) com o modelo `qwen3:4b`.
 
 ```bash
 uv sync
+ollama pull qwen3:4b      # só para o RAG (2,5 GB)
 ```
 
 O `uv sync` cria o ambiente virtual, instala as dependências e instala o pacote `src/ir/` em modo editável, que os scripts e os testes importam. Na primeira execução, o NLTK baixa os recursos de stopwords e WordNet, e o Sentence Transformers baixa os modelos do Hugging Face.
@@ -108,6 +112,16 @@ uv run src/scripts/run_retrieval_pipeline.py --split test   # lexical, semântic
 uv run src/scripts/run_typo.py                              # experimento de erros ortográficos
 uv run src/scripts/analyze_typo.py                          # confere as regras do experimento e gera a tabela
 uv run src/scripts/analyze_lexical_vs_semantic.py           # análise por consulta: lexical × semântico
+uv run src/scripts/analyze_reranking.py                     # casos de ganho, sem alteração e piora do reranking
+
+# 4. RAG (precisa do Ollama com o modelo qwen3:4b: `ollama pull qwen3:4b`)
+uv run src/scripts/run_rag.py                               # respostas sem RAG (A) e com RAG (B), ~30 min em CPU
+uv run src/scripts/evaluate_rag.py prepare                  # P@5/R@5/Hit@5, rastreamento por estágio e planilhas cegas
+#    (cada integrante preenche result/tp2/rag_avaliacao/planilha_avaliadorN.csv sem abrir a chave)
+uv run src/scripts/evaluate_rag.py merge --sheets result/tp2/rag_avaliacao/planilha_avaliador1.csv result/tp2/rag_avaliacao/planilha_avaliador2.csv
+
+# 5. Conferência dos arquivos de resultados exigidos pelo enunciado
+uv run src/scripts/check_results.py
 ```
 
 > **BM25:** os valores usuais (k1 = 1,2; b = 0,75) foram fixados à mão no config. O `tune_lexical.py --update-config` escolheria o maior NDCG@10 da grade (k1 = 2,0; b = 0), que está apenas 0,001 acima e cuja vantagem se deve a empates de score. A justificativa está em [`docs/experiment_protocol.md`](docs/experiment_protocol.md) e no relatório. Por isso, rode `tune_lexical.py` **sem** `--update-config`.
@@ -127,7 +141,7 @@ Tempos de referência (CPU, máquina descrita abaixo): construção do índice ~
 | Modelo de embeddings | **`sentence-transformers/all-MiniLM-L6-v2`** (384 dimensões, cosseno, embeddings normalizados, máximo de 256 tokens) |
 | Busca híbrida | Reciprocal Rank Fusion com **k = 10**, fundindo os 100 primeiros de cada sistema |
 | Reranking | **`cross-encoder/ms-marco-MiniLM-L6-v2`** (máximo de 512 tokens), reordena os 50 primeiros do híbrido |
-| LLM (RAG) | **a definir** |
+| LLM (RAG) | **Qwen3 4B** (`qwen3:4b` no Ollama, quantizado em 4 bits), local, temperatura 0, seed 42; top-5 do reranking como contexto |
 
 ## Resultados
 
@@ -149,13 +163,17 @@ Arquivos gerados em `result/tp2/`:
 | `results_lexical.csv`, `results_semantic.csv`, `results_hybrid.csv`, `results_reranking.csv` | 100 primeiros documentos por consulta: `query_id, doc_id, rank, score, relevance` |
 | `metrics_per_query.csv` | `query_id, model, P10, R10, AP10, NDCG10` para os 4 sistemas |
 | `typo_experiment.csv` | consultas original, com erro e corrigida, tipo do erro e os três NDCG@10 |
-| `rag_experiment.csv` | pendente (etapa de RAG) |
+| `rag_experiment.csv` | pergunta, condição (A/B), documentos do contexto, prompt, resposta e as 4 notas com justificativas (as notas entram após a avaliação humana) |
 | `*_tuning_dev.csv`, `*_stats.json`, `retrieval_summary.json` | ajustes no dev, estatísticas e tempos |
+| `rag_retrieval_metrics.csv`, `rag_stage_trace.md`, `rag_generations.json` | P@5/R@5/Hit@5 do contexto, rastreamento por estágio e tempos da LLM |
+| `*_analysis.md` | análises por consulta usadas no relatório |
+
+Os arquivos finais do TP2 são versionados no git (as demais saídas não). Em `results_reranking.csv`, a coluna `score` tem o score do cross-encoder nas posições 1 a 50 e o score RRF nas posições 51 a 100: são escalas diferentes. Em `results_lexical.csv`, 134 consultas têm menos de 100 documentos (só documentos com algum termo da consulta são recuperados), e 16 não têm nenhum.
 
 ## Testes
 
 ```bash
-uv run pytest             # testes do TP2 (src/tests/)
+uv run pytest             # testes do TP2 (src/tests/, 77 testes)
 uv run pytest tp1/src     # testes do TP1 arquivado
 ```
 

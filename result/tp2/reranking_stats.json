@@ -1,0 +1,21 @@
+{
+  "split": "test",
+  "model_name": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "max_length": 512,
+  "truncated_pair_count": 1426,
+  "device": "cpu",
+  "query_count": 323,
+  "average_rerank_time_seconds": 4.0919218149783125,
+  "hybrid_aggregated_metrics": {
+    "P10": 0.25572755417956655,
+    "R10": 0.16568412432459778,
+    "AP10": 0.12588432067509536,
+    "NDCG10": 0.3439693551837329
+  },
+  "aggregated_metrics": {
+    "P10": 0.25046439628482975,
+    "R10": 0.16786243891325253,
+    "AP10": 0.1381706868896206,
+    "NDCG10": 0.3557076492505927
+  }
+}

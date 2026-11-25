@@ -29,14 +29,14 @@ Legenda:
 - [x] IDs mantidos como string
 - [x] Protocolo documentado em `docs/experiment_protocol.md`
 - [x] Configuração experimental congelada em `config/tp2_experiment.json`
-- [x] Rodar `src/scripts/validate_experiment.py` e guardar a saída para citar no relatório — [dataset_validation.md](dataset_validation.md)
+- [x] Rodar `src/scripts/validate_experiment.py` e guardar a saída para citar no relatório — números no relatório (`docs/report/chapters/evaluation.typ`) e na explicação (`docs/explanation/`)
   - train: 3.633 docs / 2.590 consultas / 110.575 qrels; dev: 3.633 / 324 / 11.385; test: 3.633 / 323 / 12.334
   - Amostra do RAG idêntica à do enunciado; P@10, R@10, AP@10 e NDCG@10 iguais ao `ir_measures`
 
 ### Regras de uso dos splits (não violar)
 - [x] Dev usado para ajustar: pré-processamento, k1/b do BM25, limiares de correção ortográfica, modelo de embeddings, k do RRF e modelo de reranking (scripts `tune_*.py`, todos com `--split dev` por padrão)
 - [x] Test reservado para a avaliação final (`run_retrieval_pipeline.py --split test`, que só lê a configuração congelada)
-- [x] Código auditado: os qrels do test **não** são usados para modificar consultas, escolher parâmetros, alterar rankings ou favorecer exemplos (ver a auditoria em [dataset_validation.md](dataset_validation.md))
+- [x] Código auditado: os qrels do test **não** são usados para modificar consultas, escolher parâmetros, alterar rankings ou favorecer exemplos (declarado no relatório, seção "Protocolo experimental")
   - Exceções permitidas pelo enunciado: escolha das consultas do experimento de erros (NDCG@10 original > 0, item 4.iii) e a amostra fixa do RAG (seed 42)
   - A declaração formal no relatório está listada na seção "Entrega › Relatório › d. Avaliação"
 
@@ -179,21 +179,21 @@ Legenda:
 
 ---
 
-## 8. Busca híbrida — RRF (Requisito 8 / etapa 9 do roadmap)
+## 8. Busca híbrida — RRF (Requisito 8 / etapa 9 do roadmap) ✅ concluído (exceto a preparação para a defesa)
 
 - [x] RRF implementado: `RRF(d) = Σ 1/(k + rank_s(d))`, rank começando em 1 — `src/ir/neural.py`
 - [x] Documentos ausentes de um ranking não recebem contribuição desse sistema
 - [x] Fusão dos **100 primeiros** de cada sistema (`FUSION_DEPTH = 100`)
-- [x] k ajustado no dev com k ∈ {10, 60, 100}, critério: maior NDCG@10 médio — selecionado **k = 10** (`tune_hybrid.py`, `hybrid_tuning_dev.csv`)
+- [x] k ajustado no dev com k ∈ {10, 60, 100}, critério: maior NDCG@10 médio — selecionado **k = 10** (NDCG@10 dev: 0,3299 × 0,3273 × 0,3273; `tune_hybrid.py`, `hybrid_tuning_dev.csv`, reexecutado em 25/11/2026 com o BM25 final)
 - [x] Valor selecionado mantido na avaliação final no test
 - [x] Avaliação Lexical × Semântico × Híbrido com P@10, R@10, MAP@10 e NDCG@10 (`run_retrieval_pipeline.py`)
-- [ ] Medir o tempo da etapa de fusão (hoje não é registrado; necessário para a tabela de tempos)
-- [ ] **Relatório:** tabela do ajuste de k no dev, tabela comparativa no test, explicar por que o RRF evita comparar scores de escalas diferentes
+- [x] Tempo da fusão medido fora do pipeline (script no scratchpad, mediana de 20 repetições sobre as 323 consultas do test): 0,07 ms por consulta. O pipeline continua sem registrar esse tempo (código não alterado)
+- [x] **Relatório:** fórmula e motivo de usar posições em vez de scores (`docs/report/chapters/methodology/hybrid.typ`, com a tabela do ajuste de k no dev) e comparação Lexical × Semântico × Híbrido no test (`docs/report/chapters/results/hybrid.typ`), com a análise da complementaridade: 22 documentos em comum nos top-100, relevantes no top-100 (lexical 6,5, semântico 8,0, união 9,7), composição do top-10 híbrido, consultas acima, entre e abaixo dos dois sistemas (42/272/9), oráculo do melhor sistema por consulta (0,3795) e empates do RRF (30 consultas)
 - [ ] **Defesa:** saber calcular o RRF de um documento à mão a partir dos CSVs
 
 ---
 
-## 9. Reranking (Requisito 9 / etapa 10 do roadmap)
+## 9. Reranking (Requisito 9 / etapa 10 do roadmap) ✅ concluído
 
 - [x] Híbrido usado como recuperador inicial
 - [x] Top-50 do híbrido reordenados por cross-encoder — `src/ir/neural.py` (`RERANK_DEPTH = 50`)
@@ -202,111 +202,103 @@ Legenda:
 - [x] Comparação Lexical × Semântico × Híbrido × Híbrido + reranking com as 4 métricas
 - [x] Tempo médio do reranking por consulta registrado (`reranking_stats.json`)
 - [x] Comprimento máximo de entrada do cross-encoder e nº de pares truncados registrados
-- [ ] Gerar `reranking_stats.json` no test
-- [ ] Tabela com o **tempo médio de todas as etapas** (lexical, semântica, fusão, reranking, e no RAG a geração), incluindo o hardware
-- [ ] Atenção: em `results_reranking.csv` a coluna `score` mistura scores do cross-encoder (top-50) com scores RRF (posições 51–100). Documentar isso no relatório/README
-- [ ] Registrar a versão do modelo de reranking
-- [ ] **Relatório:** informar e **justificar** a escolha do modelo de reranking (dev + custo); informar o comprimento máximo e o truncamento
+- [x] `reranking_stats.json` gerado no test (25/11/2026): 4,09 s por consulta, 1.426 de 16.150 pares truncados (8,8%), máximo de 512 tokens, CPU
+- [x] Tabela com o tempo médio de todas as etapas no relatório (`docs/report/chapters/results/timing.typ`), incluindo a geração da LLM e o hardware
+- [x] Mistura de scores no `results_reranking.csv` (cross-encoder nas posições 1–50, RRF nas 51–100) documentada no README
+- [x] Versão do modelo de reranking no relatório: revisão `233902d25c440f23af6f7d6e94d2946bac0bee0a` do Hugging Face
+- [x] **Relatório:** escolha justificada no dev (MiniLM-L6 0,3310 × TinyBERT-L2 0,3237 × híbrido 0,3299; tempos 3,72 s × 0,36 s), comprimento máximo de 512 tokens e truncamento (`docs/report/chapters/methodology/reranking.typ`); comparação dos 4 sistemas no test (`results/reranking.typ`)
 
 ---
 
-## 10. Análise do reranking (Requisito 10 / etapa 11 do roadmap)
+## 10. Análise do reranking (Requisito 10 / etapa 11 do roadmap) ✅ concluído (exceto a preparação para a defesa)
 
-- [ ] Script para comparar NDCG@10 híbrido × reranking por consulta
-- [ ] Identificar os **2 casos com maior ganho** de NDCG@10 após o reranking
-- [ ] Identificar **1 caso com pouca ou nenhuma alteração**
-- [ ] Identificar **1 caso em que o reranking piorou** o NDCG@10
-- [ ] Para cada caso: mostrar os principais documentos que mudaram de posição (posição antes → depois, relevância, score do cross-encoder)
-- [ ] Discutir a provável razão de cada alteração, com evidências dos dados (trecho do documento, truncamento, correspondência com a consulta etc.)
+- [x] Script `src/scripts/analyze_reranking.py`: compara o NDCG@10 do híbrido e do reranking por consulta (melhorou em 108, piorou em 97, não mudou em 118) e grava `result/tp2/reranking_analysis.md`
+- [x] 2 casos com maior ganho: PLAIN-2081 "shelf life" (0 → 1) e PLAIN-681 "betel nuts" (0 → 1)
+- [x] 1 caso com pouca ou nenhuma alteração: PLAIN-1039 "domoic acid" (1 → 1)
+- [x] 1 caso em que o reranking piorou: PLAIN-1679 "myelopathy" (0,3869 → 0)
+- [x] Para cada caso: documentos que mudaram de posição (híbrido → reranking), grau, score do cross-encoder, truncamento do par e título
+- [x] Razões discutidas com evidência (`docs/report/chapters/results/reranking.typ`): hífens que o BM25 junta (`shelflif`, `betelnut`) e que o cross-encoder lê separados; diferença de sentido (noz de bétele × castanhas); mielopatia descrita sem a palavra e confusão com mieloma (`my ##elo`); documentos duplicados com o mesmo score
 - [ ] **Defesa:** saber justificar a alteração de posições após o reranking
 
 ---
 
-## 11. Retrieval-Augmented Generation (Requisito 11 / etapa 12 do roadmap)
+## 11. Retrieval-Augmented Generation (Requisito 11 / etapa 12 do roadmap) ✅ concluído
 
-- [ ] Escolher a LLM (aberta local/Colab, como Qwen, Llama, Gemma ou Mistral, ou comercial via API). `llm` está `null` no config
-- [ ] Implementar o pipeline: consulta → recuperação híbrida → reranking → seleção de contexto → LLM → resposta
-- [ ] Cada item do `corpus.jsonl` = uma unidade de contexto (sem chunking obrigatório)
-- [ ] (Opcional) Chunking adicional preservando o `doc_id` original
-- [ ] Seleção de contexto: Top-5 após o reranking, com os respectivos `doc_id`
-- [ ] Parâmetros fixos: temperatura 0 (ou a mínima), seed fixa quando disponível, `max_tokens` definido
-- [ ] Preencher no `config/tp2_experiment.json`: `llm`, `llm_temperature`, `llm_max_tokens`, `rag_language`
-- [ ] Credenciais/chaves de API via variável de ambiente, **nunca** commitadas nem incluídas na entrega
-- [ ] **Relatório:** modelo e versão, forma de execução (local ou serviço externo), temperatura, nº máximo de tokens, demais parâmetros relevantes, custo aproximado (se pago) e hardware (se local)
+- [x] LLM escolhida: **Qwen3 4B** (`qwen3:4b` no Ollama, Q4_K_M, digest `359d7dd4bcda`), local, em CPU, sem custo
+- [x] Pipeline: consulta → híbrido → reranking → top-5 → LLM → resposta. `src/ir/rag.py` (prompts + chamada à API do Ollama só com `urllib`/`json`) e `src/scripts/run_rag.py`; o contexto vem do `results_reranking.csv` final
+- [x] Cada item do `corpus.jsonl` (título + texto) = uma unidade de contexto
+- [ ] (Opcional — não feito) Chunking adicional preservando o `doc_id` original
+- [x] Seleção de contexto: top-5 após o reranking, com os `doc_id` no formato `[MED-123]`
+- [x] Parâmetros fixos: temperatura 0, seed 42, `num_predict` 4096 (raciocínio + resposta), janela de contexto de 16.384 tokens (o padrão do Ollama é menor e cortaria o prompt em silêncio); as 20 respostas terminaram antes do limite
+- [x] Config preenchido: `llm: qwen3:4b`, `llm_temperature: 0`, `llm_max_tokens: 4096`, `rag_language: en`
+- [x] Sem chaves de API (execução local)
+- [x] **Relatório:** `docs/report/chapters/methodology/rag.typ` (modelo e versão, Ollama 0.40.6, parâmetros, raciocínio separado da resposta, idioma, hardware, custo zero)
 
 ---
 
-## 12. Experimento sem RAG × com RAG (Requisito 12 / etapa 13 do roadmap)
+## 12. Experimento sem RAG × com RAG (Requisito 12 / etapa 13 do roadmap) ✅ concluído
 
-- [x] As 10 consultas fixas foram reproduzidas com o código do enunciado (seed 42, consultas do test terminadas em "?") — `select_rag_query_ids` + checagem em `validate_experiment.py`
+- [x] As 10 consultas fixas foram reproduzidas com o código do enunciado (seed 42, consultas do test terminadas em "?") — `select_rag_query_ids`, conferido também por `run_rag.py`
 - [x] Lista conferida: PLAIN-68, PLAIN-2450, PLAIN-153, PLAIN-2850, PLAIN-2750, PLAIN-270, PLAIN-2470, PLAIN-2430, PLAIN-238, PLAIN-3342
-- [ ] Condição **A (sem RAG):** LLM recebe só a pergunta, sem acesso ao NFCorpus
-- [ ] Condição **B (com RAG):** LLM recebe a pergunta + Top-5 documentos após o reranking, com seus identificadores
-- [ ] Prompt do RAG instruindo a: responder com base no contexto fornecido, **indicar as fontes** (doc_ids) e **informar quando não houver evidência suficiente**
-- [ ] Mesma LLM e mesmos parâmetros nas duas condições
-- [ ] Respostas no **mesmo idioma** nas duas condições; idioma informado no relatório
-- [ ] Salvar prompt completo, contexto (doc_ids) e resposta de cada uma das 20 execuções
-- [ ] Script reprodutível (por exemplo `run_rag.py`) que gere o `rag_experiment.csv` (o writer `write_rag_experiment_csv` já existe)
+- [x] Condição **A (sem RAG):** só a pergunta
+- [x] Condição **B (com RAG):** pergunta + top-5 após o reranking, com identificadores
+- [x] Prompt B: responder só com base nos documentos, citar as fontes pelos identificadores e dizer quando não houver evidência suficiente
+- [x] Mesma LLM e mesmos parâmetros nas duas condições; limite de 150 palavras nas duas
+- [x] Mesmo idioma (inglês) nas duas condições, informado no relatório
+- [x] Prompt, contexto e resposta das 20 execuções em `rag_experiment.csv`; tempos e tokens em `rag_generations.json` (A: 61 s em média; B: 235 s)
+- [x] Script reprodutível `run_rag.py` (25/11/2026)
 
 ---
 
-## 13. Avaliação do RAG (Requisito 13 / etapa 14 do roadmap)
+## 13. Avaliação do RAG (Requisito 13 / etapa 14 do roadmap) ⚠️ parcial — falta a avaliação humana
 
 ### Recuperação (para as 10 consultas)
-- [x] Hit@k implementado (`metrics.hit_at_k`)
-- [ ] Calcular **Recall@5**, **Precision@5** e **Hit@5** (1 se ao menos um relevante foi enviado à LLM) sobre o Top-5 enviado
-- [ ] Comentar que Recall@5 baixo é esperado (média de cerca de 38 relevantes por consulta)
+- [x] P@5 = 0,44, R@5 = 0,106 e Hit@5 = 0,90 (`evaluate_rag.py prepare` → `rag_retrieval_metrics.csv`); no relatório (`docs/report/chapters/results/rag.typ`)
+- [x] Comentado no relatório que o R@5 baixo é esperado (cerca de 44 relevantes por consulta nessas 10)
 
 ### Geração (avaliação humana estruturada, notas 0/1/2 com justificativa)
-- [ ] **Fidelidade** — 0: afirmações importantes não sustentadas ou contraditórias / 1: parcialmente sustentada / 2: afirmações principais sustentadas pelo contexto
-- [ ] **Completude** — 0: não responde aos aspectos principais / 1: responde parcialmente / 2: cobre adequadamente o que pode ser respondido
-- [ ] **Utilidade** — 0: não atende à necessidade / 1: parcialmente útil / 2: responde diretamente à necessidade
-- [ ] **Rastreabilidade** — 0: não é possível identificar fontes / 1: só parte das afirmações associável às fontes / 2: afirmações principais associáveis aos doc_ids
-- [ ] Breve justificativa para **cada** nota
-- [ ] (Recomendado) Avaliar às cegas: embaralhar as respostas A/B antes de pontuar
-- [ ] (Recomendado) Dois integrantes avaliam de forma independente e reportam a concordância (por exemplo % de concordância e/ou kappa)
-- [ ] Condição A: registrar explicitamente que não há contexto externo
-- [ ] Condição A: avaliar a **Fidelidade** comparando com os **mesmos Top-5** usados na condição B daquela consulta
-- [ ] Condição A: **Rastreabilidade = "N/A"**, excluída da média; discutir qualitativamente a ausência de fontes e o impacto na verificabilidade
-- [ ] Apresentar e discutir as médias por critério nas duas condições
-- [ ] Discussão focada no efeito da recuperação sobre qualidade, fidelidade e disponibilidade de evidências (não é obrigatório mostrar que o RAG é sempre melhor)
+- [x] Planilhas cegas geradas: `result/tp2/rag_avaliacao/planilha_avaliador1.csv` e `planilha_avaliador2.csv` (20 respostas embaralhadas com seed 42, sem a condição), `documentos_por_consulta.md` (os 5 documentos de cada consulta) e a chave separada (`chave_NAO_ABRIR_antes_de_avaliar.csv`)
+- [ ] **Cada integrante preenche a sua planilha, sem abrir a chave:** fidelidade, completude, utilidade e rastreabilidade (0, 1 ou 2), cada uma com justificativa
+  - Fidelidade — 0: afirmações importantes não sustentadas ou contraditórias / 1: parcialmente sustentada / 2: afirmações principais sustentadas pelos documentos
+  - Completude — 0: não responde aos aspectos principais / 1: responde parcialmente / 2: cobre adequadamente o que pode ser respondido
+  - Utilidade — 0: não atende à necessidade / 1: parcialmente útil / 2: responde diretamente à necessidade
+  - Rastreabilidade — 0: não é possível identificar fontes / 1: só parte das afirmações associável às fontes / 2: afirmações principais associáveis aos doc_ids
+  - A fidelidade das respostas sem fontes também é julgada contra os 5 documentos da consulta
+- [ ] Rodar `uv run src/scripts/evaluate_rag.py merge --sheets result/tp2/rag_avaliacao/planilha_avaliador1.csv result/tp2/rag_avaliacao/planilha_avaliador2.csv`: grava as notas no `rag_experiment.csv` (rastreabilidade "N/A" na condição A, automaticamente), calcula as médias por condição e a concordância (`rag_evaluation_summary.md`)
+- [ ] Copiar as médias e a concordância para a tabela do relatório (`results/rag.typ`) e discutir: efeito da recuperação na fidelidade e na disponibilidade de evidências; ausência de fontes na condição A
+- [x] Fatos objetivos já no relatório: as 10 respostas B citam de 1 a 4 documentos, todos entre os enviados (nenhuma fonte inventada); 2 respostas B declaram falta de evidência (PLAIN-2850 e PLAIN-3342); nenhuma resposta A indica fontes
 
 ---
 
-## 14. Análise de falhas ponta a ponta (Requisito 14 / etapa 15 do roadmap)
+## 14. Análise de falhas ponta a ponta (Requisito 14 / etapa 15 do roadmap) ⚠️ parcial
 
-Escolher entre as 10 consultas do experimento:
-- [ ] 1 consulta em que o RAG **melhorou claramente** a resposta
-- [ ] 1 consulta com **pouca diferença**
-- [ ] 1 consulta em que o RAG **não ajudou ou prejudicou**
-- [ ] No último caso, localizar o estágio do problema: recuperação lexical, recuperação semântica, fusão, reranking, seleção de contexto ou geração
-  - [ ] Verificar se a informação necessária **chegou ou não** ao contexto (posição dos relevantes no lexical, no semântico, no híbrido e no rerank, e o que entrou no Top-5)
-  - [ ] Não basta dizer "a LLM errou"
-- [ ] Análise detalhada de cada um dos 3 casos, com evidências (doc_ids, posições, trechos)
+- [ ] 1 consulta em que o RAG **melhorou claramente** a resposta — escolher pelas notas humanas
+- [ ] 1 consulta com **pouca diferença** — escolher pelas notas humanas
+- [x] 1 consulta em que o RAG **não ajudou**: PLAIN-2850 ("More Antibiotics In White Meat or Dark Meat?"), a única com Hit@5 = 0 (`docs/report/chapters/results/failure_analysis.typ`)
+  - [x] Rastreamento por estágio (`evaluate_rag.py prepare` → `rag_stage_trace.md`): o documento que responde (MED-4166, grau 2) fica em 29º no lexical, 14º no semântico, 11º no híbrido e 19º após o reranking; não chega ao contexto
+  - [x] Causa: paráfrase ("white/dark meat" × "breast versus thigh muscle"); só `antibiot` casa; o reranking piorou a posição; a geração não foi o problema (a resposta B declara falta de evidência; a A afirma algo contradito pelo MED-4166)
+- [ ] Análise detalhada dos 2 casos restantes
 
 ---
 
-## 15. Arquivos padronizados de resultados (Requisito 15 / etapa 16 do roadmap)
+## 15. Arquivos padronizados de resultados (Requisito 15 / etapa 16 do roadmap) ⚠️ parcial — falta só a avaliação humana no `rag_experiment.csv`
 
-Writers implementados em `src/ir/data.py`; caminhos definidos em `experiment_config.py` (`result/tp2/`).
+Writers em `src/ir/data.py`; verificação em `src/scripts/check_results.py`.
 
-| Arquivo | Writer/esquema | Gerado e incluído na entrega |
+| Arquivo | Esquema | Gerado e versionado para a entrega |
 |---|---|---|
-| `results_lexical.csv` | [x] `query_id, doc_id, rank, score, relevance`, top-100 | [ ] |
-| `results_semantic.csv` | [x] idem | [ ] |
-| `results_hybrid.csv` | [x] idem | [ ] |
-| `results_reranking.csv` | [x] idem | [ ] |
-| `metrics_per_query.csv` | [x] `query_id, model, P10, R10, AP10, NDCG10` (4 modelos) | [ ] |
-| `typo_experiment.csv` | [x] `query_id, query_original, query_erro, query_corrigida, tipo_erro, NDCG10_original, NDCG10_erro, NDCG10_corrigida` (+ `recuperacao`, `erro_reduziu_desempenho`) | [ ] |
-| `rag_experiment.csv` | [x] `query_id, query, condition (A/B), context_doc_ids, prompt, answer`, 4 notas + 4 justificativas | [ ] (sem pipeline RAG ainda) |
+| `results_lexical.csv` | [x] `query_id, doc_id, rank, score, relevance`, até 100 por consulta | [x] |
+| `results_semantic.csv` | [x] idem | [x] |
+| `results_hybrid.csv` | [x] idem | [x] |
+| `results_reranking.csv` | [x] idem | [x] |
+| `metrics_per_query.csv` | [x] `query_id, model, P10, R10, AP10, NDCG10` (4 modelos) | [x] |
+| `typo_experiment.csv` | [x] colunas exigidas (+ `recuperacao`, `erro_reduziu_desempenho`) | [x] |
+| `rag_experiment.csv` | [x] colunas exigidas, 20 linhas | [ ] notas humanas pendentes |
 
-- [ ] Executar `run_retrieval_pipeline.py --split test` para gerar os 4 rankings + `metrics_per_query.csv`
-- [ ] Conferir: 100 documentos por consulta (ou todos, se o BM25 recuperar menos de 100), 323 consultas
-- [ ] Conferir: média de `AP10` em `metrics_per_query.csv` = MAP@10 reportado no relatório (por modelo)
-- [ ] Executar `run_typo.py` e gerar `typo_experiment.csv`
-- [ ] Gerar `rag_experiment.csv` com as 20 linhas (10 consultas × A/B), notas e justificativas
-- [ ] **`result/` está no `.gitignore`**: garantir que os CSVs finais entrem no arquivo entregue no Moodle (copiar para uma pasta versionada ou incluir manualmente no .zip)
-- [ ] Os resultados não podem existir apenas como saída de notebook
+- [x] `check_results.py` confere: colunas, no máximo 100 documentos por consulta sem buracos nas posições, todas as consultas (o lexical pode ter rankings vazios: 16 consultas), coluna `relevance` igual aos qrels, média de AP10 = MAP@10 reportado, 10 consultas no erro ortográfico, 20 linhas no RAG e notas preenchidas
+- [x] `.gitignore` ajustado: os arquivos finais de `result/tp2/` (CSVs, JSONs, análises `.md` e a pasta `rag_avaliacao/`) são versionados; as pastas auxiliares continuam fora
+- [x] Todos os resultados vêm de scripts, não de notebooks
+- [ ] Rodar `check_results.py` depois da avaliação humana: deve terminar com "All standardized result files are complete."
 
 ---
 
@@ -361,39 +353,40 @@ Writers implementados em `src/ir/data.py`; caminhos definidos em `experiment_con
 
 ### 4. Relatório em PDF (até 20 páginas, PT ou EN; o limite exclui só as referências; anexos não podem ser usados para contornar o limite)
 O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill-assignment`). Compilar com `typst compile docs/report/main.typ`.
-- [x] Estrutura criada: `main.typ` com as seções a–g e um arquivo por subseção em `chapters/`. Títulos numerados (1, 1.1, 1.1.1), sumário com dois níveis, e todas as subseções exigidas visíveis no sumário. As ainda não escritas mostram "Seção em elaboração." e um `// TODO` com o que deve entrar (remover antes da entrega)
-- [ ] **⚠️ parcial — a. Cabeçalho:** capa em português com título, autores (nome completo e Nº USP), professor, filiação (ICMC/USP) e data; **faltam os emails** (placeholder na linha "Emails:" do `main.typ`)
-- [ ] **b. Introdução:** contextualização, motivação e objetivo
-- [ ] **c. Metodologia:**
+- [x] Estrutura: `main.typ` com as seções a–g e um arquivo por subseção em `chapters/`; títulos numerados; cabeçalho na primeira página (sem capa nem sumário, para caber no limite)
+- [ ] **⚠️ parcial — a. Cabeçalho:** título, autores (nome completo e Nº USP), professor, filiação (ICMC/USP) e data; **faltam os emails** (placeholder na linha "Emails:" do `main.typ`)
+- [x] **b. Introdução:** contextualização, motivação e objetivo — `chapters/introduction.typ`
+- [x] **c. Metodologia:** (condensada em 25/11/2026 para caber no limite)
   - [x] pré-processamento — `chapters/methodology/preprocessing.typ`
   - [x] índice invertido — `chapters/methodology/inverted_index.typ`
   - [x] busca lexical — `chapters/methodology/lexical.typ` (escolha do modelo, fórmula, parâmetros e empates)
   - [x] tolerância a erros — `chapters/methodology/typo_tolerance.typ`
   - [x] recuperação semântica — `chapters/methodology/semantic.typ`
-  - [ ] busca híbrida
-  - [ ] reranking
-  - [ ] RAG
+  - [x] busca híbrida — `chapters/methodology/hybrid.typ`
+  - [x] reranking — `chapters/methodology/reranking.typ`
+  - [x] RAG — `chapters/methodology/rag.typ`
 - [x] **d. Avaliação:** — `docs/report/chapters/evaluation.typ`
   - [x] dataset
   - [x] splits
   - [x] qrels
   - [x] métricas (definições exatas de P@10, R@10, AP@10/MAP@10, NDCG@10; P@5, R@5 e Hit@5 citadas para o RAG; conferência com o ir_measures)
-  - [x] modelos (tabela da configuração final; LLM ainda "a definir")
+  - [x] modelos (parágrafo com a configuração final, incluindo a LLM)
   - [x] parâmetros
   - [x] ambiente computacional
-  - [x] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face, ver [dataset_validation.md](dataset_validation.md))
-- [ ] **e. Resultados obtidos e análise:**
+  - [x] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face)
+- [ ] **⚠️ parcial — e. Resultados obtidos e análise:** (falta só o que depende da avaliação humana do RAG)
   - [x] lexical × semântico (global, comparação por consulta e as 6 consultas) — `chapters/results/lexical_vs_semantic.typ`
   - [x] tolerância a erros — `chapters/results/typo_tolerance.typ`
-  - [ ] híbrido
-  - [ ] reranking (global + 4 casos)
-  - [ ] tempos (índice, consultas, embeddings, fusão, reranking, geração)
-  - [ ] RAG (recuperação + avaliação humana)
-  - [ ] análise de falhas (3 casos)
-- [ ] **f. Considerações finais:** principais conclusões tiradas dos experimentos
-- [ ] **g. Uso de ferramentas de IA:** atividades em que IA generativa foi usada como apoio (programação, depuração, explicação, revisão), sem histórico completo. Separar do uso de IA como componente do experimento (embeddings, cross-encoder, LLM), que vai na metodologia
-- [ ] Referências bibliográficas (Manning et al. 2008, BEIR, NFCorpus, Sentence Transformers, ir_measures, modelos usados)
-- [ ] Conferir o limite de 20 páginas
+  - [x] híbrido — `chapters/results/hybrid.typ`
+  - [x] reranking (global + 4 casos) — `chapters/results/reranking.typ`
+  - [x] tempos (índice, consultas, embeddings, fusão, reranking, geração) — `chapters/results/timing.typ`
+  - [ ] **⚠️ parcial — RAG:** recuperação e fatos objetivos escritos; tabela da avaliação humana com `// TODO` (`chapters/results/rag.typ`)
+  - [ ] **⚠️ parcial — análise de falhas:** caso PLAIN-2850 escrito; os outros 2 dependem das notas humanas (`chapters/results/failure_analysis.typ`)
+- [x] **f. Considerações finais:** `chapters/conclusion.typ` (com `// TODO` para a conclusão da avaliação humana do RAG)
+- [ ] **⚠️ revisar — g. Uso de ferramentas de IA:** rascunho em `chapters/ai_use.typ` (uso do Claude Code); o grupo deve revisar e completar. atividades em que IA generativa foi usada como apoio (programação, depuração, explicação, revisão), sem histórico completo. Separar do uso de IA como componente do experimento (embeddings, cross-encoder, LLM), que vai na metodologia
+- [x] Referências bibliográficas (11 itens, ao final do `main.typ`)
+- [x] Limite de 20 páginas: 19 páginas em 25/11/2026, com cerca de 1 página livre para a avaliação humana e os 2 casos de falha pendentes (as referências não contam)
+- [ ] Antes de entregar: remover os `// TODO` (não aparecem no PDF, mas indicam o que falta) e recompilar
 
 ---
 

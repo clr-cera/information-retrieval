@@ -6,40 +6,65 @@
 
 ```
 .
-├── src/                         todo o código do TP2
-│   ├── ir/                      biblioteca (pacote Python chamado "ir")
-│   │   ├── __init__.py          marca a pasta como pacote
-│   │   ├── metrics.py           métricas de avaliação
-│   │   ├── data.py              dados, configuração e escrita de resultados
-│   │   ├── lexical.py           pré-processamento, índice invertido, BM25, correção ortográfica
-│   │   └── neural.py            busca semântica, RRF, reranking e montagem do pipeline
-│   ├── scripts/                 programas executáveis (um por experimento)
-│   └── tests/                   testes automatizados (pytest)
-├── config/tp2_experiment.json   configuração experimental congelada
-├── docs/                        enunciado, checklist, histórico, protocolo, relatório e esta explicação
-├── tp1/                         Trabalho Prático 1 arquivado
-├── data/                        dataset e embeddings (gerados, fora do git)
-├── result/tp2/                  resultados dos experimentos (gerados, fora do git)
-├── pyproject.toml               dependências e configuração do pacote
-└── uv.lock                      versões exatas de todas as dependências
+├── src/                             todo o código do TP2
+│   ├── ir/                          biblioteca (pacote Python chamado "ir")
+│   │   ├── __init__.py              marca a pasta como pacote
+│   │   ├── metrics.py               métricas de avaliação
+│   │   ├── data.py                  dados, configuração e escrita de resultados
+│   │   ├── lexical.py               pré-processamento, índice invertido, BM25, correção ortográfica
+│   │   ├── neural.py                busca semântica, RRF, reranking e montagem do pipeline
+│   │   └── rag.py                   prompts e chamada à LLM local (Ollama)
+│   ├── scripts/                     programas executáveis (um por experimento ou análise)
+│   └── tests/                       testes automatizados (pytest), um arquivo por módulo
+├── config/tp2_experiment.json       configuração experimental congelada
+├── docs/                            enunciado, checklist, pendências, histórico, protocolo,
+│                                    relatório (report/) e esta explicação (explanation/)
+├── tp1/                             Trabalho Prático 1 arquivado
+├── data/                            dataset e embeddings (gerados, fora do git)
+├── result/tp2/                      resultados dos experimentos (os finais são versionados)
+├── pyproject.toml                   dependências e configuração do pacote
+└── uv.lock                          versões exatas de todas as dependências
 ```
 
-A separação segue uma regra simples: *a biblioteca (`src/ir/`) contém a lógica*, e *os scripts (`src/scripts/`) só a usam* para rodar um experimento e salvar o resultado. Assim, o mesmo código de BM25 serve ao ajuste no dev, à avaliação no test e ao experimento de erros.
+A separação segue uma regra simples: *a biblioteca (`src/ir/`) contém a lógica*, e *os scripts (`src/scripts/`) só a usam* para rodar um experimento e salvar o resultado. Assim, o mesmo código de BM25 serve ao ajuste no dev, à avaliação no test, ao experimento de erros e às análises.
 
-== Os quatro módulos da biblioteca
+== Os cinco módulos da biblioteca
 
 #tabela(
   (auto, 1fr, auto),
   [*Módulo*], [*Responsabilidade*], [*Depende de*],
   [`ir/metrics.py`], [P\@k, R\@k, AP\@k, NDCG\@k e Hit\@k, por consulta e médias.], [nada do projeto],
-  [`ir/data.py`], [Baixar e ler o NFCorpus, guardar caminhos e constantes do protocolo, ler e gravar o arquivo de configuração e escrever os CSVs.], [`metrics`],
+  [`ir/data.py`], [Baixar e ler o NFCorpus, caminhos e constantes do protocolo, leitura e gravação do config e escrita dos CSVs.], [`metrics`],
   [`ir/lexical.py`], [Pré-processamento, índice invertido (`PostingList`), BM25 (`ProbabilisticModel`), avaliação lexical e correção ortográfica.], [`metrics`],
-  [`ir/neural.py`], [Busca semântica (`SemanticIndex`), RRF, reranking (`CrossEncoderReranker`) e funções que montam o pipeline a partir da configuração.], [`metrics`, `data`, `lexical`],
+  [`ir/neural.py`], [Busca semântica (`SemanticIndex`), RRF, reranking (`CrossEncoderReranker`) e montagem do pipeline a partir do config.], [`metrics`, `data`, `lexical`],
+  [`ir/rag.py`], [Prompts das condições sem e com RAG e chamada à LLM pela API do Ollama.], [nada do projeto],
 )
 
-A ordem de dependência é `metrics` ← `data` ← `lexical` ← `neural`, sem ciclos: um módulo nunca importa outro que dependa dele.
+A ordem de dependência é `metrics` ← `data` ← `lexical` ← `neural`, sem ciclos; `rag` é independente (o script `run_rag.py` é quem junta os documentos recuperados e a LLM).
 
-Os módulos foram formados juntando arquivos menores de uma organização anterior. Comentários como `# Origem: src/posting_list.py` marcam de onde veio cada trecho; por isso alguns arquivos repetem imports no meio (cada trecho mantém os seus), o que não altera o funcionamento.
+Os quatro primeiros módulos foram formados juntando arquivos menores de uma organização anterior. Comentários como `# Origem: src/posting_list.py` marcam de onde veio cada trecho; por isso alguns arquivos repetem imports no meio (cada trecho mantém os seus), o que não altera o funcionamento.
+
+== Os scripts
+
+#tabela(
+  (auto, auto, 1fr),
+  [*Script*], [*Split*], [*O que faz*],
+  [`validate_experiment.py`], [todos], [Confere o dataset, a amostra do RAG e as métricas contra o `ir_measures`.],
+  [`tune_lexical.py`], [dev], [Escolhe o pré-processamento e avalia a grade de $k_1$ e $b$.],
+  [`tune_typo.py`], [dev], [Escolhe os limiares da correção ortográfica.],
+  [`tune_semantic.py`], [dev], [Escolhe o bi-encoder.],
+  [`tune_hybrid.py`], [dev], [Escolhe o $k$ do RRF.],
+  [`tune_reranker.py`], [dev], [Escolhe o cross-encoder.],
+  [`run_retrieval_pipeline.py`], [test], [Roda lexical, semântico, híbrido e reranking e grava todos os rankings e métricas.],
+  [`run_lexical.py`], [test], [Roda só o BM25 (uso avulso).],
+  [`run_typo.py`], [test], [Experimento de erros ortográficos.],
+  [`analyze_typo.py`], [test], [Confere as regras do experimento de erros e monta a tabela.],
+  [`analyze_lexical_vs_semantic.py`], [test], [Análise por consulta: lexical × semântico.],
+  [`analyze_reranking.py`], [test], [Casos de ganho, sem alteração e piora do reranking.],
+  [`run_rag.py`], [test], [Gera as respostas sem RAG e com RAG.],
+  [`evaluate_rag.py`], [test], [Métricas do contexto, rastreamento por estágio, planilhas cegas e junção das notas humanas.],
+  [`check_results.py`], [test], [Verifica os arquivos de resultado exigidos pelo enunciado.],
+)
 
 == Como o pacote `ir` fica disponível
 
@@ -60,9 +85,11 @@ testpaths = ["src/tests"]    # onde o pytest procura testes
 
 O comando `uv sync` cria um ambiente virtual (`.venv/`), instala as dependências com as versões do `uv.lock` e instala o próprio projeto em *modo editável*: em vez de copiar os arquivos, o ambiente aponta para `src/ir/`. Com isso, qualquer alteração no código vale imediatamente, e scripts e testes conseguem importar `ir` de qualquer pasta.
 
+A LLM não é uma dependência Python: ela roda no *Ollama*, um programa separado que serve modelos de linguagem pela rede local (`http://localhost:11434`). O modelo usado é baixado com `ollama pull qwen3:4b`.
+
 == O arquivo de configuração
 
-`config/tp2_experiment.json` registra o protocolo e as escolhas feitas no dev. Todos os scripts o leem; os scripts de ajuste podem gravá-lo (opção `--update-config`).
+`config/tp2_experiment.json` registra o protocolo e as escolhas feitas no dev. Todos os scripts o leem; os de ajuste podem gravá-lo (opção `--update-config`).
 
 ```json
 {
@@ -80,13 +107,13 @@ O comando `uv sync` cria um ambiente virtual (`.venv/`), instala as dependência
     "typo_kgram_size": 2, "typo_jaccard_threshold": 0.2, "typo_edit_distance_threshold": 2,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "rrf_k": 10, "reranker_model": "cross-encoder/ms-marco-MiniLM-L6-v2",
-    "llm": null, "llm_temperature": 0, "llm_max_tokens": null, "rag_language": null
+    "llm": "qwen3:4b", "llm_temperature": 0, "llm_max_tokens": 4096, "rag_language": "en"
   }
 }
 ```
 
-- `protocol`: valores fixos pelo enunciado (cortes, profundidades, candidatos de k, amostra do RAG). Não mudam.
-- `selected`: as escolhas. `null` significa "ainda não escolhido" (os campos do RAG).
+- `protocol`: valores fixos pelo enunciado (cortes, profundidades, candidatos de k, amostra do RAG).
+- `selected`: as escolhas de cada componente.
 
 #atencao(titulo: "Os parâmetros do BM25 foram fixados à mão")[
   `tune_lexical.py --update-config` gravaria k1 = 2,0 e b = 0, o maior NDCG\@10 do dev. O grupo preferiu os valores usuais (1,2 e 0,75) porque a vantagem de b = 0 (0,001) é menor do que a variação causada por empates de score (até 0,017). Por isso, `tune_lexical.py` deve ser rodado *sem* `--update-config` (ver o @cap-bm25).
@@ -94,7 +121,7 @@ O comando `uv sync` cria um ambiente virtual (`.venv/`), instala as dependência
 
 == Pastas geradas: `data/` e `result/`
 
-Essas pastas não vão para o git (estão no `.gitignore`) porque são grandes e podem ser recriadas pelos scripts.
+`data/` não vai para o git (é grande e regenerável). Em `result/tp2/`, os arquivos finais *são* versionados, porque o enunciado exige que os resultados façam parte da entrega; pastas auxiliares (como `old_k2_b0/`, com os resultados de uma configuração antiga) ficam fora. Isso está no `.gitignore`.
 
 #tabela(
   (auto, 1fr),
@@ -104,8 +131,11 @@ Essas pastas não vão para o git (estão no `.gitignore`) porque são grandes e
   [`result/tp2/results_*.csv`], [Os 100 primeiros documentos de cada consulta para cada sistema.],
   [`result/tp2/metrics_per_query.csv`], [P\@10, R\@10, AP\@10 e NDCG\@10 por consulta e por sistema.],
   [`result/tp2/typo_experiment.csv`], [O experimento de erros ortográficos.],
+  [`result/tp2/rag_experiment.csv`], [As 20 respostas do RAG, com prompt, contexto e notas.],
   [`result/tp2/*_tuning_dev.csv`], [Os resultados dos ajustes no dev.],
-  [`result/tp2/*_stats.json`, `retrieval_summary.json`], [Estatísticas do índice, tempos e médias.],
+  [`result/tp2/*_stats.json`, `retrieval_summary.json`, `rag_generations.json`], [Estatísticas, tempos e médias.],
+  [`result/tp2/*_analysis.md`, `rag_stage_trace.md`], [As análises por consulta usadas no relatório.],
+  [`result/tp2/rag_avaliacao/`], [Planilhas da avaliação humana do RAG, documentos por consulta e a chave.],
 )
 
 == Documentação em `docs/`
@@ -115,9 +145,9 @@ Essas pastas não vão para o git (estão no `.gitignore`) porque são grandes e
   [*Arquivo*], [*Para que serve*],
   [`enunciado_tp2.pdf`], [O enunciado do trabalho.],
   [`TP2_CHECKLIST.md`], [Cada requisito do enunciado, marcado como feito ou pendente.],
+  [`PENDENCIAS.md`], [O que falta o grupo fazer, passo a passo.],
   [`changes.md`], [Histórico de todas as alterações, com o motivo e a verificação.],
   [`experiment_protocol.md`], [Regras de uso dos splits e valores fixos do protocolo.],
-  [`dataset_validation.md`], [Contagens do dataset e conferência das métricas.],
   [`report/`], [O relatório do trabalho, em Typst.],
   [`explanation/`], [Este documento.],
 )

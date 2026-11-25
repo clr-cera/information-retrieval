@@ -1,0 +1,21 @@
+{
+  "split": "test",
+  "pipeline_options": "WithStopRemovalWithStemming",
+  "bm25_k1": 1.2,
+  "bm25_b": 0.75,
+  "query_count": 323,
+  "index": {
+    "document_count": 3633,
+    "vocabulary_size": 28942,
+    "posting_count": 350458,
+    "build_time_seconds": 7.324983976999647,
+    "average_document_length": 154.99724745389486
+  },
+  "average_query_time_seconds": 0.0008950743003119066,
+  "aggregated_metrics": {
+    "P10": 0.2306501547987616,
+    "R10": 0.14113952289547055,
+    "AP10": 0.1108827252317056,
+    "NDCG10": 0.31244962868261195
+  }
+}

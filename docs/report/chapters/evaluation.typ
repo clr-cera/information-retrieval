@@ -38,25 +38,7 @@ A implementação foi conferida com a biblioteca `ir_measures` de duas formas: e
 
 == Modelos e parâmetros
 
-#figure(
-  {
-    set par(justify: false)
-    set text(size: 9pt)
-    table(
-      columns: (auto, 1fr),
-      align: (left, left),
-      table.header([*Componente*], [*Configuração final (escolhida no dev)*]),
-      [Pré-processamento lexical], [tokenização, minúsculas, remoção de stopwords (NLTK) e stemming de Porter],
-      [Modelo lexical], [BM25 com $k_1 = "1,2"$ e $b = "0,75"$, sobre índice invertido próprio],
-      [Correção ortográfica], [bigramas ($k = 2$), Jaccard $>= "0,2"$, distância de edição $<= 2$],
-      [Bi-encoder], [`sentence-transformers/all-MiniLM-L6-v2` (384 dimensões, cosseno, até 256 tokens)],
-      [Busca híbrida], [RRF com $k = 10$, fundindo os 100 primeiros documentos de cada sistema],
-      [Reranking], [`cross-encoder/ms-marco-MiniLM-L6-v2` (até 512 tokens), nos 50 primeiros do híbrido],
-      [LLM (RAG)], [a definir],
-    )
-  },
-  caption: [Modelos e parâmetros do sistema final.],
-) <tab-config-final>
+Configuração final, toda escolhida no dev: pré-processamento com remoção de stopwords e stemming de Porter; BM25 com $k_1 = "1,2"$ e $b = "0,75"$; correção ortográfica com bigramas, Jaccard $>= "0,2"$ e distância $<= 2$; bi-encoder `all-MiniLM-L6-v2`; RRF com $k = 10$ sobre os 100 primeiros de cada sistema; cross-encoder `ms-marco-MiniLM-L6-v2` nos 50 primeiros do híbrido; e LLM Qwen3 4B com temperatura 0 e os 5 primeiros documentos como contexto. Os detalhes de cada componente estão nas seções da metodologia.
 
 == Ambiente computacional
 

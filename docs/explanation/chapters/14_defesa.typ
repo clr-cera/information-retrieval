@@ -18,8 +18,14 @@ Use o `metrics_per_query.csv`: compare o NDCG\@10 de uma consulta entre os siste
 *Justifique a alteração de posições após o reranking.* \
 O cross-encoder lê consulta e documento juntos e dá um score novo a cada um dos 50 primeiros; a nova ordem é por esse score. Documentos abaixo do 50º não mudam de ordem relativa (@cap-hibrida).
 
+*Justifique a alteração de posições em um caso concreto.* \
+Em "shelf life", o relevante MED-4303 sobe de 34 para 1: o título diz "shelf-life", que o BM25 transforma em `shelflif` e não casa; o cross-encoder lê `shelf - life` junto com a consulta. Em "myelopathy", o relevante cai de 5 para 40, porque o cross-encoder prefere documentos sobre mieloma (`my ##elo`) a um documento que descreve a doença sem usar a palavra (@cap-hibrida).
+
 *Mostre quais documentos foram enviados à LLM.* \
-Os 5 primeiros do ranking com reranking para cada consulta da amostra; vão para a coluna `context_doc_ids` do `rag_experiment.csv` (etapa ainda pendente).
+Os 5 primeiros do ranking com reranking (`results_reranking.csv`) de cada pergunta. Eles estão na coluna `context_doc_ids` do `rag_experiment.csv` (lista vazia na condição sem RAG) e aparecem, com o texto completo, no prompt da mesma linha.
+
+*Explique por que uma resposta foi considerada fiel ou não.* \
+Compare cada afirmação da resposta com os 5 documentos da pergunta (`result/tp2/rag_avaliacao/documentos_por_consulta.md`): nota 2 se as afirmações principais estão nos documentos, 1 se só parte está, 0 se há afirmações importantes sem apoio ou contraditas. Exemplo: na PLAIN-2850, a resposta sem RAG diz que a cor da carne não muda o nível de antibiótico, o que é contradito pelo documento MED-4166 da coleção; a resposta com RAG diz que os documentos não trazem esse dado, o que é fiel ao contexto. Use as justificativas da planilha de cada um.
 
 *Altere um parâmetro e preveja o efeito.* Alguns exemplos:
 
@@ -30,6 +36,18 @@ Os 5 primeiros do ranking com reranking para cada consulta da amostra; vão para
 - Distância máxima da correção de 2 para 1: as trocas de ordem de letras deixam de ser corrigidas (custam 2); no dev, o acerto cai de 92% para cerca de 71%.
 
 == Outras perguntas prováveis
+
+*Qual LLM foi usada e como?* \
+Qwen3 4B, quantizado em 4 bits, rodando localmente no Ollama, em CPU, sem custo. Temperatura 0 e seed 42 para reprodutibilidade, janela de 16.384 tokens e no máximo 4.096 tokens gerados. O modelo raciocina antes de responder; o raciocínio vem separado e só a resposta final é registrada (@cap-rag).
+
+*Por que fixar a janela de contexto (`num_ctx`)?* \
+O padrão do Ollama é menor do que o prompt com 5 documentos (cerca de 2.300 tokens) somado ao raciocínio e à resposta. Sem fixar, o Ollama descartaria o começo do prompt em silêncio, e a LLM perderia parte dos documentos.
+
+*Por que a avaliação é às cegas?* \
+Quem sabe qual resposta usou RAG tende a favorecê-la. As respostas são embaralhadas e numeradas, e a chave fica num arquivo separado, aberto só depois das notas.
+
+*Quando o RAG falha, de quem é a culpa?* \
+É preciso seguir a informação pelos estágios (`rag_stage_trace.md`). Na PLAIN-2850, o documento que responde existia, mas ficou em 11º no melhor estágio e não entrou no top-5: a falha foi de recuperação (paráfrase "white meat" × "breast"), não da LLM.
 
 *Por que o BM25 e não o Modelo Vetorial?* \
 O BM25 foi melhor no TP1 (Cranfield) e um pouco melhor na média no dev do NFCorpus (0,2906 contra 0,2880), tem parâmetros com interpretação clara e é o baseline lexical do BEIR.

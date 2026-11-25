@@ -1,3 +1,11 @@
-#text(fill: gray, style: "italic")[Seção em elaboração.]
+Os experimentos mostram que as técnicas são complementares, e que cada uma falha de um jeito característico:
 
-// TODO: principais conclusões obtidas a partir dos experimentos
+- *Lexical e semântico têm médias parecidas, mas acertam consultas diferentes* (NDCG\@10 de 0,3124 e 0,3167; cada um vence em cerca de um terço das consultas). O BM25 vence com termos técnicos raros (kohlrabi, cadaverine); o bi-encoder vence com variação de vocabulário, abreviações e formas diferentes da mesma palavra (low-carb × low-carbohydrate, frozen × freezing). As falhas de cada um vêm, em grande parte, da *tokenização*: hífens que o pré-processamento lexical junta em termos únicos e subpalavras que o bi-encoder compartilha entre palavras de sentidos diferentes (grape × grapefruit, myelopathy × myeloma).
+- *A fusão por RRF é a melhoria mais barata*: com custo desprezível (0,07 ms por consulta), elevou o NDCG\@10 para 0,3440, porque os dois sistemas têm só 22 dos 100 primeiros documentos em comum e trazem relevantes diferentes. Ainda assim, fica abaixo do melhor sistema de cada consulta (0,3795).
+- *O reranking dá o melhor resultado* (NDCG\@10 de 0,3557 e MAP\@10 de 0,1382), mas melhora e piora quase o mesmo número de consultas (108 e 97) e custa cerca de 4 s por consulta em CPU. Ele recupera relevantes perdidos pela tokenização, mas pode preferir palavras parecidas a paráfrases relevantes.
+- *A correção ortográfica é eficaz neste cenário*: corrigiu os 10 erros e recuperou todo o NDCG\@10 perdido, que caía de 0,47 para 0,16. Também revelou que, em consultas curtas, um termo genérico pode atrapalhar o BM25.
+- *No RAG*, pelo menos um documento relevante chegou ao contexto em 9 das 10 perguntas, e o modelo citou apenas documentos realmente enviados. A análise de falhas mostrou que, quando o RAG não ajuda, o problema pode estar na recuperação, e não na geração: o documento que respondia à pergunta existia, mas uma paráfrase ("white meat" × "breast") o manteve fora do contexto em todos os estágios.
+
+// TODO (grupo): completar com a conclusão da avaliação humana do RAG (médias por critério, sem RAG × com RAG).
+
+Em todos os casos, as médias globais esconderam o essencial: foi a análise por consulta, com os termos, as posições e os documentos de cada caso, que explicou por que os sistemas acertam e erram. Como trabalhos futuros, ficam: corrigir a tokenização de hífens no índice lexical, usar um bi-encoder com limite de entrada maior (78,8% dos documentos são truncados) e avaliar a robustez do sistema semântico a erros ortográficos.

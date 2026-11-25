@@ -1,0 +1,21 @@
+{
+  "split": "test",
+  "query_count": 323,
+  "index": {
+    "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dimension": 384,
+    "max_sequence_length": 256,
+    "document_count": 3633,
+    "truncated_document_count": 2864,
+    "embedding_time_seconds": 153.99856260300112,
+    "cache_hit": true,
+    "device": "cpu"
+  },
+  "average_query_time_seconds": 0.15760665009908817,
+  "aggregated_metrics": {
+    "P10": 0.24334365325077398,
+    "R10": 0.15498797328057845,
+    "AP10": 0.11082911029858557,
+    "NDCG10": 0.31667312754717797
+  }
+}

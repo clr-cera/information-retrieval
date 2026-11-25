@@ -104,3 +104,20 @@ Quando se usa `reverse=True` sem desempate explícito (como no BM25), elementos 
 == NumPy e o operador `@`
 
 `numpy` é a biblioteca de vetores e matrizes. Na busca semântica, os embeddings dos documentos formam uma matriz de 3.633 linhas por 384 colunas, e o embedding da consulta é um vetor de 384 posições. A expressão `matriz @ vetor` faz o *produto matriz-vetor*: o resultado tem 3.633 posições, e a posição $i$ é o produto escalar entre o documento $i$ e a consulta. `np.save`/`np.load` gravam e leem matrizes em arquivos `.npy`.
+
+== Chamadas HTTP com `urllib.request`
+
+A LLM roda no Ollama, que recebe pedidos pela rede local. O código não usa bibliotecas externas para isso, só a biblioteca padrão:
+
+```python
+request = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"),
+                                 headers={"Content-Type": "application/json"})
+with urllib.request.urlopen(request, timeout=1800) as response:
+    result = json.loads(response.read().decode("utf-8"))
+```
+
+`json.dumps(...).encode("utf-8")` transforma o dicionário com o pedido em bytes; passar `data` faz o pedido ser um *POST*. `urlopen` envia, espera a resposta (até `timeout` segundos) e a devolve como bytes, que voltam a ser dicionário com `json.loads`. O `with` garante que a conexão é fechada. O mesmo `urlopen` é usado para baixar o dataset.
+
+== Sorteios reprodutíveis com `random.Random`
+
+`random.Random(42)` cria um gerador de números aleatórios próprio, com seed 42. Com a mesma seed, a sequência sorteada é sempre a mesma, em qualquer máquina, e o gerador não interfere em outros sorteios do programa. O projeto usa isso para sortear as consultas do RAG (`.sample`), os erros ortográficos (`.choice`) e a ordem das respostas na avaliação às cegas (`.shuffle`, que embaralha uma lista no lugar).

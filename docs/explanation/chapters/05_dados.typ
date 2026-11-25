@@ -137,7 +137,7 @@ O enunciado exige arquivos CSV padronizados, independentes de notebooks. As colu
 ]
 
 #funcao("class RagExperimentRow(...)")[
-  Uma linha do experimento de RAG (ainda não usado). Além dos campos, tem `__post_init__`, um método que as dataclasses chamam logo depois do construtor: ele valida que a condição é `"A"` ou `"B"` e que cada nota é 0, 1, 2 ou `None`. `context_doc_ids` é gravado como uma lista JSON dentro da célula do CSV.
+  Uma linha do experimento de RAG, criada por `run_rag.py` (com as notas vazias) e por `evaluate_rag.py merge` (com as notas). Além dos campos, tem `__post_init__`, um método que as dataclasses chamam logo depois do construtor: ele valida que a condição é `"A"` ou `"B"` e que cada nota é 0, 1, 2 ou `None`. `context_doc_ids` é gravado como uma lista JSON dentro da célula do CSV.
 ]
 
 #funcao("def write_ranking_csv(path, rankings, qrels_by_query, depth=100) -> int")[

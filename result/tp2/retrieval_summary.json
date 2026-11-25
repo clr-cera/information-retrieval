@@ -1,0 +1,52 @@
+{
+  "split": "test",
+  "selected": {
+    "preprocessing": "WithStopRemovalWithStemming",
+    "lexical_model": "BM25",
+    "bm25_k1": 1.2,
+    "bm25_b": 0.75,
+    "typo_kgram_size": 2,
+    "typo_jaccard_threshold": 0.2,
+    "typo_edit_distance_threshold": 2,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "rrf_k": 10,
+    "reranker_model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "llm": null,
+    "llm_temperature": 0,
+    "llm_max_tokens": null,
+    "rag_language": null
+  },
+  "aggregated_metrics": {
+    "lexical": {
+      "P10": 0.2306501547987616,
+      "R10": 0.14113952289547055,
+      "AP10": 0.1108827252317056,
+      "NDCG10": 0.31244962868261195
+    },
+    "semantic": {
+      "P10": 0.24334365325077398,
+      "R10": 0.15498797328057845,
+      "AP10": 0.11082911029858557,
+      "NDCG10": 0.31667312754717797
+    },
+    "hybrid": {
+      "P10": 0.25572755417956655,
+      "R10": 0.16568412432459778,
+      "AP10": 0.12588432067509536,
+      "NDCG10": 0.3439693551837329
+    },
+    "reranking": {
+      "P10": 0.25046439628482975,
+      "R10": 0.16786243891325253,
+      "AP10": 0.1381706868896206,
+      "NDCG10": 0.3557076492505927
+    }
+  },
+  "ranking_rows": {
+    "lexical": 21654,
+    "semantic": 32300,
+    "hybrid": 32300,
+    "reranking": 32300
+  },
+  "metric_rows": 1292
+}

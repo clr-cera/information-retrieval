@@ -89,6 +89,16 @@ O modelo usado, `cross-encoder/ms-marco-MiniLM-L6-v2`, foi treinado no MS MARCO,
 
 No dev, sobre o mesmo ranking híbrido: `ms-marco-MiniLM-L6-v2` teve NDCG\@10 de 0,3310 e levou 3,72 s por consulta; `ms-marco-TinyBERT-L2-v2` (2 camadas, menor), 0,3237 e 0,36 s. Foi escolhido o MiniLM, pelo maior NDCG\@10. No test, o reranking chegou a NDCG\@10 de 0,3557, o melhor dos quatro sistemas, ao custo de cerca de 4 s por consulta em CPU (50 passadas pelo modelo).
 
+=== O que os casos mostram
+
+O script `analyze_reranking.py` comparou o NDCG\@10 antes e depois do reranking em cada consulta do test: melhorou em 108, piorou em 97 e não mudou em 118. Os quatro casos pedidos pelo enunciado ilustram o comportamento do cross-encoder:
+
+- *"shelf life"* e *"betel nuts"* (NDCG\@10 de 0 para 1): os documentos relevantes escrevem "shelf-life" e "betel-nut". A tokenização do BM25 junta as palavras com hífen em um termo só (`shelflif`, `betelnut`), que não casa com a consulta, e o documento fica fora do top-100 lexical. O tokenizador do cross-encoder separa `shelf`, `-` e `life`, lê consulta e documento juntos e põe o relevante em 1º. Em "betel nuts", ele ainda distingue a noz de bétele (mastigada) das castanhas comestíveis, que ocupavam o topo do híbrido por causa de "nuts".
+- *"domoic acid"* (1 para 1): os dois relevantes já estavam em 1º e 2º e continuam lá, com os scores mais altos; o reranking só reordena documentos não relevantes abaixo deles.
+- *"myelopathy"* (0,39 para 0): o único relevante descreve uma mielopatia ("degeneration of the spinal cord") sem usar a palavra. O bi-encoder o tinha em 5º pelo significado; o cross-encoder o derruba para 40º e sobe documentos sobre *mieloma*, que compartilha os pedaços `my` e `##elo` com "myelopathy".
+
+Em resumo: o cross-encoder recupera relevantes perdidos pela tokenização e separa sentidos, mas, treinado no MS MARCO, valoriza a correspondência de palavras e pode preferir uma palavra parecida a uma paráfrase relevante.
+
 == Montagem do pipeline a partir da configuração
 
 A última parte de `ir/neural.py` (vinda de `retrieval_components.py`) conecta o arquivo de configuração aos sistemas. Ela importa `PipelineOptions`, `LexicalIndex`, `LexicalRun` e `evaluate_bm25` (de `ir.lexical`) e `FUSION_DEPTH` e `NFCorpusSplit` (de `ir.data`).

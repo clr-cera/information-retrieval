@@ -6,7 +6,7 @@
 
 Os testes usam o *pytest*: cada função cujo nome começa com `test_` é executada, e cada `assert` dentro dela precisa ser verdadeiro. `pytest.approx` compara números com tolerância para erros de arredondamento; `pytest.raises(Erro)` verifica que um erro é lançado; `tmp_path` é uma pasta temporária criada pelo pytest para cada teste; `monkeypatch` substitui temporariamente uma função ou atributo.
 
-Para rodar: `uv run pytest` (74 testes). Os testes não dependem de internet: os de dados criam um dataset artificial pequeno em `tmp_path`, e os de reranking usam funções de score falsas em vez do modelo. O único teste que usa o NFCorpus real é pulado se o dataset não estiver em `data/` (`@pytest.mark.skipif`).
+Para rodar: `uv run pytest` (77 testes). Os testes não dependem de internet: os de dados criam um dataset artificial pequeno em `tmp_path`, e os de reranking usam funções de score falsas em vez do modelo. O único teste que usa o NFCorpus real é pulado se o dataset não estiver em `data/` (`@pytest.mark.skipif`).
 
 #tabela(
   (auto, 1fr),
@@ -15,6 +15,7 @@ Para rodar: `uv run pytest` (74 testes). Os testes não dependem de internet: os
   [`test_data.py`], [Representação título + texto; filtragem das consultas sem julgamento; leitura de qrels com e sem cabeçalho; sorteio do RAG determinístico e igual ao enunciado (dataset real); erro quando o dataset falta e o download está desligado; configuração padrão e leitura e gravação do config; os quatro escritores de CSV (limite de profundidade, coluna de relevância, conteúdo das linhas de erro e de RAG, validação das notas do RAG).],
   [`test_lexical.py`], [Cada etapa do pré-processamento e as quatro opções do pipeline; o índice (postings, frequências, $n_t$, tamanhos, vocabulário, estatísticas globais e cópias nos métodos `get_all_*`); o BM25 (só devolve documentos com algum termo, score igual à fórmula calculada à mão, *a consulta não copia as estatísticas da coleção*); a avaliação; e a correção ortográfica (k-gramas com marcadores, Jaccard, Levenshtein, dicionário sem stemming, correção de erros, variantes dos quatro tipos e erros sempre fora do vocabulário).],
   [`test_neural.py`], [Ordenação por produto escalar; RRF (fórmula, documentos ausentes de um ranking, profundidade, validações); avaliação de rankings; reranking (separação topo/resto, só o topo é reordenado, o resto mantém a ordem, número de scores igual ao de candidatos).],
+  [`test_rag.py`], [Os prompts do RAG: sem contexto só há a pergunta; com contexto, os documentos aparecem com os identificadores, na ordem, e o prompt pede para usar só os documentos, citar as fontes e declarar falta de evidência. Não chamam a LLM.],
 )
 
 O teste `test_bm25_query_does_not_copy_collection_statistics` merece destaque: ele substitui `get_all_document_lengths` e `get_all_document_frequencies` por funções que geram erro e executa uma consulta. Se o BM25 voltar a copiar as estatísticas da coleção a cada consulta (o que violaria o enunciado), o teste falha.
@@ -41,12 +42,10 @@ Leitura dos números:
 
 Experimento de erros (10 consultas, sistema lexical): NDCG\@10 médio de 0,4706 na consulta original, 0,1625 com erro e 0,4706 após a correção; as 10 correções recuperaram a palavra original.
 
-== O que ainda falta: RAG
+== RAG
 
-A etapa de RAG ainda não foi implementada. O que já existe:
+Contexto enviado à LLM nas 10 perguntas: P\@5 = 0,44, R\@5 = 0,106 e Hit\@5 = 0,90 (só a PLAIN-2850 ficou sem nenhum relevante). As respostas com RAG citam de 1 a 4 documentos, sempre entre os enviados. Os detalhes estão no @cap-rag.
 
-- `select_rag_query_ids` reproduz a amostra fixa de 10 consultas (verificada contra o enunciado);
-- `RagExperimentRow` e `write_rag_experiment_csv` definem o formato do `rag_experiment.csv`;
-- o config tem os campos `llm`, `llm_temperature`, `llm_max_tokens` e `rag_language`, ainda vazios.
+== O que ainda falta
 
-O plano do enunciado: para cada uma das 10 consultas, gerar uma resposta *sem RAG* (só a pergunta) e *com RAG* (a pergunta e os 5 primeiros documentos do reranking, com identificadores); medir P\@5, R\@5 e Hit\@5 dos documentos enviados; e avaliar as respostas com notas de 0 a 2 em fidelidade, completude, utilidade e rastreabilidade.
+Só a parte que depende de pessoas: a avaliação humana das 20 respostas do RAG (notas de 0 a 2 com justificativa, às cegas), os dois casos da análise de falhas que dependem dessas notas, os emails no cabeçalho do relatório e a revisão da seção sobre o uso de IA. O passo a passo está em `docs/PENDENCIAS.md`.

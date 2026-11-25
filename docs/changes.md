@@ -4,6 +4,82 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Explicação atualizada, pendências e README
+
+- **`docs/explanation/` atualizada com o código atual (51 páginas):**
+  - novo capítulo 11, "RAG": teoria (LLM, raciocínio, RAG, experimento, avaliação às cegas), Ollama e o modelo, `src/ir/rag.py` (constantes e funções), `run_rag.py`, `evaluate_rag.py` (`prepare`/`merge`), resultados e o caso PLAIN-2850;
+  - capítulos 12 a 14 renumerados;
+  - estrutura (cap. 2) reescrita: 5 módulos, tabela com os 15 scripts, Ollama, config com a LLM, resultados versionados e documentos de `docs/`;
+  - Python (cap. 3): `urllib.request` e `random.Random`;
+  - reranking (cap. 10): o que os 4 casos mostram;
+  - scripts (cap. 12): ordem completa e os scripts novos;
+  - testes e resultados (cap. 13): 77 testes, `test_rag.py`, RAG e o que falta;
+  - defesa (cap. 14): respostas sobre documentos enviados, fidelidade, LLM, `num_ctx`, avaliação às cegas e falhas do RAG.
+- **`docs/dataset_validation.md` removido:** as contagens, a origem dos dados, a conferência das métricas e a auditoria dos splits estão no relatório (seção Avaliação) e na explicação. As referências no checklist foram atualizadas.
+- **Novo `docs/PENDENCIAS.md`:** o que falta o grupo fazer, passo a passo:
+  - avaliação humana do RAG (critérios, arquivos e comandos);
+  - itens do relatório que dependem dela;
+  - emails e uso de IA;
+  - preparação para a defesa;
+  - entrega no Moodle (o que incluir e o que não incluir; nada commitado ainda);
+  - decisões opcionais.
+- **README:** estado atualizado, link para as pendências, árvore com `rag.py` e `PENDENCIAS.md`, tabela de módulos com `rag.py`, instalação do Ollama e contagem de testes.
+
+## 25/11/2026 — Requisitos 9 a 15 e enxugamento do relatório
+
+**Código novo** (estilo simples: laços explícitos, funções pequenas, só biblioteca padrão onde possível):
+- `src/ir/rag.py`: prompts das condições A (só a pergunta) e B (pergunta + 5 documentos com identificadores, instrução para usar só os documentos, citar as fontes e declarar falta de evidência) e chamada à LLM local pela API HTTP do Ollama, com `urllib` e `json`. Parâmetros:
+  - temperatura 0, seed 42, `num_predict` 4096 e `num_ctx` 16384 (o padrão do Ollama cortaria o prompt);
+  - `think: true`, porque o `qwen3:4b` instalado é a variante que sempre raciocina. O raciocínio vem separado, e só a resposta final é registrada.
+- `src/scripts/run_rag.py`: lê o top-5 do `results_reranking.csv`, confere a amostra do enunciado, gera as 20 respostas e grava `rag_experiment.csv` e `rag_generations.json` a cada resposta.
+- `src/scripts/evaluate_rag.py`:
+  - `prepare`: P@5/R@5/Hit@5, rastreamento por estágio (`rag_stage_trace.md`) e avaliação às cegas (planilhas embaralhadas por avaliador, documentos por consulta e chave separada);
+  - `merge`: valida as notas, grava no `rag_experiment.csv` (rastreabilidade N/A na condição A), e calcula as médias por condição e a concordância.
+- `src/scripts/analyze_reranking.py`: seleciona os 4 casos do requisito 10 e grava `reranking_analysis.md`.
+- `src/scripts/check_results.py`: verifica os 7 arquivos padronizados.
+- `src/tests/test_rag.py`: 3 testes dos prompts. São 77 testes passando.
+- Nenhum código existente foi alterado.
+
+**Configuração e execução:**
+- `config/tp2_experiment.json`: `llm: qwen3:4b`, `llm_temperature: 0`, `llm_max_tokens: 4096`, `rag_language: en`.
+- RAG executado: 20 respostas, todas terminadas antes do limite; A levou 61 s em média e B, 235 s.
+- Recuperação do contexto: P@5 = 0,44, R@5 = 0,106, Hit@5 = 0,90.
+- `.gitignore`: os arquivos finais de `result/tp2/` passam a ser versionados (exigência da entrega); as pastas auxiliares continuam fora.
+
+**Relatório:**
+- Novas seções:
+  - metodologia do reranking (com a versão do modelo) e do RAG;
+  - resultados do reranking: tabela dos 4 sistemas e 4 casos, com causas verificadas nos dados (hífens `shelflif`/`betelnut`, betel × castanhas, myelopathy × myeloma, duplicados);
+  - tempos de todas as etapas;
+  - RAG: recuperação e fatos objetivos das respostas; a tabela da avaliação humana ficou pendente;
+  - análise de falhas: PLAIN-2850, com o documento que responde perdido por paráfrase em todos os estágios e rebaixado pelo reranking; os outros 2 casos ficaram pendentes;
+  - introdução, conclusão, rascunho do uso de IA e referências.
+- **Enxugamento:**
+  - capa e sumário trocados por um cabeçalho na primeira página;
+  - metodologia de pré-processamento, índice, BM25, correção ortográfica e semântica condensada, mantendo os números exigidos (a tabela de empates do BM25 virou texto);
+  - tabela de modelos e parâmetros da Avaliação virou parágrafo.
+- Resultado: de 23 para 19 páginas com todas as seções, e cerca de 1 página livre para o que falta.
+- **Pendências do grupo:** avaliação humana do RAG (planilhas em `result/tp2/rag_avaliacao/`), os 2 casos de falha que dependem dela, os emails do cabeçalho e a revisão da seção de uso de IA.
+
+## 25/11/2026 — Requisito 8 (busca híbrida com RRF)
+
+- **Medições com um script no scratchpad**, a partir dos `results_*.csv` do test, sem alterar o código:
+  - tempo da fusão: 0,07 ms por consulta (mediana de 20 repetições);
+  - a fusão recalculada é idêntica ao `results_hybrid.csv`;
+  - sobreposição dos top-100: 22 documentos em média; lista fundida com 145 documentos;
+  - composição do top-10 híbrido: 6,5 documentos estão nos dois rankings, 2,6 só no semântico e 0,9 só no lexical;
+  - relevantes no top-100: lexical 6,5, semântico 8,0, união 9,7;
+  - por consulta, o NDCG@10 do híbrido fica acima dos dois sistemas em 42 consultas, entre eles em 272 e abaixo de ambos em 9;
+  - oráculo (melhor sistema de cada consulta): 0,3795;
+  - consultas com NDCG@10 zero: 89 no híbrido, contra 102 (lexical) e 100 (semântico);
+  - empates do RRF entre a 10ª e a 11ª posição: 30 consultas.
+- **Relatório:**
+  - `docs/report/chapters/methodology/hybrid.typ`: fórmula, profundidade 100, por que usar posições, tabela do ajuste de k no dev e escolha de k = 10;
+  - `docs/report/chapters/results/hybrid.typ`: tabela Lexical × Semântico × Híbrido no test e análise da complementaridade.
+- O relatório passou a ter **21 páginas, acima do limite de 20**. Precisa ser enxugado.
+- `docs/TP2_CHECKLIST.md`: seção 8 e itens do relatório marcados.
+- Nenhum código foi alterado.
+
 ## 25/11/2026 — Requisito 7 (comparação lexical × semântica por consulta)
 
 - **Novo script `src/scripts/analyze_lexical_vs_semantic.py`**, em estilo convencional:

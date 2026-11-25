@@ -1,0 +1,15 @@
+{
+  "split": "test",
+  "query_count": 10,
+  "correction_parameters": {
+    "kgram_size": 2,
+    "jaccard_threshold": 0.2,
+    "edit_distance_threshold": 2
+  },
+  "exact_corrections": 10,
+  "mean_ndcg10_original": 0.47061844716347145,
+  "mean_ndcg10_erro": 0.16250028446607373,
+  "mean_ndcg10_corrigida": 0.47061844716347145,
+  "mean_recovery": 1.0,
+  "queries_with_error_not_reducing_performance": 2
+}

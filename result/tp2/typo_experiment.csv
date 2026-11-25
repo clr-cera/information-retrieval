@@ -1,0 +1,11 @@
+query_id,query_original,query_erro,query_corrigida,tipo_erro,NDCG10_original,NDCG10_erro,NDCG10_corrigida,recuperacao,erro_reduziu_desempenho
+PLAIN-102,Stopping Heart Disease in Childhood,stopping heart disease in childhnood,stopping heart disease in childhood,insercao,0.12530682344457728,0.0,0.12530682344457728,1.0,True
+PLAIN-1039,domoic acid,omoic acid,domoic acid,remocao,1.0,0.0,1.0,1.0,True
+PLAIN-1088,ECMO,ecco,ecmo,substituicao,0.5531464700081437,0.0,0.5531464700081437,1.0,True
+PLAIN-1109,endocrine disruptors,endocrine disrputors,endocrine disruptors,transposicao,0.4690000933206748,0.6168295842361274,0.4690000933206748,N/A,False
+PLAIN-112,Food Dyes and ADHD,foodo dyes and adhd,food dyes and adhd,insercao,0.40271448368754525,0.3702840839003171,0.40271448368754525,1.0,True
+PLAIN-1130,ergothioneine,ergotioneine,ergothioneine,remocao,1.0,0.0,1.0,1.0,True
+PLAIN-1141,Evidence-based medicine,evidencebasgd medicine,evidencebased medicine,substituicao,0.22009176629808017,0.0,0.22009176629808017,1.0,True
+PLAIN-1151,factory farming practices,factory farming parctices,factory farming practices,transposicao,0.42631008034275625,0.6378891765242927,0.42631008034275625,N/A,False
+PLAIN-1172,fenugreek,fenugbreek,fenugreek,insercao,0.22009176629808017,0.0,0.22009176629808017,1.0,True
+PLAIN-1183,Finland,filand,finland,remocao,0.28952298823485745,0.0,0.28952298823485745,1.0,True

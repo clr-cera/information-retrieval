@@ -34,7 +34,7 @@ documentos ───────┤                                             
   [RAG], [Dar os 5 melhores documentos a um modelo de linguagem para ele responder com base neles.],
 )
 
-Cada etapa tem um capítulo próprio neste documento. A etapa de RAG ainda não foi implementada; o que já existe para ela é descrito onde aparece (amostra fixa de consultas e formato do CSV).
+Cada etapa tem um capítulo próprio neste documento. Todas estão implementadas e executadas; a única parte que depende do grupo é a avaliação humana das respostas do RAG (ver `docs/PENDENCIAS.md`).
 
 == O conjunto de dados: NFCorpus
 
@@ -63,7 +63,7 @@ As consultas são *curtas*: em média 3,3 palavras no test (por exemplo, "Food D
 == Como ler este documento
 
 - Os capítulos 2 e 3 mostram como o repositório está organizado e os recursos de Python que aparecem no código.
-- Os capítulos 4 a 10 seguem o pipeline: métricas, dados, pré-processamento, índice e BM25, correção ortográfica, busca semântica, busca híbrida e reranking. Cada um começa pela teoria e depois passa pelo código, função por função.
-- O capítulo 11 descreve os scripts que executam os experimentos; o 12, os testes e os resultados; o 13 reúne perguntas prováveis da defesa.
+- Os capítulos 4 a 11 seguem o pipeline: métricas, dados, pré-processamento, índice e BM25, correção ortográfica, busca semântica, busca híbrida e reranking, e RAG. Cada um começa pela teoria e depois passa pelo código, função por função.
+- O capítulo 12 descreve os scripts que executam os experimentos; o 13, os testes e os resultados; o 14 reúne perguntas prováveis da defesa.
 
 Nomes de arquivos, funções e variáveis aparecem em `fonte monoespaçada`. Os caminhos são relativos à raiz do repositório.

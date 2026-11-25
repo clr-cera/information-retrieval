@@ -1,0 +1,3 @@
+model_name,embedding_dimension,max_sequence_length,document_count,truncated_document_count,embedding_time_seconds,cache_hit,device,P10,R10,AP10,NDCG10,average_query_time_seconds
+sentence-transformers/all-MiniLM-L6-v2,384,256,3633,2864,153.99856260300112,True,cpu,0.24012345679012345,0.13642410237126318,0.09467810022701709,0.3024313000358516,0.1497650299289478
+sentence-transformers/multi-qa-MiniLM-L6-cos-v1,384,512,3633,330,197.70285008099927,False,cpu,0.2169753086419753,0.11806741925627391,0.0807109435398641,0.2718193979926873,0.1526681073425416
