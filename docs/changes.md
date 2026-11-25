@@ -4,6 +4,30 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Raiz do repositório enxugada
+
+A raiz passou de 13 itens para 6 pastas e 4 arquivos. `data/` e `result/` continuam gerados e fora do git.
+
+```
+src/     ir/, scripts/, tests/        (antes: ir/, scripts/ e tests/ na raiz)
+docs/    documentos + report/          (antes: report/ na raiz)
+config/  tp1/  data/  result/
+README.md  LICENSE  pyproject.toml  uv.lock
+```
+
+- **Única mudança no código:** `PROJECT_ROOT` (2 ocorrências em `src/ir/data.py`) e `OFFICIAL_DATA_DIR` (`src/tests/test_data.py`) passaram de `Path(__file__).resolve().parent.parent` para `.parents[2]`, porque os arquivos desceram um nível. Os caminhos de `data/`, `result/`, `config/` e dos embeddings continuam os mesmos.
+- **`pyproject.toml`:** `package-dir = {"" = "src"}` e `testpaths = ["src/tests"]`.
+- **graphify removido:** `graphify-out/`, `.graphifyignore` e a entrada no `.gitignore`. Era só uma ferramenta de navegação, não parte do trabalho, e o grafo já estava desatualizado.
+- **Artefatos gerados apagados:** `information_retrieval.egg-info/` e `.pytest_cache/` (recriados automaticamente).
+- **Referências de caminhos atualizadas:** README (árvore reescrita), `docs/TP2_CHECKLIST.md`, `docs/dataset_validation.md` e seções do relatório.
+- **Relatório:** recompilado no novo lugar (`typst compile docs/report/main.typ`), o que também atualizou o `main.pdf`, que estava desatualizado.
+- **Verificação:**
+  - `uv run pytest`: 74 testes passando; o teste que usa o dataset real rodou, sem ser pulado;
+  - `uv run pytest tp1/src`: 27 testes passando;
+  - `src/scripts/validate_experiment.py` passou;
+  - os 9 scripts respondem a `--help`;
+  - `ir.data` aponta para a raiz do projeto.
+
 ## 25/11/2026 — Reorganização do repositório
 
 **Nova estrutura** (detalhada no README):

@@ -37,30 +37,36 @@ O acompanhamento detalhado de cada requisito do enunciado está em [`docs/TP2_CH
 
 ```
 .
-├── ir/                      # biblioteca do TP2 (pacote Python)
-│   ├── data.py              #   leitura do NFCorpus, configuração experimental, escrita dos CSVs
-│   ├── metrics.py           #   P@k, R@k, AP@k, NDCG@k e Hit@k
-│   ├── lexical.py           #   pré-processamento, índice invertido, BM25 e correção ortográfica
-│   └── neural.py            #   busca semântica, RRF, reranking e montagem do pipeline
-├── scripts/                 # scripts executáveis (ajuste no dev e avaliação no test)
-├── tests/                   # testes automatizados (pytest), um arquivo por módulo de ir/
+├── src/                         # todo o código do TP2
+│   ├── ir/                      #   biblioteca (pacote Python)
+│   │   ├── data.py              #     leitura do NFCorpus, configuração experimental, escrita dos CSVs
+│   │   ├── metrics.py           #     P@k, R@k, AP@k, NDCG@k e Hit@k
+│   │   ├── lexical.py           #     pré-processamento, índice invertido, BM25 e correção ortográfica
+│   │   └── neural.py            #     busca semântica, RRF, reranking e montagem do pipeline
+│   ├── scripts/                 #   scripts executáveis (ajuste no dev e avaliação no test)
+│   └── tests/                   #   testes (pytest), um arquivo por módulo de ir/
+├── docs/                        # documentação e relatório
+│   ├── enunciado_tp2.pdf        #   enunciado do trabalho
+│   ├── TP2_CHECKLIST.md         #   checklist de todos os requisitos do enunciado
+│   ├── changes.md               #   histórico de alterações
+│   ├── experiment_protocol.md   #   protocolo experimental (uso dos splits, valores fixos)
+│   ├── dataset_validation.md    #   validação do dataset e dos splits
+│   └── report/                  #   relatório do TP2 (Typst)
 ├── config/
-│   └── tp2_experiment.json  # configuração experimental congelada (parâmetros escolhidos no dev)
-├── docs/                    # enunciado, checklist, protocolo experimental, validação do dataset, histórico
-├── report/                  # relatório do TP2 (Typst)
-├── tp1/                     # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
-├── data/                    # dataset e embeddings — gerados pelos scripts, não versionados
-└── result/                  # resultados (CSVs e JSONs) — gerados pelos scripts, não versionados
+│   └── tp2_experiment.json      # configuração experimental congelada (parâmetros escolhidos no dev)
+├── tp1/                         # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
+├── data/                        # dataset e embeddings — gerados pelos scripts, fora do git
+└── result/                      # resultados (CSVs e JSONs) — gerados pelos scripts, fora do git
 ```
 
-Cada arquivo de `ir/` reúne vários módulos relacionados. Comentários `# Origem: src/...` marcam de qual arquivo antigo veio cada trecho.
+Cada arquivo de `src/ir/` reúne vários módulos relacionados. Comentários `# Origem: src/<arquivo>.py` indicam de qual arquivo da organização anterior veio cada trecho.
 
 | Módulo | Principais classes e funções |
 |---|---|
-| `ir/data.py` | `Document`, `Query`, `Qrel`, `NFCorpusSplit`, `load_split`, `select_rag_query_ids`, `load_experiment_config`, `write_ranking_csv`, `write_combined_metrics_csv`, `TypoExperimentRow`, `RagExperimentRow` |
-| `ir/metrics.py` | `precision_at_k`, `recall_at_k`, `average_precision_at_k`, `ndcg_at_k`, `hit_at_k`, `compute_per_query_metrics`, `aggregate_metrics` |
-| `ir/lexical.py` | `PipelineOptions`, `get_index_terms_freq`, `PostingList` (índice invertido), `ProbabilisticModel` (BM25), `LexicalIndex`, `evaluate_bm25`, `SpellingCorrector` |
-| `ir/neural.py` | `SemanticIndex`, `evaluate_semantic`, `reciprocal_rank_fusion`, `CrossEncoderReranker`, `evaluate_reranker`, `build_lexical_run`, `build_semantic_run`, `build_hybrid_rankings` |
+| `src/ir/data.py` | `Document`, `Query`, `Qrel`, `NFCorpusSplit`, `load_split`, `select_rag_query_ids`, `load_experiment_config`, `write_ranking_csv`, `write_combined_metrics_csv`, `TypoExperimentRow`, `RagExperimentRow` |
+| `src/ir/metrics.py` | `precision_at_k`, `recall_at_k`, `average_precision_at_k`, `ndcg_at_k`, `hit_at_k`, `compute_per_query_metrics`, `aggregate_metrics` |
+| `src/ir/lexical.py` | `PipelineOptions`, `get_index_terms_freq`, `PostingList` (índice invertido), `ProbabilisticModel` (BM25), `LexicalIndex`, `evaluate_bm25`, `SpellingCorrector` |
+| `src/ir/neural.py` | `SemanticIndex`, `evaluate_semantic`, `reciprocal_rank_fusion`, `CrossEncoderReranker`, `evaluate_reranker`, `build_lexical_run`, `build_semantic_run`, `build_hybrid_rankings` |
 
 ## Instalação
 
@@ -70,7 +76,7 @@ Requisitos: **Python 3.13** e [uv](https://docs.astral.sh/uv/).
 uv sync
 ```
 
-O `uv sync` cria o ambiente virtual, instala as dependências e instala o pacote `ir/` em modo editável, que os scripts e os testes importam. Na primeira execução, o NLTK baixa os recursos de stopwords e WordNet, e o Sentence Transformers baixa os modelos do Hugging Face.
+O `uv sync` cria o ambiente virtual, instala as dependências e instala o pacote `src/ir/` em modo editável, que os scripts e os testes importam. Na primeira execução, o NLTK baixa os recursos de stopwords e WordNet, e o Sentence Transformers baixa os modelos do Hugging Face.
 
 ### Dados
 
@@ -87,18 +93,18 @@ Todos os scripts leem a configuração de [`config/tp2_experiment.json`](config/
 
 ```bash
 # 1. Validar o dataset, a amostra do RAG e as métricas (comparadas com o ir_measures)
-uv run scripts/validate_experiment.py
+uv run src/scripts/validate_experiment.py
 
 # 2. Ajustes no conjunto dev (--update-config grava a escolha no config)
-uv run scripts/tune_lexical.py              # pré-processamento, k1 e b do BM25 (ver a observação abaixo)
-uv run scripts/tune_typo.py --update-config # limiares da correção ortográfica
-uv run scripts/tune_semantic.py --update-config
-uv run scripts/tune_hybrid.py --update-config   # k do RRF
-uv run scripts/tune_reranker.py --update-config # modelo do cross-encoder
+uv run src/scripts/tune_lexical.py              # pré-processamento, k1 e b do BM25 (ver a observação abaixo)
+uv run src/scripts/tune_typo.py --update-config # limiares da correção ortográfica
+uv run src/scripts/tune_semantic.py --update-config
+uv run src/scripts/tune_hybrid.py --update-config   # k do RRF
+uv run src/scripts/tune_reranker.py --update-config # modelo do cross-encoder
 
 # 3. Avaliação final no conjunto test
-uv run scripts/run_retrieval_pipeline.py --split test   # lexical, semântico, híbrido e reranking
-uv run scripts/run_typo.py                              # experimento de erros ortográficos
+uv run src/scripts/run_retrieval_pipeline.py --split test   # lexical, semântico, híbrido e reranking
+uv run src/scripts/run_typo.py                              # experimento de erros ortográficos
 ```
 
 > **BM25:** os valores usuais (k1 = 1,2; b = 0,75) foram fixados à mão no config. O `tune_lexical.py --update-config` escolheria o maior NDCG@10 da grade (k1 = 2,0; b = 0), que está apenas 0,001 acima e cuja vantagem se deve a empates de score. A justificativa está em [`docs/experiment_protocol.md`](docs/experiment_protocol.md) e no relatório. Por isso, rode `tune_lexical.py` **sem** `--update-config`.
@@ -146,7 +152,7 @@ Arquivos gerados em `result/tp2/`:
 ## Testes
 
 ```bash
-uv run pytest             # testes do TP2 (tests/)
+uv run pytest             # testes do TP2 (src/tests/)
 uv run pytest tp1/src     # testes do TP1 arquivado
 ```
 
@@ -158,10 +164,10 @@ uv run pytest tp1/src     # testes do TP1 arquivado
 
 ## Relatório
 
-O relatório do TP2 está em [`report/`](report/), escrito em [Typst](https://typst.app/):
+O relatório do TP2 está em [`docs/report/`](docs/report/), escrito em [Typst](https://typst.app/):
 
 ```bash
-typst compile report/main.typ
+typst compile docs/report/main.typ
 ```
 
 ## Trabalho Prático 1 (arquivado)

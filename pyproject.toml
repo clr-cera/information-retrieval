@@ -24,14 +24,15 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 
-# O pacote `ir/` é instalado em modo editável pelo `uv sync`, para que os
-# scripts em `scripts/` e os testes em `tests/` possam importá-lo.
+# O pacote `src/ir/` é instalado em modo editável pelo `uv sync`, para que os
+# scripts em `src/scripts/` e os testes em `src/tests/` possam importá-lo.
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["ir"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["src/tests"]

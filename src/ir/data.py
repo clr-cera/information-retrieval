@@ -30,7 +30,7 @@ HF_FILES = {
     "queries": f"https://huggingface.co/datasets/{HF_CORPUS_REPO}/resolve/{HF_CORPUS_REVISION}/queries/queries-00000-of-00001.parquet",
 }
 HF_QRELS_URL = f"https://huggingface.co/datasets/{HF_QRELS_REPO}/resolve/{HF_QRELS_REVISION}/{{split}}.tsv"
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATA_DIR = PROJECT_ROOT / "data" / "nfcorpus"
 RAG_QUERY_SEED = 42
 RAG_QUERY_SAMPLE_SIZE = 10
@@ -343,7 +343,7 @@ import json
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 NFCORPUS_DIR = DEFAULT_DATA_DIR
 RESULTS_DIR = PROJECT_ROOT / "result" / "tp2"

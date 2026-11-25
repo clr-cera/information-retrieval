@@ -220,5 +220,3 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Saídas do graphify (regeneráveis)
-graphify-out/

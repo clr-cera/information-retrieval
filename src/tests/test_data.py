@@ -15,7 +15,7 @@ import pytest
 from ir.data import NFCORPUS_SPLITS, ensure_nfcorpus, load_all_splits, load_qrels, load_split, select_rag_query_ids
 from ir.data import RAG_QUERY_IDS
 
-OFFICIAL_DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "nfcorpus"
+OFFICIAL_DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "nfcorpus"
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:

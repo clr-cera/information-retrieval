@@ -1,6 +1,6 @@
 == Índice invertido
 
-O índice invertido foi implementado do zero pelo grupo, na classe `PostingList` (`ir/lexical.py`), usando apenas dicionários nativos do Python. Nenhuma biblioteca de indexação ou de busca textual é usada: o índice é construído e consultado pelo próprio código do grupo.
+O índice invertido foi implementado do zero pelo grupo, na classe `PostingList` (`src/ir/lexical.py`), usando apenas dicionários nativos do Python. Nenhuma biblioteca de indexação ou de busca textual é usada: o índice é construído e consultado pelo próprio código do grupo.
 
 === Estruturas de dados
 

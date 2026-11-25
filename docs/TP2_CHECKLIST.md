@@ -18,18 +18,18 @@ Legenda:
 
 ## 0. Etapa 1 do roadmap — Dataset e splits ✅ concluída
 
-- [x] Usar o NFCorpus na versão disponibilizada pelo BEIR — `ir/data.py`
+- [x] Usar o NFCorpus na versão disponibilizada pelo BEIR — `src/ir/data.py`
   - [x] Fonte principal: `nfcorpus.zip` da UKP/TU Darmstadt (servidor inacessível em 24/11/2026)
   - [x] Alternativa automática: cópia do BEIR no Hugging Face (`BeIR/nfcorpus` + `BeIR/nfcorpus-qrels`, revisões fixadas); a origem usada fica em `data/nfcorpus/SOURCE.txt`
 - [x] Usar os arquivos padronizados `corpus.jsonl`, `queries.jsonl` e `qrels/{train,dev,test}.tsv`
 - [x] Download automático e extração para `data/nfcorpus` (sobrescrevível com `NFCORPUS_DIR`)
 - [x] Consultas de cada split = apenas as que possuem julgamento no qrels do split (e não as 3.237 de `queries.jsonl`)
-- [x] Test com 323 consultas, conferido por `scripts/validate_experiment.py`, que imprime as contagens por split
+- [x] Test com 323 consultas, conferido por `src/scripts/validate_experiment.py`, que imprime as contagens por split
 - [x] Representação do documento = `title + " " + text` em **todos** os sistemas (lexical, semântico e reranking) — `Document.searchable_text`
 - [x] IDs mantidos como string
 - [x] Protocolo documentado em `docs/experiment_protocol.md`
 - [x] Configuração experimental congelada em `config/tp2_experiment.json`
-- [x] Rodar `scripts/validate_experiment.py` e guardar a saída para citar no relatório — [dataset_validation.md](dataset_validation.md)
+- [x] Rodar `src/scripts/validate_experiment.py` e guardar a saída para citar no relatório — [dataset_validation.md](dataset_validation.md)
   - train: 3.633 docs / 2.590 consultas / 110.575 qrels; dev: 3.633 / 324 / 11.385; test: 3.633 / 323 / 12.334
   - Amostra do RAG idêntica à do enunciado; P@10, R@10, AP@10 e NDCG@10 iguais ao `ir_measures`
 
@@ -44,7 +44,7 @@ Legenda:
 
 ## 1. Pré-processamento (Requisito 1 / etapa 2 do roadmap)
 
-- [x] Leitura dos textos — `ir/data.py`
+- [x] Leitura dos textos — `src/ir/data.py`
 - [x] Tokenização (split em espaços + remoção de caracteres não alfanuméricos) — `document_processor.tokenize`
 - [x] Normalização (lowercase) — `document_processor.normalize`
 - [x] Remoção de stopwords (NLTK, inglês) — `document_processor.remove_stopwords`
@@ -52,7 +52,7 @@ Legenda:
 - [x] Lematização (WordNet, NLTK) disponível — `document_processor.lemmatize` (não usada em nenhum pipeline)
 - [x] 4 variantes de pipeline comparadas no dev (`tune_lexical.py`); selecionada: `WithStopRemovalWithStemming`
 - [x] Mesmo pré-processamento aplicado a documentos e consultas (`get_index_terms_freq`)
-- [x] **Relatório:** descrever as etapas usadas, as bibliotecas (NLTK 3.10.3) e as principais decisões para representar documentos e consultas — `report/chapters/methodology/preprocessing.typ`
+- [x] **Relatório:** descrever as etapas usadas, as bibliotecas (NLTK 3.10.3) e as principais decisões para representar documentos e consultas — `docs/report/chapters/methodology/preprocessing.typ`
   - [x] Descrever o efeito da tokenização simples (hífens e barras unem termos: `meta-analysis` → `metaanalysis`, `follow-up` → `followup`, `and/or` → `andor`)
   - [ ] **⚠️ parcial — lematização:** o relatório informa que ela não entrou na grade do dev e por isso não é usada; falta uma justificativa de fato (custo da etiquetagem morfossintática) ou testá-la no dev
   - [x] Citar os resultados do dev que levaram à escolha do pipeline (`result/tp2/lexical_tuning_dev.csv`, regerado em 24/11/2026 e com a mesma escolha do config)
@@ -63,7 +63,7 @@ Legenda:
 
 ## 2. Índice invertido implementado do zero (Requisito 2 / etapa 3 do roadmap) ✅ concluído (exceto a preparação para a defesa)
 
-- [x] Índice invertido próprio (`ir/lexical.py`): dicionário `termo → {doc_id: tf}`, sem bibliotecas prontas de indexação
+- [x] Índice invertido próprio (`src/ir/lexical.py`): dicionário `termo → {doc_id: tf}`, sem bibliotecas prontas de indexação
 - [x] Armazena TF por documento (postings), DF, frequência global do termo e tamanho dos documentos
 - [x] Busca percorre apenas as posting lists dos termos da consulta (`ProbabilisticModel.execute_query`)
 - [x] **Estatísticas globais em O(1) por consulta** (corrigido em 24/11/2026, ver [changes.md](changes.md)): a `PostingList` mantém `total_length` durante a indexação, e o BM25 obtém `N` e `avgdl` sem percorrer a coleção e lê DF e tamanhos direto dos dicionários, sem copiá-los. Cada consulta visita apenas as posting lists dos termos da consulta
@@ -76,7 +76,7 @@ Legenda:
 - [x] Registro do tempo de construção do índice — `IndexStats.build_time_seconds`
 - [x] Registro do tempo médio de processamento das consultas — `LexicalRun.average_query_time_seconds` (salvo em `lexical_stats.json`)
 - [x] Gerar `result/tp2/lexical_stats.json` no test e reportar os quatro números no relatório: vocabulário 28.942 termos, 350.458 postings, construção em 7,32 s e 0,90 ms por consulta na execução final de 25/11/2026 (k1 = 1,2; b = 0,75) (AMD Ryzen 7 5700U, 14 GB de RAM)
-- [x] **Relatório:** estruturas de dados, construção, processamento da consulta (termo a termo com acumuladores), estatísticas e evidência de que a consulta não percorre a coleção — `report/chapters/methodology/inverted_index.typ`
+- [x] **Relatório:** estruturas de dados, construção, processamento da consulta (termo a termo com acumuladores), estatísticas e evidência de que a consulta não percorre a coleção — `docs/report/chapters/methodology/inverted_index.typ`
   - Evidência: em média 558 postings visitados por consulta (0,16% do índice) e 485 documentos com score (13,3% da coleção)
   - Achado registrado no relatório: 134 das 323 consultas do test recuperam menos de 100 documentos no lexical e 16 não recuperam nenhum. Retomar isso na análise da busca híbrida
   - O termo vazio `""` (ver seção 1) tem a 5ª maior posting list (1.513 documentos) e entra na contagem do vocabulário; há um `// TODO` no `inverted_index.typ` para atualizar os números se o código for corrigido
@@ -86,7 +86,7 @@ Legenda:
 
 ## 3. Busca lexical — baseline (Requisito 3 / etapa 4 do roadmap) ✅ concluído
 
-- [x] Uma única alternativa escolhida: **BM25** (`ir/lexical.py`, reaproveitado do TP1)
+- [x] Uma única alternativa escolhida: **BM25** (`src/ir/lexical.py`, reaproveitado do TP1)
 - [x] BM25 usa o índice invertido próprio
 - [x] k1 e b avaliados **no dev** (grade k1 ∈ {0,5; 1,2; 2,0} × b ∈ {0; 0,75; 1,0}) — adotados os **valores usuais k1 = 1,2 e b = 0,75** (NDCG@10 dev = 0,2906), decidido em 25/11/2026
   - O maior valor da grade foi k1 = 2,0 / b = 0 (0,2916), só 0,001 acima; toda a grade fica entre 0,2854 e 0,2916
@@ -96,9 +96,9 @@ Legenda:
 - [x] Tempo médio das consultas medido
 - [ ] (Opcional — não implementado, mas discutido no relatório) Desempate explícito na ordenação do BM25. Hoje o empate segue a ordem das posting lists (ordem do `corpus.jsonl`): é determinístico, mas arbitrário
   - **Empates (motivo da troca para os valores usuais):** com b = 0, 93 das 324 consultas do dev (107 das 323 do test) têm empate entre a 10ª e a 11ª posição, e só a ordem de desempate faz o NDCG@10 do dev variar de 0,2850 a 0,3021. Com b = 0,75, só 3 consultas do dev têm esse empate, e a variação cai para 0,2899–0,2915. Está no relatório (subseção "Empates de score")
-- [x] **Relatório:** escolha do BM25 justificada (`report/chapters/methodology/lexical.typ`) com o resultado do TP1 (BM25 superior no Cranfield), a comparação no dev do NFCorpus com os parâmetros adotados (BM25 0,2906 × TF-IDF com cosseno 0,2880; o TF-IDF vence mais consultas, 86 × 82, mas o BM25 vence por margens maiores) e os parâmetros de saturação e de tamanho
+- [x] **Relatório:** escolha do BM25 justificada (`docs/report/chapters/methodology/lexical.typ`) com o resultado do TP1 (BM25 superior no Cranfield), a comparação no dev do NFCorpus com os parâmetros adotados (BM25 0,2906 × TF-IDF com cosseno 0,2880; o TF-IDF vence mais consultas, 86 × 82, mas o BM25 vence por margens maiores) e os parâmetros de saturação e de tamanho
   - [x] Fórmula do BM25 e do IDF, e como o score usa o índice
-- [x] **Relatório:** justificar os valores usuais k1 = 1,2 e b = 0,75 com os números do dev (tabela da grade, efeito pequeno dos parâmetros, empates com b = 0, homogeneidade de tamanho) — `report/chapters/methodology/lexical.typ`
+- [x] **Relatório:** justificar os valores usuais k1 = 1,2 e b = 0,75 com os números do dev (tabela da grade, efeito pequeno dos parâmetros, empates com b = 0, homogeneidade de tamanho) — `docs/report/chapters/methodology/lexical.typ`
 
 ---
 
@@ -135,7 +135,7 @@ Legenda:
 
 ## 5. Recuperação semântica (Requisito 5 / etapa 6 do roadmap)
 
-- [x] Bi-encoder pré-treinado via Sentence Transformers — `ir/neural.py`
+- [x] Bi-encoder pré-treinado via Sentence Transformers — `src/ir/neural.py`
 - [x] Embeddings dos documentos calculados previamente e salvos (`data/embeddings/<modelo>/document_embeddings.npy` + metadados)
 - [x] Embedding da consulta gerado a cada busca e similaridade calculada com todos os documentos (busca exaustiva, permitida)
 - [x] Modelo escolhido no dev entre `all-MiniLM-L6-v2` e `multi-qa-MiniLM-L6-cos-v1` (`tune_semantic.py`) — selecionado `sentence-transformers/all-MiniLM-L6-v2`
@@ -150,12 +150,12 @@ Legenda:
 ## 6. Avaliação da recuperação (Requisito 6 / etapa 7 do roadmap)
 
 - [x] Lexical e semântico avaliados sobre as **mesmas** consultas do test
-- [x] Precision@10, Recall@10, MAP@10 e NDCG@10 implementados — `ir/metrics.py`
+- [x] Precision@10, Recall@10, MAP@10 e NDCG@10 implementados — `src/ir/metrics.py`
 - [x] P@10/R@10/AP@10: relevante = grau > 0
 - [x] NDCG@10 com graus preservados, ganho linear e ranking ideal a partir de **todos** os julgamentos da consulta
 - [x] AP@10 truncada em 10, dividida pelo total de relevantes nos qrels (convenção trec_eval/ir_measures); MAP@10 = média
 - [x] Recall@10 com denominador = total de relevantes nos qrels
-- [x] Conferência com `ir_measures` (`validate_experiment.py` + `tests/test_metrics.py`)
+- [x] Conferência com `ir_measures` (`validate_experiment.py` + `src/tests/test_metrics.py`)
 - [x] Métricas preservadas por consulta (`metrics_per_query.csv`)
 - [ ] Rodar `validate_experiment.py` e citar no relatório que as métricas batem com o `ir_measures`
 - [ ] **Relatório:** tabela de médias globais Lexical × Semântico no test
@@ -182,7 +182,7 @@ Legenda:
 
 ## 8. Busca híbrida — RRF (Requisito 8 / etapa 9 do roadmap)
 
-- [x] RRF implementado: `RRF(d) = Σ 1/(k + rank_s(d))`, rank começando em 1 — `ir/neural.py`
+- [x] RRF implementado: `RRF(d) = Σ 1/(k + rank_s(d))`, rank começando em 1 — `src/ir/neural.py`
 - [x] Documentos ausentes de um ranking não recebem contribuição desse sistema
 - [x] Fusão dos **100 primeiros** de cada sistema (`FUSION_DEPTH = 100`)
 - [x] k ajustado no dev com k ∈ {10, 60, 100}, critério: maior NDCG@10 médio — selecionado **k = 10** (`tune_hybrid.py`, `hybrid_tuning_dev.csv`)
@@ -197,7 +197,7 @@ Legenda:
 ## 9. Reranking (Requisito 9 / etapa 10 do roadmap)
 
 - [x] Híbrido usado como recuperador inicial
-- [x] Top-50 do híbrido reordenados por cross-encoder — `ir/neural.py` (`RERANK_DEPTH = 50`)
+- [x] Top-50 do híbrido reordenados por cross-encoder — `src/ir/neural.py` (`RERANK_DEPTH = 50`)
 - [x] Documentos abaixo da posição 50 mantêm a ordem relativa do híbrido (ranking completo preservado)
 - [x] Modelo escolhido no dev entre `ms-marco-MiniLM-L6-v2` e `ms-marco-TinyBERT-L2-v2` (`tune_reranker.py`) — selecionado `cross-encoder/ms-marco-MiniLM-L6-v2`
 - [x] Comparação Lexical × Semântico × Híbrido × Híbrido + reranking com as 4 métricas
@@ -289,7 +289,7 @@ Escolher entre as 10 consultas do experimento:
 
 ## 15. Arquivos padronizados de resultados (Requisito 15 / etapa 16 do roadmap)
 
-Writers implementados em `ir/data.py`; caminhos definidos em `experiment_config.py` (`result/tp2/`).
+Writers implementados em `src/ir/data.py`; caminhos definidos em `experiment_config.py` (`result/tp2/`).
 
 | Arquivo | Writer/esquema | Gerado e incluído na entrega |
 |---|---|---|
@@ -361,7 +361,7 @@ Writers implementados em `ir/data.py`; caminhos definidos em `experiment_config.
 - [ ] Nenhuma chave de API, senha ou credencial na entrega
 
 ### 4. Relatório em PDF (até 20 páginas, PT ou EN; o limite exclui só as referências; anexos não podem ser usados para contornar o limite)
-O relatório do TP2 fica em `report/` (Typst, mesmo template do TP1: `quill-assignment`). Compilar com `typst compile report/main.typ`.
+O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill-assignment`). Compilar com `typst compile docs/report/main.typ`.
 - [x] Estrutura criada: `main.typ` com as seções a–g e um arquivo por subseção em `chapters/`. Títulos numerados (1, 1.1, 1.1.1), sumário com dois níveis, e todas as subseções exigidas visíveis no sumário. As ainda não escritas mostram "Seção em elaboração." e um `// TODO` com o que deve entrar (remover antes da entrega)
 - [ ] **⚠️ parcial — a. Cabeçalho:** capa em português com título, autores (nome completo e Nº USP), professor, filiação (ICMC/USP) e data; **faltam os emails** (placeholder na linha "Emails:" do `main.typ`)
 - [ ] **b. Introdução:** contextualização, motivação e objetivo

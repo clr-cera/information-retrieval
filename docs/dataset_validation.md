@@ -1,6 +1,6 @@
 # Validação do dataset e dos splits (etapa 1 do roadmap)
 
-Saída de `uv run scripts/validate_experiment.py`, executado em 24/11/2026.
+Saída de `uv run src/scripts/validate_experiment.py`, executado em 24/11/2026.
 
 ## Origem dos dados
 

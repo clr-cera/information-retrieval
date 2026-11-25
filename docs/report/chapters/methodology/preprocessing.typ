@@ -8,7 +8,7 @@ As consultas recebem exatamente o mesmo pré-processamento dos documentos no sis
 
 === Etapas do pipeline lexical
 
-O pré-processamento do sistema lexical foi implementado em Python com a biblioteca NLTK (versão 3.10.3), reaproveitando o código do Trabalho Prático 1 (módulo `ir/lexical.py`, originalmente `document_processor.py`). As etapas, aplicadas nesta ordem, são:
+O pré-processamento do sistema lexical foi implementado em Python com a biblioteca NLTK (versão 3.10.3), reaproveitando o código do Trabalho Prático 1 (módulo `src/ir/lexical.py`, originalmente `document_processor.py`). As etapas, aplicadas nesta ordem, são:
 
 + *Tokenização:* o texto é dividido em espaços em branco e, de cada token, são mantidos apenas os caracteres alfanuméricos (`str.isalnum`).
 + *Normalização:* conversão para letras minúsculas.

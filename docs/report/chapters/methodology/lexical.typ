@@ -2,7 +2,7 @@
 
 === Escolha do modelo
 
-O baseline lexical escolhido foi o *BM25*, reaproveitado do Trabalho Prático 1 (classe `ProbabilisticModel`, `ir/lexical.py`). O mesmo modelo, com os mesmos parâmetros, é usado em todos os experimentos seguintes: tolerância a erros, busca híbrida, reranking e RAG. A escolha se apoia em três evidências.
+O baseline lexical escolhido foi o *BM25*, reaproveitado do Trabalho Prático 1 (classe `ProbabilisticModel`, `src/ir/lexical.py`). O mesmo modelo, com os mesmos parâmetros, é usado em todos os experimentos seguintes: tolerância a erros, busca híbrida, reranking e RAG. A escolha se apoia em três evidências.
 
 - *Resultados do TP1.* No Cranfield, o BM25 superou o Modelo Vetorial (TF-IDF com cosseno) na curva Precision × Recall e no MAP, em todos os quatro pipelines de pré-processamento. Lá, o Modelo Vetorial se mostrou mais sensível à presença de termos muito frequentes.
 - *Comparação no conjunto dev do NFCorpus.* Com o mesmo pré-processamento e os parâmetros adotados ($k_1 = "1,2"$; $b = "0,75"$), o BM25 obteve NDCG\@10 de 0,2906, contra 0,2880 do TF-IDF com cosseno, além de P\@10 maior (0,2324 contra 0,2272) e AP\@10 praticamente igual (0,0898 contra 0,0891). O TF-IDF teve R\@10 um pouco maior (0,1303 contra 0,1281). Por consulta, o TF-IDF foi melhor em 86 das 324 consultas, o BM25 em 82, e houve empate em 156: o BM25 vence na média porque suas vitórias são, em média, por margens maiores. A vantagem do BM25 no NFCorpus é, portanto, pequena: ela confirma a direção observada no TP1, mas não é decisiva por si só.
