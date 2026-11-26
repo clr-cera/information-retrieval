@@ -4,6 +4,15 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 25/11/2026 — Seção "O QUE FALTA FAZER" no relatório
+
+- **O quê:** `docs/report/main.typ` ganhou, antes da Introdução, uma seção sem número, "O QUE FALTA FAZER", em um quadro vermelho. Ela lista as 8 pendências do grupo: avaliação humana do RAG, tabela de médias, 2 casos de falha, conclusão do RAG, emails, uso de IA, revisão final e entrega. O comentário no código e o próprio quadro avisam que a seção deve ser apagada antes da entrega.
+- **Por quê:** pedido do grupo, para ver as pendências direto no PDF.
+- **Verificação:** compila sem erros; continua com 15 páginas.
+- **Docs:** item "apagar a seção O QUE FALTA FAZER" incluído em `PENDENCIAS.md` e no checklist.
+
+---
+
 ## 25/11/2026 — Relatório enxugado (19 → 15 páginas)
 
 - **O quê:** revisão de todos os capítulos de `docs/report/` para cortar repetições e detalhes desnecessários, sem remover nada que o enunciado exige.

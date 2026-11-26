@@ -386,7 +386,7 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
 - [ ] **⚠️ revisar — g. Uso de ferramentas de IA:** rascunho em `chapters/ai_use.typ` (uso do Claude Code); o grupo deve revisar e completar. atividades em que IA generativa foi usada como apoio (programação, depuração, explicação, revisão), sem histórico completo. Separar do uso de IA como componente do experimento (embeddings, cross-encoder, LLM), que vai na metodologia
 - [x] Referências bibliográficas (11 itens, ao final do `main.typ`)
 - [x] Limite de 20 páginas: 15 páginas em 25/11/2026, após o enxugamento (antes 19), com folga para a avaliação humana e os 2 casos de falha pendentes (as referências não contam)
-- [ ] Antes de entregar: remover os `// TODO` (não aparecem no PDF, mas indicam o que falta) e recompilar
+- [ ] Antes de entregar: remover os `// TODO` (não aparecem no PDF, mas indicam o que falta) e a seção "O QUE FALTA FAZER" (aparece no PDF, antes da Introdução) e recompilar
 
 ---
 

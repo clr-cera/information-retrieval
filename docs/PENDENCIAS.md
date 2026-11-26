@@ -67,7 +67,7 @@ Todos os pontos estão marcados com `// TODO` nos arquivos `.typ`. Eles não apa
 
 - [ ] **Emails no cabeçalho** (exigência do enunciado): em `docs/report/main.typ`, trocar `<email Ariel>` e `<email Clara>` pelos emails reais.
 - [ ] **Uso de ferramentas de IA:** revisar `docs/report/chapters/ai_use.typ`, que é um rascunho sobre o uso do Claude Code, e completar com o uso de cada integrante.
-- [ ] Apagar os comentários `// TODO` que já foram resolvidos, recompilar e ler o PDF inteiro uma vez.
+- [ ] Apagar os comentários `// TODO` que já foram resolvidos e a seção **"O QUE FALTA FAZER"** do início do `main.typ`, recompilar e ler o PDF inteiro uma vez.
 
 ## 4. Preparação para a defesa individual
 
