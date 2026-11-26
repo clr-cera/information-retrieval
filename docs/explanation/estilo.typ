@@ -29,19 +29,6 @@
   #corpo
 ]
 
-// Ficha de uma função: assinatura, o que recebe, o que devolve e como funciona.
-#let funcao(assinatura, corpo) = block(
-  width: 100%,
-  stroke: 0.5pt + luma(200),
-  inset: 9pt,
-  radius: 3pt,
-  breakable: true,
-)[
-  #text(size: 9pt, raw(assinatura, lang: "python")) \
-  #v(2pt)
-  #corpo
-]
-
 // Tabela simples com cabeçalho destacado.
 #let tabela(colunas, ..celulas) = {
   set par(justify: false)

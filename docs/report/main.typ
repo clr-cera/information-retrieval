@@ -12,10 +12,9 @@
 #let meses = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro")
 #let hoje = datetime.today()
 
-// TODO: substituir os emails placeholder antes da entrega (o enunciado exige email no cabeçalho).
 #show: assignment.with(
   title: "Busca Lexical, Semântica, Híbrida, Reranking e RAG sobre o NFCorpus",
-  subtitle: "Emails: <email Ariel> · <email Clara>",
+  subtitle: "Emails: arielalves@usp.br · claraernestodecarvalho@usp.br",
   course: "SCC0282 Recuperação de Informação",
   assignment: "Trabalho Prático 2",
   student: "Ariel Alves da Silva (8847378)\nClara Ernesto de Carvalho (14559479)",
@@ -56,23 +55,6 @@
   ]
 }
 
-
-// Seção provisória: apagar inteira antes da entrega.
-#heading(numbering: none)[O QUE FALTA FAZER]
-
-#block(width: 100%, inset: 10pt, radius: 4pt, stroke: 1pt + rgb("#bf616a"), fill: rgb("#bf616a").lighten(92%))[
-  #set par(justify: false)
-  Esta seção é só um lembrete para o grupo e deve ser apagada antes da entrega (está no início do `main.typ`). Os passos detalhados estão em `docs/PENDENCIAS.md`.
-
-  + *Avaliação humana do RAG.* Cada integrante preenche a sua planilha em `result/tp2/rag_avaliacao/`, sem abrir a chave antes de terminar. Cada uma das 20 respostas recebe nota 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, com justificativa. Depois, rodar `evaluate_rag.py merge` com as duas planilhas e `check_results.py`.
-  + *Resultados › RAG.* Preencher a tabela de médias da avaliação humana com os valores de `rag_evaluation_summary.md` e acrescentar a concordância entre os avaliadores. Discutir o efeito da recuperação na fidelidade e na disponibilidade de evidências e a falta de fontes nas respostas sem RAG.
-  + *Análise de falhas.* Escolher pelas notas mais dois casos e analisá-los no mesmo formato do PLAIN-2850: uma consulta em que o RAG melhorou claramente a resposta e uma em que houve pouca diferença.
-  + *Considerações finais.* Acrescentar a conclusão da avaliação humana do RAG.
-  + *Cabeçalho.* Trocar os emails provisórios pelos emails reais.
-  + *Uso de ferramentas de IA.* Revisar o rascunho e completar com o uso de cada integrante.
-  + *Revisão final.* Apagar os comentários `// TODO` e esta seção, recompilar, conferir o limite de 20 páginas e ler o PDF inteiro.
-  + *Entrega.* Fazer o commit e montar o `.zip` para o Moodle com o código, `result/tp2/` e este PDF. Não incluir `data/`, `.venv/`, `result/tp2/old_k2_b0/` nem chaves.
-]
 
 = Introdução
 

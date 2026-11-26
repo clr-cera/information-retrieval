@@ -4,9 +4,8 @@ As técnicas se mostraram complementares, e cada uma falha de um jeito caracter�
 - *O RRF é a melhoria mais barata.* Com 0,07 ms por consulta, eleva o NDCG\@10 para 0,3440, porque os sistemas trazem relevantes diferentes. Ainda fica abaixo do melhor sistema de cada consulta (0,3795).
 - *O reranking dá o melhor resultado* (NDCG\@10 de 0,3557 e MAP\@10 de 0,1382). Porém, melhora e piora quase o mesmo número de consultas (108 e 97) e custa cerca de 4 s por consulta em CPU.
 - *A correção ortográfica é eficaz neste cenário:* corrigiu os 10 erros e recuperou todo o NDCG\@10 perdido (0,47 → 0,16 → 0,47).
-- *No RAG*, ao menos um relevante chegou ao contexto em 9 das 10 perguntas, e o modelo só citou documentos enviados. No caso em que o RAG não ajudou, o problema estava na recuperação, e não na geração.
-
-// TODO (grupo): completar com a conclusão da avaliação humana do RAG (médias por critério, sem RAG × com RAG).
+- *No RAG*, ao menos um relevante chegou ao contexto em 9 das 10 perguntas, e o modelo só citou documentos enviados. Sem RAG, três respostas contradizem os documentos em afirmações centrais; com RAG, as afirmações podem ser rastreadas às fontes, com imprecisões pontuais. O ganho foi maior quando o contexto tinha boa evidência (PLAIN-2750) e pequeno quando o modelo já sabia a resposta (PLAIN-270). No caso em que o RAG não ajudou, o problema estava na recuperação, e não na geração.
+- *Na avaliação humana*, o RAG elevou a fidelidade de 0,60 para 2,00 e deu rastreabilidade máxima (2,00), mas quase não mudou a completude (1,70 → 1,90) e não mudou a utilidade (1,80 nos dois casos). As respostas sem RAG são diretas e parecem úteis, mas não dá para verificá-las, e várias contradizem a evidência. Com RAG, a resposta fica presa ao contexto: é fiel e verificável, mas responde menos quando o contexto não traz a informação.
 
 As médias globais esconderam o essencial: foi a análise por consulta que explicou por que os sistemas acertam e erram. Como trabalhos futuros, ficam:
 

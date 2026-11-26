@@ -4,6 +4,69 @@ Alterações feitas no repositório, da mais recente para a mais antiga. Cada en
 
 ---
 
+## 26/11/2026 — Avaliação do RAG concluída e relatório finalizado
+
+- **O quê:**
+  - Nova `result/tp2/rag_avaliacao/planilha_avaliador_llm.csv`: notas e justificativas do Claude como **avaliador LLM declarado**, feitas sem consultar a planilha da avaliadora humana. Não é uma avaliação cega: o modelo conhecia as condições e tinha feito a ficha de evidências.
+  - Merge: `evaluate_rag.py merge --sheets planilha_avaliador2.csv planilha_avaliador_llm.csv`. As notas finais do `rag_experiment.csv` são as da avaliadora humana (planilha 2, Clara). A `planilha_avaliador1.csv` (Ariel) não foi usada nem alterada.
+  - Médias (humana, A → B): fidelidade 0,60 → 2,00; completude 1,70 → 1,90; utilidade 1,80 → 1,80; rastreabilidade 2,00 (B). Concordância humano × LLM: 90%, 60%, 60% e 100%; as 18 discordâncias são todas com a nota do LLM mais baixa, 14 na condição A.
+  - Relatório: tabela de médias e concordância, discussão (fidelidade, utilidade, falta de fontes, concordância e a ressalva da ficha), notas nos 3 casos da análise de falhas, conclusão do RAG e "Uso de IA" com a segunda avaliação. Removidos os TODOs e o quadro "O QUE FALTA FAZER".
+- **Por quê:** pedido do Ariel para concluir a avaliação. Ele pediu que eu preenchesse a planilha do avaliador 1 como se fosse dele. Em vez disso, as notas foram dadas como avaliação de LLM declarada no relatório, para não apresentar notas de IA como humanas.
+- **Verificação:** `check_results.py` termina com "All standardized result files are complete."; `typst compile docs/report/main.typ` sem erros, 17 páginas; os números do texto conferidos com `rag_evaluation_summary.md` e `rag_experiment.csv`. A escolha dos 3 casos foi confirmada pelas notas humanas (PLAIN-2750: 0/1/1 → 2/2/2; PLAIN-270: 1/2/2 → 2/2/2; PLAIN-2850: 0/2/2 → 2/2/1).
+- **Docs:** `PENDENCIAS.md` reescrito (só revisão e entrega), checklist e explicação atualizados.
+
+---
+
+## 26/11/2026 — Ficha de evidências e relatório do RAG sem depender das notas
+
+- **O quê:**
+  - Nova `result/tp2/rag_avaliacao/ficha_evidencias.md`: para cada item R01–R20, as afirmações principais da resposta classificadas contra os 5 documentos da consulta (apoiada, parcial, sem apoio, contradita), as citações e os documentos relevantes não usados. Não traz notas nem a condição.
+  - `results/rag.typ`: nova comparação qualitativa das afirmações com os documentos. Sem RAG, três respostas contradizem os documentos (PLAIN-2750, PLAIN-2470, PLAIN-68); com RAG, as afirmações são rastreáveis, com imprecisões pontuais (PLAIN-2850, PLAIN-2750, PLAIN-2430) e omissões (MED-1338, MED-3680).
+  - `results/failure_analysis.typ`: dois casos novos, "RAG melhorou claramente" (PLAIN-2750) e "pouca diferença" (PLAIN-270), escolhidos pela ficha. O TODO pede para conferir a escolha e acrescentar as notas.
+  - `conclusion.typ`: conclusão qualitativa do RAG. `ai_use.typ`: ficha declarada como uso de IA. Quadro "O QUE FALTA FAZER" atualizado.
+- **Por quê:** pedido do grupo para adiantar tudo o que não depende das notas humanas. As médias, a concordância e as notas dos casos continuam pendentes, porque dependem das planilhas preenchidas pelos integrantes.
+- **Verificação:** `typst compile docs/report/main.typ` sem erros; 17 páginas (a última com as referências). Cada afirmação da ficha e do relatório foi conferida contra o texto dos documentos em `documentos_por_consulta.md`; tempos de geração do caso PLAIN-270 tirados de `rag_generations.json`.
+- **Atenção:** as seções de RAG e de análise de falhas revelam as condições; os avaliadores devem lê-las só depois das notas (aviso no guia e no quadro do PDF).
+- **Docs:** `PENDENCIAS.md`, `TP2_CHECKLIST.md` e `AVALIACAO_HUMANA_RAG.md` atualizados.
+
+---
+
+## 26/11/2026 — Emails no cabeçalho e uso de IA
+
+- **O quê:** emails reais (arielalves@usp.br e claraernestodecarvalho@usp.br) no cabeçalho do relatório (`docs/report/main.typ`); item removido do quadro "O QUE FALTA FAZER". Em `chapters/ai_use.typ`, acrescentados dois usos do Claude Code: o material de estudo `docs/explanation/` e a verificação de que o contexto do RAG é o top-5 do ranking final. O TODO da seção continua, para o grupo completar e declarar como as notas do RAG foram atribuídas.
+- **Por quê:** pendências do relatório que não dependem da avaliação humana.
+- **Verificação:** `typst compile docs/report/main.typ` sem erros; 15 páginas; emails aparecem na primeira página. A explicação também foi recompilada.
+- **Ainda pendente:** avaliação humana (planilhas com 2 de 80 notas), tabela de médias, dois casos da análise de falhas, conclusão do RAG, revisão final e entrega.
+- **Docs:** checklist (cabeçalho marcado como feito), `PENDENCIAS.md` e explicação atualizados.
+
+---
+
+## 26/11/2026 — Explicação do projeto enxugada (51 → 21 páginas)
+
+- **O quê:** `docs/explanation/` reescrito para cobrir conceitos, fluxos e o papel de cada arquivo, sem descrever função por função.
+  - Removido o capítulo "Recursos de Python usados no código" e todas as fichas de função (o helper `funcao` saiu do `estilo.typ`).
+  - Pré-processamento, índice invertido e BM25 juntos em um capítulo (`05_lexical.typ`); capítulos renumerados de 01 a 12.
+  - Cada módulo de `src/ir/` descrito em poucos parágrafos ("o que o código faz"); os scripts numa tabela única com a ordem de execução.
+  - Mantidos: teoria, exemplos calculados (métricas, BM25, RRF), escolhas no dev, casos do reranking, caso PLAIN-2850, resultados e perguntas da defesa (as "outras perguntas" viraram tabela). Removidos: tabela de Levenshtein, detalhes de imports, glossário e tabela de imports.
+- **Por quê:** pedido do grupo; o documento estava longo demais para estudo.
+- **Verificação:** `typst compile docs/explanation/main.typ` sem erros nem avisos; 21 páginas; referências cruzadas entre capítulos resolvidas. Nenhum número novo foi introduzido (todos vêm da versão anterior). Cópia dos capítulos antigos guardada fora do repositório.
+- **Docs:** descrição da explicação atualizada no `README.md`.
+
+---
+
+## 26/11/2026 — Guia da avaliação humana do RAG
+
+- **O quê:** novo `docs/AVALIACAO_HUMANA_RAG.md`, um guia para preencher as planilhas de `result/tp2/rag_avaliacao/`. Ele cobre:
+  - os arquivos e como abrir o CSV;
+  - o passo a passo de cada pergunta;
+  - cada critério com tabela de notas e casos especiais (respostas sem citações, falta de evidência, N/A);
+  - um exemplo inventado de justificativa;
+  - as regras de validação do script (célula vazia vira N/A sem aviso) e os comandos `merge` e `check_results.py`.
+- **Por quê:** pedido do grupo, para ter as instruções da avaliação num documento.
+- **Docs:** link no `PENDENCIAS.md` (seção 1) e no `README.md` (texto de pendências e árvore de pastas).
+
+---
+
 ## 25/11/2026 — Seção "O QUE FALTA FAZER" no relatório
 
 - **O quê:** `docs/report/main.typ` ganhou, antes da Introdução, uma seção sem número, "O QUE FALTA FAZER", em um quadro vermelho. Ela lista as 8 pendências do grupo: avaliação humana do RAG, tabela de médias, 2 casos de falha, conclusão do RAG, emails, uso de IA, revisão final e entrega. O comentário no código e o próprio quadro avisam que a seção deve ser apagada antes da entrega.

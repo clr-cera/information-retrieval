@@ -2,18 +2,9 @@
 
 = Visão geral
 
-== O problema: recuperação de informação
+== O problema e o pipeline
 
-Um sistema de Recuperação de Informação (RI) recebe uma *consulta* (o que o usuário quer saber) e devolve, de uma *coleção* de documentos, uma lista ordenada (*ranking*) dos documentos mais provavelmente úteis. Dois pontos definem o problema:
-
-- o sistema não "entende" a necessidade do usuário diretamente: ele compara representações da consulta e dos documentos;
-- a qualidade é medida comparando o ranking produzido com *julgamentos de relevância* feitos por pessoas (os *qrels*).
-
-Este trabalho constrói e compara várias formas de fazer essa comparação, das mais clássicas às mais modernas.
-
-== O pipeline do TP2
-
-O enunciado pede um sistema que combine busca lexical e busca semântica, com reranking e geração de respostas (RAG):
+Um sistema de Recuperação de Informação recebe uma *consulta* e devolve, de uma *coleção*, uma lista ordenada (*ranking*) dos documentos mais provavelmente úteis. A qualidade é medida comparando esse ranking com *julgamentos de relevância* feitos por pessoas (os *qrels*). O TP2 constrói e compara várias formas de produzir esse ranking e, no fim, usa o melhor delas para alimentar um modelo de linguagem (RAG):
 
 ```
                   ┌── pré-processamento → índice invertido → BM25 ───────┐
@@ -22,48 +13,40 @@ documentos ───────┤                                             
 ```
 
 #tabela(
-  (auto, 1fr),
-  [*Etapa*], [*Ideia em uma frase*],
-  [Pré-processamento], [Transformar texto em termos comparáveis (minúsculas, sem stopwords, com stemming).],
-  [Índice invertido], [Para cada termo, guardar em quais documentos ele aparece e quantas vezes.],
-  [BM25 (busca lexical)], [Pontuar documentos pela presença dos termos da consulta, dando mais peso a termos raros.],
-  [Tolerância a erros], [Corrigir termos digitados errado antes da busca lexical.],
-  [Busca semântica], [Representar consulta e documentos como vetores de significado e comparar os vetores.],
-  [Busca híbrida (RRF)], [Combinar o ranking lexical e o semântico usando apenas as posições.],
-  [Reranking], [Reordenar os 50 primeiros do híbrido com um modelo que lê consulta e documento juntos.],
-  [RAG], [Dar os 5 melhores documentos a um modelo de linguagem para ele responder com base neles.],
+  (auto, 1fr, auto),
+  [*Etapa*], [*Ideia em uma frase*], [*Capítulo*],
+  [Pré-processamento + índice + BM25], [Transformar o texto em termos, indexá-los e pontuar documentos pelos termos da consulta, com mais peso para termos raros.], [@cap-lexical],
+  [Correção ortográfica], [Trocar termos digitados errado pela palavra mais parecida do vocabulário.], [@cap-correcao],
+  [Busca semântica], [Representar consulta e documentos como vetores de significado e comparar os vetores.], [@cap-semantica],
+  [Busca híbrida (RRF)], [Combinar o ranking lexical e o semântico usando só as posições.], [@cap-hibrida],
+  [Reranking], [Reordenar os 50 primeiros do híbrido com um modelo que lê consulta e documento juntos.], [@cap-hibrida],
+  [RAG], [Dar os 5 melhores documentos a uma LLM para ela responder com base neles.], [@cap-rag],
 )
 
-Cada etapa tem um capítulo próprio neste documento. Todas estão implementadas e executadas; a única parte que depende do grupo é a avaliação humana das respostas do RAG (ver `docs/PENDENCIAS.md`).
+Todas as etapas estão implementadas e executadas; só a avaliação humana das respostas do RAG depende do grupo (ver `docs/PENDENCIAS.md`).
 
 == O conjunto de dados: NFCorpus
 
-O NFCorpus é uma coleção da área de nutrição e saúde, distribuída pelo benchmark BEIR. Ele tem três tipos de arquivo:
+Coleção de nutrição e saúde do benchmark BEIR, com três tipos de arquivo:
 
-- `corpus.jsonl`: os documentos. Cada linha é um JSON com `_id` (por exemplo, `MED-10`), `title` e `text`. Quase todos são resumos de artigos científicos da área médica. São *3.633 documentos*.
-- `queries.jsonl`: as consultas. Cada linha tem `_id` (por exemplo, `PLAIN-68`) e `text`. O arquivo tem 3.237 consultas, de todos os splits juntos.
-- `qrels/{train,dev,test}.tsv`: os julgamentos. Cada linha diz que um documento é relevante para uma consulta, com um grau.
+- `corpus.jsonl`: *3.633 documentos*, quase todos resumos de artigos médicos, com `_id` (como `MED-10`), `title` e `text`;
+- `queries.jsonl`: 3.237 consultas de todos os splits, com `_id` (como `PLAIN-68`) e `text`;
+- `qrels/{train,dev,test}.tsv`: os julgamentos (consulta, documento, grau).
 
 #tabela(
-  (auto, auto, auto, auto, 1fr),
-  [*Split*], [*Consultas*], [*Julgamentos*], [*Relevantes por consulta*], [*Graus de relevância*],
-  [train], [2.590], [110.575], [42,7 em média], [só grau 1],
-  [dev], [324], [11.385], [35,1 em média (de 1 a 919)], [10.864 com grau 1 e 521 com grau 2],
-  [test], [323], [12.334], [38,2 em média (de 1 a 475)], [11.758 com grau 1 e 576 com grau 2],
+  (auto, auto, auto, 1fr),
+  [*Split*], [*Consultas*], [*Relevantes por consulta*], [*Graus*],
+  [train], [2.590], [42,7 em média], [só grau 1],
+  [dev], [324], [35,1 em média], [grau 1 e grau 2],
+  [test], [323], [38,2 em média], [grau 1 e grau 2],
 )
 
-Os splits compartilham a mesma coleção de documentos; o que muda são as consultas e os julgamentos. As consultas de cada split são *apenas as que têm julgamentos no qrels daquele split*: por isso o código filtra o `queries.jsonl` (detalhes no @cap-dados).
+Os splits compartilham a coleção; mudam as consultas e os julgamentos. Cada split usa *só as consultas que têm julgamento* nele, por isso o código filtra o `queries.jsonl`. As consultas são curtas (3,3 palavras em média no test, como "Food Dyes and ADHD" ou "ECMO"), o que pesa no comportamento de todos os sistemas.
 
 #ideia(titulo: "Por que existem dev e test")[
-  O conjunto *dev* serve para escolher configurações (pré-processamento, parâmetros do BM25, modelos, k do RRF). O conjunto *test* é usado só no final, para medir o desempenho da configuração já escolhida. Se as escolhas fossem feitas olhando o test, os números finais seriam otimistas, porque a configuração teria sido ajustada para aquelas consultas específicas. O enunciado proíbe usar os qrels do test para qualquer ajuste.
+  O *dev* serve para escolher configurações (pré-processamento, parâmetros, modelos, $k$ do RRF). O *test* só mede a configuração já escolhida. Escolher olhando o test deixaria os números finais otimistas; o enunciado proíbe usar os qrels do test para qualquer ajuste.
 ]
-
-As consultas são *curtas*: em média 3,3 palavras no test (por exemplo, "Food Dyes and ADHD", "ECMO", "Finland"). Isso influencia muito o comportamento dos sistemas, como será visto ao longo do documento.
 
 == Como ler este documento
 
-- Os capítulos 2 e 3 mostram como o repositório está organizado e os recursos de Python que aparecem no código.
-- Os capítulos 4 a 11 seguem o pipeline: métricas, dados, pré-processamento, índice e BM25, correção ortográfica, busca semântica, busca híbrida e reranking, e RAG. Cada um começa pela teoria e depois passa pelo código, função por função.
-- O capítulo 12 descreve os scripts que executam os experimentos; o 13, os testes e os resultados; o 14 reúne perguntas prováveis da defesa.
-
-Nomes de arquivos, funções e variáveis aparecem em `fonte monoespaçada`. Os caminhos são relativos à raiz do repositório.
+Os capítulos 2 a 4 cobrem a organização do repositório, as métricas e a camada de dados. Os capítulos 5 a 9 seguem o pipeline: cada um apresenta a teoria, um exemplo calculado, o que o arquivo de código faz e a escolha feita no dev. O capítulo 10 mostra a ordem de execução dos scripts; o 11, os testes e os resultados; o 12 reúne perguntas prováveis da defesa. Caminhos são relativos à raiz do repositório.

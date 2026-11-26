@@ -257,31 +257,32 @@ Legenda:
 - [x] Comentado no relatório que o R@5 baixo é esperado (cerca de 44 relevantes por consulta nessas 10)
 
 ### Geração (avaliação humana estruturada, notas 0/1/2 com justificativa)
-- [x] Planilhas cegas geradas: `result/tp2/rag_avaliacao/planilha_avaliador1.csv` e `planilha_avaliador2.csv` (20 respostas embaralhadas com seed 42, sem a condição), `documentos_por_consulta.md` (os 5 documentos de cada consulta) e a chave separada (`chave_NAO_ABRIR_antes_de_avaliar.csv`)
-- [ ] **Cada integrante preenche a sua planilha, sem abrir a chave:** fidelidade, completude, utilidade e rastreabilidade (0, 1 ou 2), cada uma com justificativa
+- [x] Planilhas cegas geradas: `result/tp2/rag_avaliacao/planilha_avaliador1.csv` e `planilha_avaliador2.csv` (20 respostas embaralhadas com seed 42, sem a condição), `documentos_por_consulta.md` (os 5 documentos de cada consulta), `ficha_evidencias.md` (afirmações de cada resposta × documentos, sem notas, feita com apoio de IA) e a chave separada (`chave_NAO_ABRIR_antes_de_avaliar.csv`)
+- [x] **Avaliação feita:** humana por uma integrante (`planilha_avaliador2.csv`, notas finais) e segunda avaliação por LLM declarado (`planilha_avaliador_llm.csv`, só para a concordância); `planilha_avaliador1.csv` não usada. Critérios: fidelidade, completude, utilidade e rastreabilidade (0, 1 ou 2), cada uma com justificativa
   - Fidelidade — 0: afirmações importantes não sustentadas ou contraditórias / 1: parcialmente sustentada / 2: afirmações principais sustentadas pelos documentos
   - Completude — 0: não responde aos aspectos principais / 1: responde parcialmente / 2: cobre adequadamente o que pode ser respondido
   - Utilidade — 0: não atende à necessidade / 1: parcialmente útil / 2: responde diretamente à necessidade
   - Rastreabilidade — 0: não é possível identificar fontes / 1: só parte das afirmações associável às fontes / 2: afirmações principais associáveis aos doc_ids
   - A fidelidade das respostas sem fontes também é julgada contra os 5 documentos da consulta
-- [ ] Rodar `uv run src/scripts/evaluate_rag.py merge --sheets result/tp2/rag_avaliacao/planilha_avaliador1.csv result/tp2/rag_avaliacao/planilha_avaliador2.csv`: grava as notas no `rag_experiment.csv` (rastreabilidade "N/A" na condição A, automaticamente), calcula as médias por condição e a concordância (`rag_evaluation_summary.md`)
-- [ ] Copiar as médias e a concordância para a tabela do relatório (`results/rag.typ`) e discutir: efeito da recuperação na fidelidade e na disponibilidade de evidências; ausência de fontes na condição A
+- [x] Rodado `evaluate_rag.py merge --sheets planilha_avaliador2.csv planilha_avaliador_llm.csv`: grava as notas no `rag_experiment.csv` (rastreabilidade "N/A" na condição A, automaticamente), calcula as médias por condição e a concordância (`rag_evaluation_summary.md`)
+- [x] Médias e concordância no relatório (`results/rag.typ`): fidelidade 0,60 → 2,00, completude 1,70 → 1,90, utilidade 1,80 → 1,80, rastreabilidade 2,00 (B); concordância humano × LLM de 90% (fidelidade), 60% (completude e utilidade) e 100% (rastreabilidade); discussão da fidelidade, da utilidade e da ausência de fontes na condição A
 - [x] Fatos objetivos já no relatório: as 10 respostas B citam de 1 a 4 documentos, todos entre os enviados (nenhuma fonte inventada); 2 respostas B declaram falta de evidência (PLAIN-2850 e PLAIN-3342); nenhuma resposta A indica fontes
 
 ---
 
-## 14. Análise de falhas ponta a ponta (Requisito 14 / etapa 15 do roadmap) ⚠️ parcial
+## 14. Análise de falhas ponta a ponta (Requisito 14 / etapa 15 do roadmap) ✅
 
-- [ ] 1 consulta em que o RAG **melhorou claramente** a resposta — escolher pelas notas humanas
-- [ ] 1 consulta com **pouca diferença** — escolher pelas notas humanas
+- [x] 1 consulta em que o RAG **melhorou claramente** a resposta: PLAIN-2750 (sem RAG, a resposta contradiz MED-3683, MED-3680 e MED-4762; com RAG, fiel e citada), escolhida pela ficha de evidências
+- [x] 1 consulta com **pouca diferença**: PLAIN-270 (mesma conclusão nas duas condições; com RAG, sustentada pelo MED-4331)
 - [x] 1 consulta em que o RAG **não ajudou**: PLAIN-2850 ("More Antibiotics In White Meat or Dark Meat?"), a única com Hit@5 = 0 (`docs/report/chapters/results/failure_analysis.typ`)
   - [x] Rastreamento por estágio (`evaluate_rag.py prepare` → `rag_stage_trace.md`): o documento que responde (MED-4166, grau 2) fica em 29º no lexical, 14º no semântico, 11º no híbrido e 19º após o reranking; não chega ao contexto
   - [x] Causa: paráfrase ("white/dark meat" × "breast versus thigh muscle"); só `antibiot` casa; o reranking piorou a posição; a geração não foi o problema (a resposta B declara falta de evidência; a A afirma algo contradito pelo MED-4166)
-- [ ] Análise detalhada dos 2 casos restantes
+- [x] Análise detalhada dos 2 casos restantes (`failure_analysis.typ`)
+- [x] Escolha confirmada pelas notas humanas e notas acrescentadas a cada caso
 
 ---
 
-## 15. Arquivos padronizados de resultados (Requisito 15 / etapa 16 do roadmap) ⚠️ parcial — falta só a avaliação humana no `rag_experiment.csv`
+## 15. Arquivos padronizados de resultados (Requisito 15 / etapa 16 do roadmap) ✅
 
 Writers em `src/ir/data.py`; verificação em `src/scripts/check_results.py`.
 
@@ -298,7 +299,7 @@ Writers em `src/ir/data.py`; verificação em `src/scripts/check_results.py`.
 - [x] `check_results.py` confere: colunas, no máximo 100 documentos por consulta sem buracos nas posições, todas as consultas (o lexical pode ter rankings vazios: 16 consultas), coluna `relevance` igual aos qrels, média de AP10 = MAP@10 reportado, 10 consultas no erro ortográfico, 20 linhas no RAG e notas preenchidas
 - [x] `.gitignore` ajustado: os arquivos finais de `result/tp2/` (CSVs, JSONs, análises `.md` e a pasta `rag_avaliacao/`) são versionados; as pastas auxiliares continuam fora
 - [x] Todos os resultados vêm de scripts, não de notebooks
-- [ ] Rodar `check_results.py` depois da avaliação humana: deve terminar com "All standardized result files are complete."
+- [x] `check_results.py` termina com "All standardized result files are complete." (26/11/2026)
 
 ---
 
@@ -354,7 +355,7 @@ Writers em `src/ir/data.py`; verificação em `src/scripts/check_results.py`.
 ### 4. Relatório em PDF (até 20 páginas, PT ou EN; o limite exclui só as referências; anexos não podem ser usados para contornar o limite)
 O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill-assignment`). Compilar com `typst compile docs/report/main.typ`.
 - [x] Estrutura: `main.typ` com as seções a–g e um arquivo por subseção em `chapters/`; títulos numerados; cabeçalho na primeira página (sem capa nem sumário, para caber no limite)
-- [ ] **⚠️ parcial — a. Cabeçalho:** título, autores (nome completo e Nº USP), professor, filiação (ICMC/USP) e data; **faltam os emails** (placeholder na linha "Emails:" do `main.typ`)
+- [x] **a. Cabeçalho:** título, autores (nome completo e Nº USP), emails, professor, filiação (ICMC/USP) e data
 - [x] **b. Introdução:** contextualização, motivação e objetivo — `chapters/introduction.typ`
 - [x] **c. Metodologia:** (condensada em 25/11/2026 para caber no limite)
   - [x] pré-processamento — `chapters/methodology/preprocessing.typ`
@@ -374,19 +375,19 @@ O relatório do TP2 fica em `docs/report/` (Typst, mesmo template do TP1: `quill
   - [x] parâmetros
   - [x] ambiente computacional
   - [x] protocolo experimental (o que foi ajustado no dev e o que foi avaliado no test), declarando que os qrels do test não foram usados para ajustes e citando as duas exceções permitidas e a origem dos dados (cópia do BEIR no Hugging Face)
-- [ ] **⚠️ parcial — e. Resultados obtidos e análise:** (falta só o que depende da avaliação humana do RAG)
+- [x] **e. Resultados obtidos e análise**
   - [x] lexical × semântico (global, comparação por consulta e as 6 consultas) — `chapters/results/lexical_vs_semantic.typ`
   - [x] tolerância a erros — `chapters/results/typo_tolerance.typ`
   - [x] híbrido — `chapters/results/hybrid.typ`
   - [x] reranking (global + 4 casos) — `chapters/results/reranking.typ`
   - [x] tempos (índice, consultas, embeddings, fusão, reranking, geração) — `chapters/results/timing.typ`
-  - [ ] **⚠️ parcial — RAG:** recuperação e fatos objetivos escritos; tabela da avaliação humana com `// TODO` (`chapters/results/rag.typ`)
-  - [ ] **⚠️ parcial — análise de falhas:** caso PLAIN-2850 escrito; os outros 2 dependem das notas humanas (`chapters/results/failure_analysis.typ`)
-- [x] **f. Considerações finais:** `chapters/conclusion.typ` (com `// TODO` para a conclusão da avaliação humana do RAG)
-- [ ] **⚠️ revisar — g. Uso de ferramentas de IA:** rascunho em `chapters/ai_use.typ` (uso do Claude Code); o grupo deve revisar e completar. atividades em que IA generativa foi usada como apoio (programação, depuração, explicação, revisão), sem histórico completo. Separar do uso de IA como componente do experimento (embeddings, cross-encoder, LLM), que vai na metodologia
+  - [x] RAG: recuperação, comparação das afirmações, médias e concordância — `chapters/results/rag.typ`
+  - [x] análise de falhas (PLAIN-2750, PLAIN-270, PLAIN-2850, com as notas) — `chapters/results/failure_analysis.typ`
+- [x] **f. Considerações finais:** `chapters/conclusion.typ`, com a conclusão da avaliação do RAG
+- [x] **g. Uso de ferramentas de IA:** `chapters/ai_use.typ` (uso do Claude Code, inclusive a ficha de evidências e a segunda avaliação do RAG); o grupo deve conferir. atividades em que IA generativa foi usada como apoio (programação, depuração, explicação, revisão), sem histórico completo. Separar do uso de IA como componente do experimento (embeddings, cross-encoder, LLM), que vai na metodologia
 - [x] Referências bibliográficas (11 itens, ao final do `main.typ`)
-- [x] Limite de 20 páginas: 15 páginas em 25/11/2026, após o enxugamento (antes 19), com folga para a avaliação humana e os 2 casos de falha pendentes (as referências não contam)
-- [ ] Antes de entregar: remover os `// TODO` (não aparecem no PDF, mas indicam o que falta) e a seção "O QUE FALTA FAZER" (aparece no PDF, antes da Introdução) e recompilar
+- [x] Limite de 20 páginas: 17 páginas em 26/11/2026, já com os 3 casos de falha (a última com as referências, que não contam)
+- [x] `// TODO` e seção "O QUE FALTA FAZER" removidos; relatório recompilado (26/11/2026)
 
 ---
 

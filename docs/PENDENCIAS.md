@@ -1,73 +1,25 @@
 # O que falta fazer (TP2)
 
-Situação em 25/11/2026. Prazo registrado no checklist: **26/11/2026, 23:59**.
+Situação em 26/11/2026. Prazo registrado no checklist: **26/11/2026, 23:59**.
 
-Tudo o que podia ser feito automaticamente está pronto: os 15 requisitos estão implementados e executados, os resultados estão em `result/tp2/`, e o relatório (`docs/report/`) tem todas as seções, com 15 de 20 páginas. O que falta depende do grupo, principalmente a **avaliação humana do RAG**, que o enunciado exige que seja feita por pessoas.
+Os 15 requisitos estão implementados e executados, os resultados estão em `result/tp2/` (`check_results.py` termina com "All standardized result files are complete.") e o relatório (`docs/report/`) está completo, com 17 de 20 páginas, sem TODOs e sem o quadro "O QUE FALTA FAZER".
 
 Detalhes de cada requisito: [`TP2_CHECKLIST.md`](TP2_CHECKLIST.md). Histórico: [`changes.md`](changes.md).
 
 ---
 
-## 1. Avaliação humana do RAG (requisito 13) — obrigatório
+## 1. Avaliação do RAG — feita
 
-Arquivos em `result/tp2/rag_avaliacao/`:
+- Avaliação humana: `planilha_avaliador2.csv` (Clara), completa. As notas finais do `rag_experiment.csv` são dela.
+- Segunda avaliação: `planilha_avaliador_llm.csv`, feita pelo Claude como avaliador LLM **declarado no relatório** (não cega, porque o modelo conhecia as condições e fez a ficha de evidências). Serve só para a concordância.
+- `planilha_avaliador1.csv` (Ariel) não foi usada; tem só 2 notas.
+- Merge feito com `evaluate_rag.py merge --sheets planilha_avaliador2.csv planilha_avaliador_llm.csv` → `rag_evaluation_summary.md`.
 
-| Arquivo | Para quê |
-|---|---|
-| `planilha_avaliador1.csv`, `planilha_avaliador2.csv` | Uma planilha por integrante, com as 20 respostas embaralhadas e sem indicar se usaram RAG |
-| `documentos_por_consulta.md` | Os 5 documentos de cada consulta, para julgar a fidelidade |
-| `chave_NAO_ABRIR_antes_de_avaliar.csv` | Diz qual resposta é de qual condição. **Não abrir antes de terminar as notas.** |
+## 2. Revisar antes de entregar
 
-Passos:
-
-1. Cada integrante abre **a sua** planilha (no LibreOffice ou no Google Sheets) e, para cada resposta, preenche as colunas `fidelidade`, `completude`, `utilidade` e `rastreabilidade` com **0, 1 ou 2**, e a justificativa de cada nota nas colunas `*_justificativa`. Avaliem de forma independente, sem conversar sobre as notas.
-   - **Fidelidade:** compare a resposta com os 5 documentos da consulta (em `documentos_por_consulta.md`). Vale também para respostas que não citam fontes.
-     - 0 = afirmações importantes não sustentadas ou contraditórias
-     - 1 = parcialmente sustentada
-     - 2 = afirmações principais sustentadas pelos documentos
-   - **Completude:**
-     - 0 = não responde aos aspectos principais
-     - 1 = responde parcialmente
-     - 2 = cobre adequadamente o que pode ser respondido
-   - **Utilidade:**
-     - 0 = não atende à necessidade da pergunta
-     - 1 = parcialmente útil
-     - 2 = responde diretamente à necessidade
-   - **Rastreabilidade:**
-     - 0 = não é possível identificar as fontes
-     - 1 = só parte das afirmações pode ser associada às fontes
-     - 2 = as afirmações principais podem ser associadas aos doc_ids
-
-     Numa resposta sem nenhuma fonte, pode deixar `N/A`. O script marca a rastreabilidade da condição sem RAG como N/A de qualquer forma, como exige o enunciado.
-2. Salve como CSV, mantendo as colunas.
-3. Junte as notas:
-   ```bash
-   uv run src/scripts/evaluate_rag.py merge --sheets result/tp2/rag_avaliacao/planilha_avaliador1.csv result/tp2/rag_avaliacao/planilha_avaliador2.csv
-   ```
-   O script confere se toda nota é 0, 1 ou 2 e tem justificativa. As notas da **primeira** planilha vão para o `rag_experiment.csv`. O script também calcula as médias por condição e a concordância entre os dois avaliadores, e grava tudo em `result/tp2/rag_evaluation_summary.md`.
-4. Confira que todos os arquivos estão completos:
-   ```bash
-   uv run src/scripts/check_results.py
-   ```
-   Deve terminar com "All standardized result files are complete."
-
-## 2. Completar o relatório com a avaliação humana
-
-Todos os pontos estão marcados com `// TODO` nos arquivos `.typ`. Eles não aparecem no PDF.
-
-- [ ] `docs/report/chapters/results/rag.typ`: copiar as médias e a concordância de `rag_evaluation_summary.md` para a tabela "Médias da avaliação humana" e escrever a discussão: o efeito da recuperação sobre a fidelidade, a completude e a disponibilidade de evidências, e a falta de fontes na condição sem RAG.
-- [ ] `docs/report/chapters/results/failure_analysis.typ`: o caso "o RAG não ajudou" (PLAIN-2850) já está escrito. Escolher pelas notas **uma consulta em que o RAG melhorou claramente** e **uma com pouca diferença**, e analisar cada uma no mesmo formato. Para isso, usar os documentos enviados (`rag_stage_trace.md`), o que a resposta usou e as notas e justificativas.
-- [ ] `docs/report/chapters/conclusion.typ`: acrescentar a conclusão da avaliação humana.
-- [ ] Recompilar e conferir o limite de **20 páginas** (as referências não contam). Hoje são 15 (a última com as referências), então há folga de cerca de 4 páginas:
-  ```bash
-  typst compile docs/report/main.typ
-  ```
-
-## 3. Outros ajustes no relatório
-
-- [ ] **Emails no cabeçalho** (exigência do enunciado): em `docs/report/main.typ`, trocar `<email Ariel>` e `<email Clara>` pelos emails reais.
-- [ ] **Uso de ferramentas de IA:** revisar `docs/report/chapters/ai_use.typ`, que é um rascunho sobre o uso do Claude Code, e completar com o uso de cada integrante.
-- [ ] Apagar os comentários `// TODO` que já foram resolvidos e a seção **"O QUE FALTA FAZER"** do início do `main.typ`, recompilar e ler o PDF inteiro uma vez.
+- [ ] Ler o PDF inteiro uma vez, em especial a seção do RAG (forma como as duas avaliações são descritas) e o "Uso de ferramentas de IA".
+- [ ] Se o Ariel preferir avaliar também, preencher `planilha_avaliador1.csv` e refazer o merge com as duas planilhas humanas; aí a tabela e o texto da concordância precisam ser atualizados.
+- [ ] Completar o "Uso de ferramentas de IA" se algum integrante usou IA fora do Claude Code.
 
 ## 4. Preparação para a defesa individual
 

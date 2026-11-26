@@ -32,7 +32,7 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 | Arquivos padronizados de resultados | gerados e verificados; falta só a nota humana no `rag_experiment.csv` |
 | Relatório | todas as seções escritas (15 de 20 páginas); faltam os itens que dependem da avaliação humana |
 
-**O que falta fazer** está em [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md), passo a passo. O acompanhamento de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
+**O que falta fazer** está em [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md), passo a passo; a avaliação humana do RAG tem um guia próprio em [`docs/AVALIACAO_HUMANA_RAG.md`](docs/AVALIACAO_HUMANA_RAG.md). O acompanhamento de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
 
 ## Estrutura do repositório
 
@@ -53,8 +53,9 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 │   ├── changes.md               #   histórico de alterações
 │   ├── experiment_protocol.md   #   protocolo experimental (uso dos splits, valores fixos)
 │   ├── PENDENCIAS.md            #   o que falta o grupo fazer
+│   ├── AVALIACAO_HUMANA_RAG.md  #   como fazer a avaliação humana do RAG
 │   ├── report/                  #   relatório do TP2 (Typst)
-│   └── explanation/             #   explicação completa do projeto, da teoria ao código (Typst)
+│   └── explanation/             #   explicação do projeto: conceitos, pipeline e arquivos (Typst)
 ├── config/
 │   └── tp2_experiment.json      # configuração experimental congelada (parâmetros escolhidos no dev)
 ├── tp1/                         # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
@@ -191,7 +192,7 @@ O relatório do TP2 está em [`docs/report/`](docs/report/), escrito em [Typst](
 typst compile docs/report/main.typ
 ```
 
-Para estudar o projeto (por exemplo, para a defesa), há uma explicação completa em [`docs/explanation/`](docs/explanation/): teoria de cada técnica, estrutura de pastas e cada módulo, import e função, com exemplos calculados. Para gerar o PDF:
+Para estudar o projeto (por exemplo, para a defesa), há uma explicação em [`docs/explanation/`](docs/explanation/) (21 páginas): teoria de cada técnica, fluxo do pipeline, papel de cada arquivo e script, resultados e perguntas da defesa, com exemplos calculados. Para gerar o PDF:
 
 ```bash
 typst compile docs/explanation/main.typ
