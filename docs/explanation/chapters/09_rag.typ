@@ -19,7 +19,7 @@ Duas condições, com a mesma LLM e os mesmos parâmetros, nas 10 perguntas fixa
 - *A (sem RAG)*: só a pergunta;
 - *B (com RAG)*: a pergunta e os 5 primeiros documentos após o reranking, cada um com seu identificador.
 
-As 20 respostas recebem notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, dadas por pessoas *às cegas* (quem avalia não sabe qual resposta usou RAG). O guia está em `docs/AVALIACAO_HUMANA_RAG.md`.
+As 20 respostas recebem notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, dadas *às cegas* por uma integrante do grupo (quem avalia não sabe qual resposta usou RAG); um LLM, declarado no relatório, fez uma segunda avaliação, só para medir a concordância. As planilhas estão em `results/rag_avaliacao/`.
 
 == A LLM e o arquivo `ir/rag.py`
 

@@ -28,11 +28,9 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 | Recuperação semântica (bi-encoder) | concluída |
 | Busca híbrida (RRF) | concluída |
 | Reranking (cross-encoder) | concluída |
-| RAG (sem RAG × com RAG) | 20 respostas geradas e métricas do contexto calculadas; **avaliação humana pendente** |
-| Arquivos padronizados de resultados | gerados e verificados; falta só a nota humana no `rag_experiment.csv` |
-| Relatório | todas as seções escritas (15 de 20 páginas); faltam os itens que dependem da avaliação humana |
-
-**O que falta fazer** está em [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md), passo a passo; a avaliação humana do RAG tem um guia próprio em [`docs/AVALIACAO_HUMANA_RAG.md`](docs/AVALIACAO_HUMANA_RAG.md). O acompanhamento de cada requisito do enunciado está em [`docs/TP2_CHECKLIST.md`](docs/TP2_CHECKLIST.md), e o histórico de alterações em [`docs/changes.md`](docs/changes.md).
+| RAG (sem RAG × com RAG) | concluída: 20 respostas geradas, métricas do contexto e avaliação humana às cegas |
+| Arquivos padronizados de resultados | gerados e verificados por `check_results.py` |
+| Relatório | concluído (`docs/report/main.pdf`) |
 
 ## Estrutura do repositório
 
@@ -47,20 +45,16 @@ Trabalho da disciplina SCC0282 — Recuperação de Informação (ICMC/USP, 2º 
 │   │   └── rag.py               #     prompts e chamada à LLM local (Ollama)
 │   ├── scripts/                 #   scripts executáveis (ajuste no dev e avaliação no test)
 │   └── tests/                   #   testes (pytest), um arquivo por módulo de ir/
-├── docs/                        # documentação e relatório
+├── docs/                        # enunciado, relatório e material de estudo
 │   ├── enunciado_tp2.pdf        #   enunciado do trabalho
-│   ├── TP2_CHECKLIST.md         #   checklist de todos os requisitos do enunciado
-│   ├── changes.md               #   histórico de alterações
-│   ├── experiment_protocol.md   #   protocolo experimental (uso dos splits, valores fixos)
-│   ├── PENDENCIAS.md            #   o que falta o grupo fazer
-│   ├── AVALIACAO_HUMANA_RAG.md  #   como fazer a avaliação humana do RAG
-│   ├── report/                  #   relatório do TP2 (Typst)
+│   ├── report/                  #   relatório do TP2 (Typst; PDF em main.pdf)
 │   └── explanation/             #   explicação do projeto: conceitos, pipeline e arquivos (Typst)
 ├── config/
 │   └── tp2_experiment.json      # configuração experimental congelada (parâmetros escolhidos no dev)
 ├── tp1/                         # Trabalho Prático 1 arquivado (código, gráficos, relatório e app web)
 ├── data/                        # dataset e embeddings — gerados pelos scripts, fora do git
-└── result/tp2/                  # resultados gerados pelos scripts (os arquivos finais são versionados)
+└── results/                     # resultados de todos os experimentos (versionados, fazem parte da entrega)
+    └── rag_avaliacao/           #   planilhas da avaliação do RAG, chave das condições e documentos por consulta
 ```
 
 Cada um dos quatro primeiros arquivos de `src/ir/` reúne vários módulos relacionados. Comentários `# Origem: src/<arquivo>.py` indicam de qual arquivo da organização anterior veio cada trecho.
@@ -118,14 +112,14 @@ uv run src/scripts/analyze_reranking.py                     # casos de ganho, se
 # 4. RAG (precisa do Ollama com o modelo qwen3:4b: `ollama pull qwen3:4b`)
 uv run src/scripts/run_rag.py                               # respostas sem RAG (A) e com RAG (B), ~30 min em CPU
 uv run src/scripts/evaluate_rag.py prepare                  # P@5/R@5/Hit@5, rastreamento por estágio e planilhas cegas
-#    (cada integrante preenche result/tp2/rag_avaliacao/planilha_avaliadorN.csv sem abrir a chave)
-uv run src/scripts/evaluate_rag.py merge --sheets result/tp2/rag_avaliacao/planilha_avaliador1.csv result/tp2/rag_avaliacao/planilha_avaliador2.csv
+#    (cada avaliador preenche sua planilha em results/rag_avaliacao/ sem abrir a chave)
+uv run src/scripts/evaluate_rag.py merge --sheets results/rag_avaliacao/planilha_avaliador2.csv results/rag_avaliacao/planilha_avaliador1.csv
 
 # 5. Conferência dos arquivos de resultados exigidos pelo enunciado
 uv run src/scripts/check_results.py
 ```
 
-> **BM25:** os valores usuais (k1 = 1,2; b = 0,75) foram fixados à mão no config. O `tune_lexical.py --update-config` escolheria o maior NDCG@10 da grade (k1 = 2,0; b = 0), que está apenas 0,001 acima e cuja vantagem se deve a empates de score. A justificativa está em [`docs/experiment_protocol.md`](docs/experiment_protocol.md) e no relatório. Por isso, rode `tune_lexical.py` **sem** `--update-config`.
+> **BM25:** os valores usuais (k1 = 1,2; b = 0,75) foram fixados à mão no config. O `tune_lexical.py --update-config` escolheria o maior NDCG@10 da grade (k1 = 2,0; b = 0), que está apenas 0,001 acima e cuja vantagem se deve a empates de score. Com b = 0 muitos documentos empatam no score, e só a ordem dos empates muda o NDCG@10 do dev em até 0,017; a decisão foi tomada só com o dev e está justificada no relatório. Por isso, rode `tune_lexical.py` **sem** `--update-config`.
 
 Os passos 2 já foram executados e o config está congelado: para reproduzir os resultados, basta o passo 3. O `run_retrieval_pipeline.py` leva cerca de 25 minutos em CPU, quase todo no reranking.
 
@@ -157,19 +151,20 @@ Conjunto test (323 consultas), configuração final:
 
 Experimento de erros ortográficos (10 consultas do test, sistema lexical): NDCG@10 médio de 0,471 na consulta original, 0,163 com o erro e 0,471 após a correção. As 10 correções recuperaram a palavra original.
 
-Arquivos gerados em `result/tp2/`:
+Arquivos gerados em `results/`:
 
 | Arquivo | Conteúdo |
 |---|---|
 | `results_lexical.csv`, `results_semantic.csv`, `results_hybrid.csv`, `results_reranking.csv` | 100 primeiros documentos por consulta: `query_id, doc_id, rank, score, relevance` |
 | `metrics_per_query.csv` | `query_id, model, P10, R10, AP10, NDCG10` para os 4 sistemas |
 | `typo_experiment.csv` | consultas original, com erro e corrigida, tipo do erro e os três NDCG@10 |
-| `rag_experiment.csv` | pergunta, condição (A/B), documentos do contexto, prompt, resposta e as 4 notas com justificativas (as notas entram após a avaliação humana) |
+| `rag_experiment.csv` | pergunta, condição (A/B), documentos do contexto, prompt, resposta e as 4 notas com justificativas |
 | `*_tuning_dev.csv`, `*_stats.json`, `retrieval_summary.json` | ajustes no dev, estatísticas e tempos |
 | `rag_retrieval_metrics.csv`, `rag_stage_trace.md`, `rag_generations.json` | P@5/R@5/Hit@5 do contexto, rastreamento por estágio e tempos da LLM |
-| `*_analysis.md` | análises por consulta usadas no relatório |
+| `*_analysis.md`, `rag_evaluation_summary.md` | análises por consulta e resumo da avaliação do RAG usados no relatório |
+| `rag_avaliacao/` | planilhas cegas da avaliação do RAG, chave das condições, documentos por consulta e ficha de evidências |
 
-Os arquivos finais do TP2 são versionados no git (as demais saídas não). Em `results_reranking.csv`, a coluna `score` tem o score do cross-encoder nas posições 1 a 50 e o score RRF nas posições 51 a 100: são escalas diferentes. Em `results_lexical.csv`, 134 consultas têm menos de 100 documentos (só documentos com algum termo da consulta são recuperados), e 16 não têm nenhum.
+Todos esses arquivos são versionados no git e fazem parte da entrega. Em `results_reranking.csv`, a coluna `score` tem o score do cross-encoder nas posições 1 a 50 e o score RRF nas posições 51 a 100: são escalas diferentes. Em `results_lexical.csv`, 134 consultas têm menos de 100 documentos (só documentos com algum termo da consulta são recuperados), e 16 não têm nenhum.
 
 ## Testes
 

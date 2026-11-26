@@ -13,7 +13,7 @@ O módulo é a camada de entrada e saída do projeto. Tem três partes.
 
 == Constantes e configuração
 
-Caminhos (`RESULTS_DIR = result/tp2`, `EMBEDDINGS_DIR`, `CONFIG_PATH` e um caminho por arquivo de resultado) e as constantes do protocolo, todas definidas pelo enunciado:
+Caminhos (`RESULTS_DIR = results`, `EMBEDDINGS_DIR`, `CONFIG_PATH` e um caminho por arquivo de resultado) e as constantes do protocolo, todas definidas pelo enunciado:
 
 #tabela(
   (auto, auto, 1fr),

@@ -22,7 +22,7 @@ O cross-encoder dá um score novo a cada um dos 50 primeiros, lendo consulta e d
 Os 5 primeiros do `results_reranking.csv`, registrados na coluna `context_doc_ids` do `rag_experiment.csv` (vazia na condição A) e no prompt da mesma linha.
 
 *Explique por que uma resposta foi considerada fiel ou não.* \
-Compare cada afirmação com os 5 documentos da pergunta (`result/tp2/rag_avaliacao/documentos_por_consulta.md`). Na PLAIN-2850, a resposta sem RAG é contradita pelo MED-4166; a com RAG diz que os documentos não trazem o dado, o que é fiel ao contexto (@cap-rag).
+Compare cada afirmação com os 5 documentos da pergunta (`results/rag_avaliacao/documentos_por_consulta.md`). Na PLAIN-2850, a resposta sem RAG é contradita pelo MED-4166; a com RAG diz que os documentos não trazem o dado, o que é fiel ao contexto (@cap-rag).
 
 *Altere um parâmetro e preveja o efeito.*
 

@@ -1,8 +1,8 @@
 """Per-query comparison between the lexical and the semantic systems (requirement 7).
 
 Uses the final result files of the test split:
-- result/tp2/metrics_per_query.csv (NDCG@10 of each system and query);
-- result/tp2/results_lexical.csv and result/tp2/results_semantic.csv (rankings and scores).
+- results/metrics_per_query.csv (NDCG@10 of each system and query);
+- results/results_lexical.csv and results/results_semantic.csv (rankings and scores).
 
 For each query it computes the difference NDCG@10(semantic) - NDCG@10(lexical) and
 selects the 3 queries with the largest advantage of each system. For the 6 queries it
@@ -15,7 +15,7 @@ collects the evidence needed to explain the difference:
 - the position of each top document in the other system's ranking;
 - how many relevant documents of the query contain at least one query term.
 
-The output is written to result/tp2/lexical_vs_semantic_analysis.md and printed.
+The output is written to results/lexical_vs_semantic_analysis.md and printed.
 """
 
 from __future__ import annotations

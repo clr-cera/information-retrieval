@@ -11,7 +11,7 @@ Step "prepare" (run after run_rag.py):
 
 Step "merge" (run after the evaluators fill their sheets):
 - reads the sheets, checks that every score is 0, 1 or 2 and has a justification;
-- writes the scores of the first sheet into result/tp2/rag_experiment.csv (condition A gets
+- writes the scores of the first sheet into results/rag_experiment.csv (condition A gets
   "N/A" for traceability, as required by the assignment);
 - computes the mean of each criterion per condition and, with two sheets, the agreement
   between the evaluators.

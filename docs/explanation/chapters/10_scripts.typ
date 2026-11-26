@@ -2,7 +2,7 @@
 
 = Os scripts e o fluxo de execução (`src/scripts/`) <cap-scripts>
 
-Cada script roda com `uv run src/scripts/<nome>.py` e segue o mesmo esquema: ler as opções (`argparse`), ler o config, carregar o split, chamar a biblioteca `ir`, gravar em `result/tp2/` e imprimir um resumo.
+Cada script roda com `uv run src/scripts/<nome>.py` e segue o mesmo esquema: ler as opções (`argparse`), ler o config, carregar o split, chamar a biblioteca `ir`, gravar em `results/` e imprimir um resumo.
 
 == Ordem de execução
 

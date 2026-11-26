@@ -346,9 +346,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 NFCORPUS_DIR = DEFAULT_DATA_DIR
-RESULTS_DIR = PROJECT_ROOT / "result" / "tp2"
+RESULTS_DIR = PROJECT_ROOT / "results"
 EMBEDDINGS_DIR = DATA_DIR / "embeddings"
-PLOTS_DIR = PROJECT_ROOT / "plots" / "tp2"
 CONFIG_PATH = PROJECT_ROOT / "config" / "tp2_experiment.json"
 
 LEXICAL_RESULTS_PATH = RESULTS_DIR / "results_lexical.csv"

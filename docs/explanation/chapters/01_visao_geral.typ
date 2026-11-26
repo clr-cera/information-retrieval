@@ -23,7 +23,7 @@ documentos ───────┤                                             
   [RAG], [Dar os 5 melhores documentos a uma LLM para ela responder com base neles.], [@cap-rag],
 )
 
-Todas as etapas estão implementadas e executadas; só a avaliação humana das respostas do RAG depende do grupo (ver `docs/PENDENCIAS.md`).
+Todas as etapas estão implementadas, executadas e avaliadas.
 
 == O conjunto de dados: NFCorpus
 

@@ -1,14 +1,14 @@
 """RAG experiment (requirements 11 and 12): the same LLM answers the 10 fixed test questions
 without RAG (condition A) and with RAG (condition B, top-5 documents after reranking).
 
-The top-5 documents are read from result/tp2/results_reranking.csv, the final ranking of the
+The top-5 documents are read from results/results_reranking.csv, the final ranking of the
 retrieval pipeline (hybrid RRF + cross-encoder). Run run_retrieval_pipeline.py first.
 
 Outputs:
-- result/tp2/rag_experiment.csv: one row per (query, condition), with the prompt, the context
+- results/rag_experiment.csv: one row per (query, condition), with the prompt, the context
   documents and the answer. The four scores stay "N/A" until the human evaluation is merged
   by evaluate_rag.py;
-- result/tp2/rag_generations.json: time and number of tokens of each answer.
+- results/rag_generations.json: time and number of tokens of each answer.
 
 The answers are written after each call, so an interrupted run keeps what was already done.
 """

@@ -10,7 +10,7 @@ the final result files. It selects:
 For each query it lists the documents of the top-10 after reranking and the relevant documents
 that were in the hybrid top-10, with the position before and after, the cross-encoder score,
 the relevance grade, whether the (query, document) pair is longer than the cross-encoder limit,
-and the title. The output goes to result/tp2/reranking_analysis.md.
+and the title. The output goes to results/reranking_analysis.md.
 """
 
 from __future__ import annotations

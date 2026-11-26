@@ -1,6 +1,6 @@
 """Check and summarize the typo-correction experiment (requirement 4).
 
-Reads result/tp2/typo_experiment.csv (written by run_typo.py) and:
+Reads results/typo_experiment.csv (written by run_typo.py) and:
 
 1. checks the rules of the assignment for every query:
    - the original query has NDCG@10 > 0;
@@ -11,7 +11,7 @@ Reads result/tp2/typo_experiment.csv (written by run_typo.py) and:
    documents of the original query and of the query with the error, so the
    report can explain the difference with real data.
 
-The output is a Markdown file (result/tp2/typo_analysis.md) and the same text
+The output is a Markdown file (results/typo_analysis.md) and the same text
 is printed on the screen.
 """
 

@@ -17,8 +17,8 @@
 │   └── tests/                 testes (pytest), um arquivo por módulo
 ├── config/tp2_experiment.json configuração experimental congelada
 ├── data/                      dataset e cache de embeddings (gerados, fora do git)
-├── result/tp2/                resultados (os finais são versionados)
-├── docs/                      enunciado, checklist, pendências, histórico, relatório e esta explicação
+├── results/                   resultados (todos versionados, fazem parte da entrega)
+├── docs/                      enunciado, relatório e esta explicação
 ├── tp1/                       Trabalho Prático 1 arquivado
 ├── pyproject.toml, uv.lock    dependências e versões exatas
 ```
@@ -66,19 +66,19 @@ O `pyproject.toml` declara o pacote `ir` dentro de `src/`. O comando `uv sync` c
 
 == Pastas geradas e documentação
 
-`data/` fica fora do git (grande e regenerável). Em `result/tp2/`, os arquivos finais são versionados, porque fazem parte da entrega.
+`data/` fica fora do git (grande e regenerável). Em `results/`, os arquivos são versionados, porque fazem parte da entrega.
 
 #tabela(
   (auto, 1fr),
   [*Caminho*], [*Conteúdo*],
   [`data/nfcorpus/`], [O dataset e `SOURCE.txt` (de onde foi baixado).],
   [`data/embeddings/<modelo>/`], [Cache dos embeddings: matriz 3.633 × 384, ordem dos documentos e metadados.],
-  [`result/tp2/results_*.csv`], [Os 100 primeiros documentos de cada consulta, para cada sistema.],
-  [`result/tp2/metrics_per_query.csv`], [P\@10, R\@10, AP\@10 e NDCG\@10 por consulta e por sistema.],
-  [`result/tp2/typo_experiment.csv`, `rag_experiment.csv`], [O experimento de erros ortográficos e as 20 respostas do RAG.],
-  [`result/tp2/*_tuning_dev.csv`], [Os ajustes no dev.],
-  [`result/tp2/*_stats.json`, `*_analysis.md`, `rag_stage_trace.md`], [Estatísticas, tempos e análises por consulta usadas no relatório.],
-  [`result/tp2/rag_avaliacao/`], [Planilhas da avaliação humana, documentos por consulta e a chave.],
+  [`results/results_*.csv`], [Os 100 primeiros documentos de cada consulta, para cada sistema.],
+  [`results/metrics_per_query.csv`], [P\@10, R\@10, AP\@10 e NDCG\@10 por consulta e por sistema.],
+  [`results/typo_experiment.csv`, `rag_experiment.csv`], [O experimento de erros ortográficos e as 20 respostas do RAG.],
+  [`results/*_tuning_dev.csv`], [Os ajustes no dev.],
+  [`results/*_stats.json`, `*_analysis.md`, `rag_stage_trace.md`], [Estatísticas, tempos e análises por consulta usadas no relatório.],
+  [`results/rag_avaliacao/`], [Planilhas da avaliação humana, documentos por consulta e a chave.],
 )
 
-Em `docs/`: `enunciado_tp2.pdf`, `TP2_CHECKLIST.md` (cada requisito, feito ou pendente), `PENDENCIAS.md` (o que falta, passo a passo), `AVALIACAO_HUMANA_RAG.md` (guia da avaliação), `changes.md` (histórico), `experiment_protocol.md` (regras dos splits), `report/` (o relatório) e `explanation/` (este documento).
+Em `docs/`: `enunciado_tp2.pdf`, `report/` (o relatório) e `explanation/` (este documento).

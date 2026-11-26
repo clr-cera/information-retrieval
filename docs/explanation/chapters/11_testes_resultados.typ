@@ -37,6 +37,3 @@ Configuração final: stopwords + stemming; BM25 com $k_1 = "1,2"$ e $b = "0,75"
 
 Erros ortográficos: NDCG\@10 de 0,4706 → 0,1625 → 0,4706 (original, com erro, corrigida). RAG: P\@5 = 0,44, Hit\@5 = 0,90, citações sempre entre os documentos enviados.
 
-== O que ainda falta
-
-Só a revisão final do relatório e a entrega (ver `docs/PENDENCIAS.md`).

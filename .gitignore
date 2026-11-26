@@ -2,22 +2,11 @@
 __pycache__/
 *.py[codz]
 *$py.class
-# Resultados: gerados pelos scripts. Os arquivos finais do TP2 exigidos pelo enunciado
-# são versionados, porque fazem parte da entrega; o resto (pastas auxiliares) fica fora.
-/result/*
-!/result/tp2/
-/result/tp2/*
-!/result/tp2/results_lexical.csv
-!/result/tp2/results_semantic.csv
-!/result/tp2/results_hybrid.csv
-!/result/tp2/results_reranking.csv
-!/result/tp2/metrics_per_query.csv
-!/result/tp2/typo_experiment.csv
-!/result/tp2/rag_experiment.csv
-!/result/tp2/*.json
-!/result/tp2/*_tuning_dev.csv
-!/result/tp2/*.md
-!/result/tp2/rag_retrieval_metrics.csv
+# Resultados: todos os arquivos de results/ fazem parte da entrega e são versionados.
+# Subpastas geradas por execuções auxiliares (por exemplo results/dev/) ficam fora,
+# exceto results/rag_avaliacao/ (planilhas da avaliação humana do RAG).
+/results/*/
+!/results/rag_avaliacao/
 /data/
 *.zip
 
@@ -235,4 +224,3 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-!/result/tp2/rag_avaliacao/
