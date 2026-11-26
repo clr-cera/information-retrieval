@@ -21,20 +21,16 @@
       [PLAIN-1183], [Finland], [finland → filand], [remoção], [0,2895], [0,0000], [0,2895], [1,00],
     )
   },
-  caption: [NDCG\@10 do sistema lexical para a consulta original, com erro e corrigida, e a recuperação. "—" indica que o erro não reduziu o NDCG\@10.],
+  caption: [NDCG\@10 do sistema lexical para a consulta original, com erro e corrigida, e a recuperação.],
 ) <tab-typo-results>
 
 Foram usados os quatro tipos de erro (3 inserções, 3 remoções, 2 substituições e 2 trocas), todos a uma ou duas edições do termo original. O NDCG\@10 médio caiu de 0,4706 para 0,1625 com o erro e voltou a 0,4706 após a correção. O corretor recuperou o termo original nas 10 consultas, sem alterar outros termos, e a recuperação foi de 100% nas 8 consultas em que o erro reduziu o desempenho.
 
-*Impacto do erro.* Em 7 consultas, o NDCG\@10 caiu a zero, porque as consultas são curtas e o erro atinge o termo mais específico:
-
-- nas quatro consultas de um único termo (ECMO, ergothioneine, fenugreek e Finland), a consulta fica sem nenhum termo do vocabulário, e nada é recuperado;
-- em `domoic acid` e `Evidence-based medicine`, sobra só um termo genérico (`acid`, `medicin`);
-- em `Stopping Heart Disease in Childhood`, restam termos gerais, e o único relevante do top-10 sai.
+Em 7 consultas, o NDCG\@10 caiu a zero, porque as consultas são curtas e o erro atinge o termo mais específico.
 
 Em `Food Dyes and ADHD`, a queda foi pequena (0,4027 → 0,3703), porque `dye` e `adhd` continuam trazendo relevantes.
 
-*Erros que melhoraram o resultado.* Nas duas trocas de ordem, a consulta com erro foi *melhor* que a original, porque o termo que deixou de existir prejudicava o ranking:
+Nas duas trocas de ordem abaixo, a consulta com erro foi *melhor* que a original, porque o termo que deixou de existir prejudicava o ranking:
 
 - *`factory farming practices`:* `practic` aparece em 183 documentos, só 13 deles relevantes. Sem esse termo, o top-10 passa de 5 para 7 relevantes.
 - *`endocrine disruptors`:* `disruptor` é raro (13 documentos) e, com IDF alto, domina o score, mas só 4 desses documentos são relevantes. Sem ele, o top-10 passa de 3 para 5 relevantes.

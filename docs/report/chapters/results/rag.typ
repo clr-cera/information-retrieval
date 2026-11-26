@@ -26,7 +26,7 @@ A @tab-rag-retrieval mostra a qualidade dos 5 documentos enviados à LLM e a mel
       table.cell(colspan: 7)[*Média*], [*0,44*], [*0,106*], [*0,90*],
     )
   },
-  caption: [Recuperação para o RAG. "Rel.": relevantes nos qrels; "Lex.", "Sem.", "Híb." e "Rer.": melhor posição de um relevante no lexical, semântico, híbrido e após o reranking.],
+  caption: [Recuperação para o RAG.],
 ) <tab-rag-retrieval>
 
 Em 9 das 10 consultas, ao menos um relevante chegou ao contexto (Hit\@5 = 0,9), e em média 2,2 dos 5 documentos enviados são relevantes. O R\@5 baixo (0,106) é esperado, porque as consultas têm em média cerca de 44 relevantes. Na PLAIN-238, o reranking foi decisivo, levando o melhor relevante de 11º para 2º. A exceção é a PLAIN-2850, discutida na análise de falhas.
@@ -35,15 +35,15 @@ Em 9 das 10 consultas, ao menos um relevante chegou ao contexto (Hit\@5 = 0,9), 
 
 As respostas das duas condições têm tamanhos parecidos (123 e 124 palavras em média).
 
-- *Condição B:* todas as respostas citam de 1 a 4 documentos, e todos estão entre os enviados (nenhuma fonte inventada). Duas delas (PLAIN-2850 e PLAIN-3342) declaram que falta evidência para parte da pergunta.
-- *Condição A:* nenhuma resposta indica fontes, o que impede verificar as afirmações.
+- *Com RAG:* todas as respostas citam de 1 a 4 documentos, e todos estão entre os enviados (nenhuma fonte inventada). Duas delas (PLAIN-2850 e PLAIN-3342) declaram que falta evidência para parte da pergunta.
+- *Sem RAG:* nenhuma resposta indica fontes, o que impede verificar as afirmações.
 
-Para apoiar a avaliação, as afirmações principais de cada resposta foram comparadas com os 5 documentos da consulta, numa ficha de evidências sem notas e sem a condição (`result/tp2/rag_avaliacao/ficha_evidencias.md`, elaborada com apoio de IA e conferida pelo grupo). A comparação mostra duas diferenças claras entre as condições:
+Para apoiar a avaliação, as afirmações principais de cada resposta foram comparadas com os 5 documentos da consulta, numa ficha de evidências sem notas e sem a condição (`result/tp2/rag_avaliacao/ficha_evidencias.md`, elaborada com apoio de IA e conferida). A comparação mostra duas diferenças claras entre as condições:
 
-- *Sem RAG, três respostas contradizem os documentos em afirmações centrais.* Na PLAIN-2750, a LLM diz que a maioria dos estudos não mostra redução de resfriados com probióticos, contra três documentos que mostram essa redução. Na PLAIN-2470, diz que o leite faz bem aos ossos, mas os três estudos sobre leite e fraturas enviados (MED-1337, MED-1340 e MED-1338) não encontram menos fraturas com mais leite. Na PLAIN-68, descreve nuggets feitos principalmente de frango, enquanto o MED-2991 mostra que a carne não é o componente predominante. Nas demais, há conselhos genéricos sem apoio no contexto, números não verificáveis e, na PLAIN-238, uma fonte externa ("a OMS") que não pode ser conferida. Na PLAIN-270 e na PLAIN-2450, a conclusão sem RAG coincide com a dos documentos.
-- *Com RAG, as afirmações principais podem ser associadas aos documentos citados, mas há imprecisões e omissões pontuais.* A resposta da PLAIN-2850 trata carne bovina como "dark meat"; a da PLAIN-2750 diz que a gravidade do resfriado caiu de forma significativa, quando só os sintomas faríngeos tiveram redução significativa; e a da PLAIN-2430 junta numa frase dois resultados distintos do MED-994. Documentos relevantes do contexto às vezes ficam de fora: o MED-1338 (mais fraturas em mulheres com consumo alto de leite) e a revisão Cochrane MED-3680 (probióticos e infecções respiratórias) não são usados.
+- *Sem RAG, três respostas contradizem os documentos.* Na PLAIN-2750, a LLM diz que a maioria dos estudos não mostra redução de resfriados com probióticos, contra três documentos que mostram essa redução. Na PLAIN-2470, diz que o leite faz bem aos ossos, mas os três estudos sobre leite e fraturas enviados (MED-1337, MED-1340 e MED-1338) não encontram menos fraturas com mais leite. Na PLAIN-68, descreve nuggets feitos principalmente de frango, enquanto o MED-2991 mostra que a carne não é o componente predominante. Nas demais, há conselhos genéricos sem apoio no contexto, números não verificáveis e, na PLAIN-238, uma fonte externa ("a OMS") que não pode ser conferida. Na PLAIN-270 e na PLAIN-2450, a conclusão sem RAG coincide com a dos documentos.
+- *Com RAG, as afirmações principais podem ser associadas aos documentos citados, mas há imprecisões.* A resposta da PLAIN-2850 trata carne bovina como "dark meat"; a da PLAIN-2750 diz que a gravidade do resfriado caiu de forma significativa, quando só os sintomas faríngeos tiveram redução significativa; e a da PLAIN-2430 junta numa frase dois resultados distintos do MED-994. Documentos relevantes do contexto às vezes ficam de fora: o MED-1338 (mais fraturas em mulheres com consumo alto de leite) e a revisão Cochrane MED-3680 (probióticos e infecções respiratórias) não são usados.
 
-Cada resposta recebeu notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, cada uma com justificativa. As 20 respostas foram embaralhadas (seed 42) e apresentadas sem a condição, junto com os 5 documentos de cada consulta. Na condição A, a fidelidade é julgada contra os mesmos 5 documentos, e a rastreabilidade é N/A e excluída da média. O *avaliador 1* é uma integrante do grupo (Clara Ernesto de Carvalho), que avaliou sem a chave das condições; as notas finais, gravadas no `rag_experiment.csv`, são as dela. O *avaliador 2* é um LLM (Claude, pelo Claude Code), com os mesmos critérios. Ela não foi cega, porque o modelo conhecia as condições e havia elaborado a ficha de evidências, e serve só para medir a concordância.
+Cada resposta recebeu notas 0, 1 ou 2 em fidelidade, completude, utilidade e rastreabilidade, cada uma com justificativa. As 20 respostas foram embaralhadas (seed 42) e apresentadas sem a condição, junto com os 5 documentos de cada consulta. Nas respostas sem RAG, a fidelidade é julgada contra os mesmos 5 documentos, e a rastreabilidade é N/A e excluída da média. Ariel atuou como *avaliador 1*, e Clara atuou como *avaliador 2*.
 
 #figure(
   {
@@ -53,18 +53,16 @@ Cada resposta recebeu notas 0, 1 ou 2 em fidelidade, completude, utilidade e ras
       columns: (1fr, auto, auto, auto, auto, auto),
       align: (left, right, right, right, right, right),
       table.header(table.cell(rowspan: 2)[*Critério*], table.cell(colspan: 2)[*Avaliador 1*], table.cell(colspan: 2)[*Avaliador 2*], table.cell(rowspan: 2)[*Concordância exata*],
-        [*Sem RAG (A)*], [*Com RAG (B)*], [*Sem RAG (A)*], [*Com RAG (B)*]),
+        [*Sem RAG*], [*Com RAG*], [*Sem RAG*], [*Com RAG*]),
       [Fidelidade], [0,60], [2,00], [0,50], [1,90], [90% (20 pares)],
       [Completude], [1,70], [1,90], [1,10], [1,70], [60% (20 pares)],
       [Utilidade], [1,80], [1,80], [1,10], [1,70], [60% (20 pares)],
       [Rastreabilidade], [N/A], [2,00], [N/A], [2,00], [100% (10 pares)],
     )
   },
-  caption: [Médias das notas (0 a 2) por condição e concordância entre os avaliadores.],
+  caption: [Médias das notas (0 a 2) entre os avaliadores.],
 ) <tab-rag-human>
 
-*Fidelidade é onde o RAG faz diferença* (0,60 → 2,00 para o avaliador 1). Sem RAG, nenhuma resposta teve nota 2: quatro tiveram 0 (PLAIN-68, PLAIN-2850, PLAIN-2750 e PLAIN-3342), e as demais tiveram 1, por misturar conclusões compatíveis com os documentos e detalhes sem apoio. Com RAG, todas as respostas tiveram nota 2, e a rastreabilidade também foi máxima, o que confirma a comparação das afirmações acima. Na condição A, a falta de fontes significa que quem lê não tem como separar o que é correto do que é inventado: as respostas soam igualmente seguras nos dois casos.
+O RAG faz diferença na fidelidade. Sem RAG, nenhuma resposta teve nota alta: quatro tiveram 0 (PLAIN-68, PLAIN-2850, PLAIN-2750 e PLAIN-3342), e as demais tiveram 1, por misturar conclusões compatíveis com os documentos e detalhes sem apoio. Com RAG, todas as respostas tiveram nota 2, e a rastreabilidade também foi máxima, o que confirma a comparação das afirmações acima. Sem RAG, a falta de fontes significa que quem lê não tem como separar o que é correto do que é inventado: as respostas soam igualmente seguras nos dois casos.
 
-*Completude e utilidade quase não mudam* (1,70 → 1,90 e 1,80 → 1,80). As respostas sem RAG são diretas e cobrem o assunto, ainda que sem base, e por isso foram vistas como úteis. Com RAG, a utilidade cai justamente quando a LLM declara que o contexto não basta (PLAIN-2850 e PLAIN-3342, nota 1): a resposta fica mais honesta, mas não responde à pergunta. O ganho do RAG neste experimento está na *verificabilidade*, e não em respostas mais completas.
-
-*Concordância.* A fidelidade teve 90% de notas iguais, e a rastreabilidade, 100%. Completude e utilidade tiveram 60%. Todas as 18 discordâncias têm a mesma direção: o avaliador 2 deu a nota mais baixa. Em 14 delas, a resposta era da condição A: o avaliador 2 penalizou a completude e a utilidade de respostas sem sustentação, enquanto o avaliador 1 julgou esses critérios de forma independente da fidelidade. Essa diferença de interpretação aparece também nas médias do avaliador 2, que veem um ganho do RAG em todos os critérios. A concordância deve ser lida com uma ressalva: a ficha de evidências, disponível ao avaliador 1, foi elaborada pelo mesmo modelo que atuou como avaliador 2, o que tende a aproximar as notas.
+A completude e utilidade quase não mudam. As respostas sem RAG são diretas e cobrem o assunto, ainda que sem base, e por isso foram vistas como úteis. Com RAG, a utilidade cai justamente quando a LLM declara que o contexto não basta (PLAIN-2850 e PLAIN-3342, nota 1): a resposta fica mais honesta, mas não responde à pergunta. O ganho do RAG neste experimento está na *verificabilidade*, e não em respostas mais completas.

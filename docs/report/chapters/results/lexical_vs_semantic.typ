@@ -16,14 +16,16 @@
       [Híbrido + reranking], [0,2505], [*0,1679*], [*0,1382*], [*0,3557*],
     )
   },
-  caption: [Os quatro sistemas no conjunto test (323 consultas). O híbrido e o reranking são discutidos nas suas seções.],
+  caption: [Os quatro sistemas no conjunto test.],
 ) <tab-all-systems>
 
-Nas médias, o lexical e o semântico são muito próximos: o semântico tem P\@10, R\@10 e NDCG\@10 um pouco maiores, e o MAP\@10 é praticamente igual. O R\@10 é baixo nos dois porque as consultas têm, em média, 38 relevantes. Por consulta, porém, as diferenças são grandes: o semântico vence em 109 consultas, o lexical em 106, e há 108 empates, 77 deles com NDCG\@10 zero nos dois sistemas. Como cada sistema acerta consultas diferentes, combinar os rankings tende a ajudar, o que motiva a busca híbrida.
+Nas médias, o lexical e o semântico são muito próximos: o semântico tem P\@10, R\@10 e NDCG\@10 um pouco maiores, e o MAP\@10 é praticamente igual. O R\@10 é baixo nos dois, indicando que eles têm menor capacidade de rankear documentos relevantes. O semântico vence em 109 consultas, o lexical em 106, e há 108 empates, 77 deles com NDCG\@10 zero nos dois sistemas. Como cada sistema acerta consultas diferentes, combinar os rankings tende a ajudar, o que faz a busca híbrida ser a melhor opção.
 
 === Análise por consulta
 
-Foram selecionadas as 3 consultas de maior e as 3 de menor $Delta = "NDCG@10"_"semântico" - "NDCG@10"_"lexical"$ (script `analyze_lexical_vs_semantic.py`). Em cada tabela, uma célula traz o documento, o grau de relevância entre parênteses (relevantes em negrito) e o score (BM25 ou cosseno); "—" indica posição vazia.
+Foram selecionadas as 3 consultas de maior e as 3 de menor variação $Delta =  "NDCG@10"_"semântico" - "NDCG@10"_"lexical"$ (script `analyze_lexical_vs_semantic.py`). Em cada tabela, uma linha traz o documento, o grau de relevância entre parênteses (se for relevante, está em negrito) e o score (BM25 ou cosseno); "--" indica posição vazia.
+
+A correção ortográfica não é aplicada nesta comparação.
 
 #let top5(..linhas) = {
   set par(justify: false)
@@ -49,7 +51,7 @@ Foram selecionadas as 3 consultas de maior e as 3 de menor $Delta = "NDCG@10"_"s
   ([5], [MED-1777 (0) 10,32], [MED-3990 (0) 0,648]),
 )
 
-O "D" de "Vitamin D" é removido como stopword, e sobram `vitamin`, `shed`, `light`, `new` e `recommend`. O termo `shed` está em só 13 documentos e tem IDF alto. Por isso, o BM25 favorece documentos que usam a expressão figurada "shed light" em outros temas, como MED-3099 (receptores de hidrocarbonetos) e MED-1579 (doença de Crohn): um caso de *ambiguidade*. O bi-encoder representa o sentido da frase inteira e coloca em 1º e 4º os dois documentos de grau 2, que o BM25 deixa em 25º e 12º.
+O "D" de "Vitamin D" é removido como stopword, e sobram `vitamin`, `shed`, `light`, `new` e `recommend`. O termo `shed` está em só 13 documentos e tem IDF alto. Por isso, o BM25 favorece documentos que usam a expressão "shed light" em outros temas, como MED-3099 (receptores de hidrocarbonetos) e MED-1579 (doença de Crohn). Isso é um caso de ambiguidade semântica. O bi-encoder consegue captar o sentido da frase inteira e coloca em 1º e 4º os dois documentos de grau 2, que o BM25 deixa em 25º e 12º.
 
 *PLAIN-1537 — "low-carb diets"* ($Delta = +"0,66"$; lexical 0,0000, semântico 0,6618; 45 relevantes).
 
@@ -61,7 +63,7 @@ O "D" de "Vitamin D" é removido como stopword, e sobram `vitamin`, `shed`, `lig
   ([5], [MED-3786 (0) 2,55], [*MED-2586 (1)* 0,558]),
 )
 
-*Variação de vocabulário* agravada pela tokenização. A consulta vira `lowcarb` e `diet`, mas os relevantes escrevem "low-carbohydrate", que vira outro termo (`lowcarbohydr`). O termo `lowcarb` só existe no MED-4880, não relevante, que recebe score 17,07. Os demais documentos dependem só de `diet`, presente em 1.029 documentos e com IDF baixo, e só 25 dos 45 relevantes contêm algum termo da consulta. O bi-encoder associa "low-carb" a "low-carbohydrate": 4 dos 5 primeiros são relevantes, e 3 deles estão fora dos 100 primeiros do BM25.
+A consulta vira `lowcarb` e `diet`, mas os relevantes escrevem "low-carbohydrate", que vira outro termo (`lowcarbohydr`). O termo `lowcarb` só existe no MED-4880, não relevante, que recebe score 17,07. Os demais documentos dependem só de `diet`, presente em 1.029 documentos e com IDF baixo, e só 25 dos 45 relevantes contêm algum termo da consulta. O bi-encoder associa "low-carb" a "low-carbohydrate": 4 dos 5 primeiros são relevantes, e 3 deles estão fora dos 100 primeiros do BM25.
 
 *PLAIN-418 — "Fresh fruit versus frozen--which is better?"* ($Delta = +"0,66"$; lexical 0,2057, semântico 0,8671; 3 relevantes).
 
@@ -87,7 +89,7 @@ A tokenização junta "frozen--which" em `frozenwhich`, que não existe na cole�
   ([5], [—], [MED-5024 (0) 0,213]),
 )
 
-*Termo técnico raro*: `kohlrabi` aparece em um único documento, justamente o relevante, que o BM25 põe em 1º. O bi-encoder divide a palavra em pedaços sem significado (`ko`, `##hl`, `##ra`, `##bi`). A sua maior similaridade é baixa (0,22, contra 0,30 a 0,74 nas outras cinco consultas) e aponta para extratos de hibisco e algas. O relevante trata de brócolis e cita "kohlrabi" só duas vezes. A primeira ocorrência está dentro dos 256 tokens lidos, então a falha não vem do truncamento. Provavelmente, o embedding médio representa o tema principal do documento, e não uma palavra citada de passagem; o documento fica fora dos 100 primeiros do semântico.
+`kohlrabi` é um termo muito raro, e aparece em um único documento, justamente o relevante, que o BM25 põe em 1º. O bi-encoder é incapaz de dar significado à palavra, por ser muito rara. A sua maior similaridade é baixa (0,22, contra 0,30 a 0,74 nas outras cinco consultas) e aponta para extratos de hibisco e algas. O relevante trata de brócolis e cita "kohlrabi" só duas vezes.
 
 *PLAIN-1288 — "grapes"* ($Delta = -"0,76"$; lexical 0,8900, semântico 0,1299; 196 relevantes).
 
@@ -99,7 +101,7 @@ A tokenização junta "frozen--which" em `frozenwhich`, que não existe na cole�
   ([5], [*MED-5065 (1)* 8,76], [MED-2083 (0) 0,414]),
 )
 
-*Ambiguidade* criada pelas subpalavras. O tokenizador divide "grapefruit" em `grape`, `##fr`, `##uit`, e os quatro primeiros documentos do semântico são sobre toranja, nenhum relevante. No índice lexical, `grape` e `grapefruit` são termos diferentes, e o BM25 traz documentos sobre uva e suco de uva (4 relevantes no top-5).
+Houve uma confusão entre palavras parecidas aqui. Os quatro primeiros documentos do semântico tratam de toranja (_grapefruit_), e nenhum é relevante. Para o bi-encoder, "grapes" e "grapefruit" ficam próximos porque começam da mesma forma, embora sejam frutas diferentes. As similaridades do top-5 também quase não variam (de 0,426 a 0,414): com uma consulta de uma só palavra, o modelo tem pouco contexto para separar os documentos. No índice lexical, `grape` e `grapefruit` são termos distintos, então o BM25 só pontua documentos que contêm `grape` e traz documentos sobre uva e suco de uva (4 relevantes no top-5).
 
 *PLAIN-792 — "cadaverine"* ($Delta = -"0,54"$; lexical 0,6448, semântico 0,1009; 6 relevantes).
 
@@ -111,6 +113,6 @@ A tokenização junta "frozen--which" em `frozenwhich`, que não existe na cole�
   ([5], [—], [MED-1041 (0) 0,257]),
 )
 
-*Termo técnico*: o radical `cadaverin` está em só 3 documentos, todos relevantes, e o BM25 recupera exatamente esses três. O tokenizador divide "cadaverine" em `cad`, `##aver`, `##ine`, os mesmos pedaços de "cadaver" (cadáver). O bi-encoder traz documentos sobre carcaças bovinas e medicina no Egito antigo, e os relevantes MED-4958 e MED-4546 ficam em 7º e 14º.
+O radical `cadaverin` está em só 3 documentos, todos relevantes, e o BM25 recupera exatamente esses três. O bi-encoder traz documentos sobre carcaças bovinas e medicina no Egito antigo, e os relevantes MED-4958 e MED-4546 ficam em 7º e 14º. Novamente, o BM25 ganha em termos específicos.
 
-*Síntese.* O semântico vence quando a correspondência exata falha: variação de vocabulário e abreviações (low-carb × low-carbohydrate), formas da mesma palavra que o stemming não une (frozen × freezing) e termos perdidos no pré-processamento ("D", "frozen--which"). O lexical vence com termos técnicos raros (kohlrabi, cadaverine), de IDF alto, que o bi-encoder divide em pedaços que coincidem com outras palavras (grape × grapefruit, cadaverine × cadaver). A ambiguidade prejudica os dois: "shed light" atrapalha o BM25, e as subpalavras atrapalham o bi-encoder.
+*Conclusão:* O semântico vence quando a correspondência exata falha: variação de vocabulário e abreviações (low-carb × low-carbohydrate), formas da mesma palavra que o stemming não une (frozen × freezing) e termos perdidos no pré-processamento ("D", "frozen--which"). O lexical vence com termos técnicos raros (kohlrabi, cadaverine), de IDF alto, que o bi-encoder divide em pedaços que coincidem com outras palavras (grape × grapefruit, cadaverine × cadaver).

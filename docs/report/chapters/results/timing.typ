@@ -14,8 +14,8 @@
       [Consulta semântica (embedding da consulta + produto)], [158 ms], [por consulta],
       [Fusão RRF], [0,07 ms], [por consulta],
       [Reranking dos 50 candidatos], [4,09 s], [por consulta],
-      [Geração sem RAG (condição A)], [61 s], [por pergunta],
-      [Geração com RAG (condição B)], [235 s], [por pergunta],
+      [Geração sem RAG], [61 s], [por pergunta],
+      [Geração com RAG], [235 s], [por pergunta],
     )
   },
   caption: [Tempos médios no conjunto test, em CPU (AMD Ryzen 7 5700U, 14 GB de RAM, sem GPU).],
